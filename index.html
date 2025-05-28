@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simple Layer Control Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leaflet Layer Control with Async GeoJSON</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     html, body, #map {
@@ -21,40 +21,50 @@
 <script>
   const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-  // Base layer
+  // Add base layer
   const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
   }).addTo(map);
-
-  // Declare overlays object
-  const overlays = {};
 
   const layersToLoad = [
     { name: "Flood Zone 2", file: "points.geojson" },
     { name: "Flood Zone 3", file: "points.geojson" },
-    { name: "SUDS Areas", file: "points.geojson" },
-    // Add up to 10 layers or more
+    { name: "SUDS Areas", file: "points.geojson" }
   ];
 
-  layersToLoad.forEach(({ name, file }) => {
+  const overlays = {};
+  const loadPromises = [];
+
+  layersToLoad.forEach(({name, file}, index) => {
     const layer = L.geoJSON(null, {
-      onEachFeature: function (feature, layer) {
+      onEachFeature: (feature, layer) => {
         const label = feature.properties?.name || name;
         layer.bindPopup(label);
       }
     });
 
-    // Load the GeoJSON
-    fetch(`Data/${file}`)
+    const p = fetch(`Data/${file}`)
       .then(res => res.json())
-      .then(data => layer.addData(data));
+      .then(data => {
+        layer.addData(data);
 
-    overlays[name] = layer;
+        // Add first layer to the map by default
+        if (index === 0) {
+          layer.addTo(map);
+        }
+
+        overlays[name] = layer;
+      });
+
+    loadPromises.push(p);
   });
 
-  // Add simple layer control
-  L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+  Promise.all(loadPromises).then(() => {
+    // Add layer control after all layers are loaded
+    L.control.layers({ "OpenStreetMap": baseLayer }, overlays, { collapsed: false }).addTo(map);
+  });
+
 </script>
 
 </body>
