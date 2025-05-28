@@ -60,6 +60,7 @@
     //    style: { color: 'green' }
     //  }).addTo(map);
     //});
+  
   // EA Flood Zone WMS Layer
   const floodZones = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
     layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_3',
@@ -70,7 +71,7 @@
 
   // Layer Control
   const overlayMaps = {
-    "Local Points": localPoints,
+    "Local Points": points,
     "Flood Zone 3 (EA)": floodZones
   };
 
