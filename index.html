@@ -113,54 +113,58 @@
   ];
 
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
-    const layer = L.geoJSON(null, {
-      style: label ? feature => ({
-        color: "#0000ff",
-        weight: 2,
-        fillColor: "#0000ff",
-        fillOpacity: 0.1
-      }) : undefined,
-      onEachFeature: function(feature, layerInstance) {
-        const props = feature.properties || {};
+  const layer = L.geoJSON(null, {
+    style: label ? feature => ({
+      color: "#0000ff",      // Outline color
+      weight: 2,             // Border thickness
+      fillColor: "#0000ff",  // Fill color
+      fillOpacity: 0.1       // Transparent fill
+    }) : undefined,
 
-        if (feature.geometry.type === "Point") {
-          // Create popup content with bold name, description, and image if present
-          const name = props.name || "No Name";
-          const desc = props.description || "";
-          const imgUrl = props.image || "";
+    pointToLayer: icon ? function(feature, latlng) {
+      return L.marker(latlng, { icon: icon });
+    } : undefined,
 
-          let popupContent = `<strong>${name}</strong><br>${desc}`;
-          if (imgUrl) {
-            popupContent += `<br><img class="popup-image" src="${imgUrl}" alt="${name}">`;
-          }
-          layerInstance.bindPopup(popupContent);
+    onEachFeature: function(feature, layerInstance) {
+      const props = feature.properties || {};
+      const nameProp = props.name || "No Name";
+      const desc = props.description || "";
+      const imgUrl = props.image || "";
 
-        } else if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
-          // Permanent label for polygons
-          const labelText = props.id || props.name || name;
-          layerInstance.bindTooltip(labelText, {
-            permanent: true,
-            direction: "center",
-            className: "polygon-label"
-          });
+      // Popup content for points
+      if (feature.geometry.type === "Point") {
+        let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+        if (imgUrl) {
+          popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" style="width:100%;max-width:300px;margin-top:5px;border-radius:4px;">`;
         }
+        layerInstance.bindPopup(popupContent);
       }
-    });
 
-    // Fetch GeoJSON, add data to layer, add first layer to map by default
-    const p = fetch(file)
-      .then(res => res.json())
-      .then(data => {
-        layer.addData(data);
-        if (index === 0) {
-          layer.addTo(map);
-        }
-        overlays[name] = layer;
-      })
-      .catch(error => console.error(`Error loading ${file}:`, error));
-
-    loadPromises.push(p);
+      // Tooltip for polygons
+      if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
+        const labelText = props.id || props.name || name;
+        layerInstance.bindTooltip(labelText, {
+          permanent: true,
+          direction: "center",
+          className: "polygon-label"
+        });
+      }
+    }
   });
+
+  const p = fetch(file)
+    .then(res => res.json())
+    .then(data => {
+      layer.addData(data);
+      if (index === 0) {
+        layer.addTo(map);
+      }
+      overlays[name] = layer;
+    })
+    .catch(error => console.error(`Error loading ${file}:`, error));
+
+  loadPromises.push(p);
+});
 
   // Add layer control once all layers loaded
   Promise.all(loadPromises).then(() => {
