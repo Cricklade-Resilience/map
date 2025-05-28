@@ -6,7 +6,7 @@
       "properties": {
         "name": "Cricklade High Street",
 	"description": "Opening Hours: 9am-5pm Mon-Fri",
-	"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
+	"image": "https://check-for-flooding.service.gov.uk/station/7014"
       },
       "geometry": {
         "type": "Point",
