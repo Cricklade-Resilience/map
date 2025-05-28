@@ -38,11 +38,15 @@
 
   layersToLoad.forEach(({name, file}, index) => {
     const layer = L.geoJSON(null, {
-      onEachFeature: (feature, layer) => {
-        const label = feature.properties?.name || name;
-        layer.bindPopup(label);
-      }
+      onEachFeature: function (feature, layer) {
+        const label = feature.properties?.id || "No ID";
+        layer.bindTooltip(label, {
+          permanent: true,
+          direction: "center",
+          className: "polygon-label"
     });
+  }
+
 
     const p = fetch(`Data/${file}`)
       .then(res => res.json())
