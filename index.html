@@ -57,36 +57,45 @@
   const loadPromises = [];
 
   const layersToLoad = [
-    { name: "Flood Zone 2", file: "Data/points.geojson" },
-    { name: "Flood Zone 3", file: "Data/points.geojson" },
-    { name: "SUDS Areas", file: "Data/polygons.geojson" }
-  ];
+  { name: "Flood Zone 2", file: "Data/points.geojson", label: false },
+  { name: "Flood Zone 3", file: "Data/points.geojson", label: false },
+  { name: "SUDS Areas", file: "Data/polygons.geojson", label: true }
+];
 
-  layersToLoad.forEach(({ name, file }, index) => {
-    const layer = L.geoJSON(null, {
-      onEachFeature: function (feature, layer) {
-        const label = feature.properties?.id || feature.properties?.name || name;
-        layer.bindTooltip(label, {
+
+  layersToLoad.forEach(({ name, file, label }, index) => {
+  const layer = L.geoJSON(null, {
+    onEachFeature: function (feature, layerInstance) {
+      const labelText = feature.properties?.id || feature.properties?.name || name;
+
+      if (label) {
+        // Permanent label in the center for polygons
+        layerInstance.bindTooltip(labelText, {
           permanent: true,
           direction: "center",
           className: "polygon-label"
         });
+      } else {
+        // Popup for points
+        layerInstance.bindPopup(labelText);
       }
-    });
-
-    const p = fetch(file)
-      .then(res => res.json())
-      .then(data => {
-        layer.addData(data);
-        if (index === 0) {
-          layer.addTo(map);
-        }
-        overlays[name] = layer;
-      })
-      .catch(error => console.error(`Error loading ${file}:`, error));
-
-    loadPromises.push(p);
+    }
   });
+
+  const p = fetch(file)
+    .then(res => res.json())
+    .then(data => {
+      layer.addData(data);
+      if (index === 0) {
+        layer.addTo(map);
+      }
+      overlays[name] = layer;
+    })
+    .catch(error => console.error(`Error loading ${file}:`, error));
+
+  loadPromises.push(p);
+});
+
 
   Promise.all(loadPromises).then(() => {
     L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
