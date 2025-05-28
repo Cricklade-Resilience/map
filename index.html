@@ -18,6 +18,7 @@
       font-size: 24px;
       color: blue;
       text-shadow: 0 0 2px white;
+    }
 
     .polygon-label {
       background-color: rgba(255, 255, 255, 0.7);
@@ -26,6 +27,20 @@
       font-weight: bold;
       font-size: 12px;
       border: 1px solid #ccc;
+    }
+
+    .locate-button {
+      background-color: white;
+      border: none;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 18px;
+      border-radius: 4px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    }
+
+    .locate-button:hover {
+      background-color: #f0f0f0;
     }
   </style>
 </head>
@@ -57,10 +72,9 @@
     "Greyscale (Carto)": cartoLight,
     "OpenStreetMap": osm,
     "Aerial (Esri)": esriAerial
-    
   };
 
-  / Define the FontAwesome icon for Flood Zone 2
+  // Define the FontAwesome icon for Flood Zone 2
   const faShopIcon = L.divIcon({
     className: 'fa-icon',
     html: '<i class="fa-solid fa-shop"></i>',
@@ -73,11 +87,10 @@
   const loadPromises = [];
 
   const layersToLoad = [
-  { name: "Flood Zone 2", file: "Data/points.geojson", icon:faShopIcon, label: false },
-  { name: "Flood Zone 3", file: "Data/points.geojson", label: false },
-  { name: "SUDS Areas", file: "Data/polygons.geojson", label: true }
-];
-
+    { name: "Flood Zone 2", file: "Data/points.geojson", icon: faShopIcon, label: false },
+    { name: "Flood Zone 3", file: "Data/points.geojson", icon: null, label: false },
+    { name: "SUDS Areas", file: "Data/polygons.geojson", icon: null, label: true }
+  ];
 
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
     const layer = L.geoJSON(null, {
@@ -87,74 +100,72 @@
       onEachFeature: function (feature, layerInstance) {
         const labelText = feature.properties?.id || feature.properties?.name || name;
 
-      if (label) {
-        // Permanent label in the center for polygons
-        layerInstance.bindTooltip(labelText, {
-          permanent: true,
-          direction: "center",
-          className: "polygon-label"
-        });
-      } else {
-        // Popup for points
-        layerInstance.bindPopup(labelText);
+        if (label) {
+          // Permanent label in the center for polygons
+          layerInstance.bindTooltip(labelText, {
+            permanent: true,
+            direction: "center",
+            className: "polygon-label"
+          });
+        } else {
+          // Popup for points
+          layerInstance.bindPopup(labelText);
+        }
       }
-    }
+    });
+
+    const p = fetch(file)
+      .then(res => res.json())
+      .then(data => {
+        layer.addData(data);
+        if (index === 0) {
+          layer.addTo(map);
+        }
+        overlays[name] = layer;
+      })
+      .catch(error => console.error(`Error loading ${file}:`, error));
+
+    loadPromises.push(p);
   });
 
-  const p = fetch(file)
-    .then(res => res.json())
-    .then(data => {
-      layer.addData(data);
-      if (index === 0) {
-        layer.addTo(map);
-      }
-      overlays[name] = layer;
-    })
-    .catch(error => console.error(`Error loading ${file}:`, error));
-
-  loadPromises.push(p);
-});
-
-
- Promise.all(loadPromises).then(() => {
-  L.control.layers(baseMaps, overlays, {
-    collapsed: window.innerWidth <= 768 // collapsed on mobile
-  }).addTo(map);
-});
-
-// Create a custom "Locate Me" button
-const locateControl = L.control({ position: 'topleft' });
-
-locateControl.onAdd = function (map) {
-  const btn = L.DomUtil.create('button', 'locate-button');
-  btn.innerHTML = '📍';
-  btn.title = 'Show My Location';
-
-  L.DomEvent.on(btn, 'click', function () {
-    map.locate({ setView: true, maxZoom: 16 });
+  Promise.all(loadPromises).then(() => {
+    L.control.layers(baseMaps, overlays, {
+      collapsed: window.innerWidth <= 768 // collapsed on mobile
+    }).addTo(map);
   });
 
-  return btn;
-};
+  // Create a custom "Locate Me" button
+  const locateControl = L.control({ position: 'topleft' });
 
-locateControl.addTo(map);
+  locateControl.onAdd = function (map) {
+    const btn = L.DomUtil.create('button', 'locate-button');
+    btn.innerHTML = '📍';
+    btn.title = 'Show My Location';
 
-// Add a marker when location is found
-map.on('locationfound', function (e) {
-  const radius = e.accuracy / 2;
+    L.DomEvent.on(btn, 'click', function () {
+      map.locate({ setView: true, maxZoom: 16 });
+    });
 
-  L.marker(e.latlng).addTo(map)
-    .bindPopup(`You are within ${Math.round(radius)} meters.`)
-    .openPopup();
+    return btn;
+  };
 
-  L.circle(e.latlng, radius).addTo(map);
-});
+  locateControl.addTo(map);
 
-// Handle location errors
-map.on('locationerror', function (e) {
-  alert('Location access denied or unavailable.');
-});
+  // Add a marker when location is found
+  map.on('locationfound', function (e) {
+    const radius = e.accuracy / 2;
 
+    L.marker(e.latlng).addTo(map)
+      .bindPopup(`You are within ${Math.round(radius)} meters.`)
+      .openPopup();
+
+    L.circle(e.latlng, radius).addTo(map);
+  });
+
+  // Handle location errors
+  map.on('locationerror', function (e) {
+    alert('Location access denied or unavailable.');
+  });
 
 </script>
 </body>
