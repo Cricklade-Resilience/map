@@ -42,6 +42,14 @@
     .locate-button:hover {
       background-color: #f0f0f0;
     }
+
+    /* Optional popup image styling */
+    .popup-image {
+      max-width: 150px;
+      margin-top: 5px;
+      border-radius: 4px;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -74,7 +82,7 @@
     "Aerial (Esri)": esriAerial
   };
 
-  // Define the FontAwesome icon for Flood Zone 2
+  // Define the FontAwesome icon for Flood Zone 2 points
   const faShopIcon = L.divIcon({
     className: 'fa-icon',
     html: '<i class="fa-solid fa-shop"></i>',
@@ -86,6 +94,7 @@
   const overlays = {};
   const loadPromises = [];
 
+  // Layers to load with their respective files, icons, and labeling flag
   const layersToLoad = [
     { name: "Flood Zone 2", file: "Data/points.geojson", icon: faShopIcon, label: false },
     { name: "Flood Zone 3", file: "Data/points.geojson", icon: null, label: false },
@@ -99,15 +108,16 @@
       } : undefined,
       onEachFeature: function(feature, layerInstance) {
         const props = feature.properties || {};
+
         if (feature.geometry.type === "Point") {
-          // Build rich popup content
+          // Create popup content with bold name, description, and image if present
           const name = props.name || "No Name";
           const desc = props.description || "";
           const imgUrl = props.image || "";
 
           let popupContent = `<strong>${name}</strong><br>${desc}`;
           if (imgUrl) {
-            popupContent += `<br><img src="${imgUrl}" alt="${name}">`;
+            popupContent += `<br><img class="popup-image" src="${imgUrl}" alt="${name}">`;
           }
           layerInstance.bindPopup(popupContent);
 
@@ -123,6 +133,7 @@
       }
     });
 
+    // Fetch GeoJSON, add data to layer, add first layer to map by default
     const p = fetch(file)
       .then(res => res.json())
       .then(data => {
@@ -137,16 +148,16 @@
     loadPromises.push(p);
   });
 
+  // Add layer control once all layers loaded
   Promise.all(loadPromises).then(() => {
     L.control.layers(baseMaps, overlays, {
-      collapsed: window.innerWidth <= 768 // collapsed on mobile
+      collapsed: window.innerWidth <= 768
     }).addTo(map);
   });
 
-  // Create a custom "Locate Me" button
+  // Custom Locate Me button
   const locateControl = L.control({ position: 'topleft' });
-
-  locateControl.onAdd = function (map) {
+  locateControl.onAdd = function () {
     const btn = L.DomUtil.create('button', 'locate-button');
     btn.innerHTML = '📍';
     btn.title = 'Show My Location';
@@ -157,10 +168,9 @@
 
     return btn;
   };
-
   locateControl.addTo(map);
 
-  // Add a marker when location is found
+  // Location found event: add marker + circle
   map.on('locationfound', function (e) {
     const radius = e.accuracy / 2;
 
@@ -171,11 +181,11 @@
     L.circle(e.latlng, radius).addTo(map);
   });
 
-  // Handle location errors
+  // Location error event
   map.on('locationerror', function (e) {
     alert('Location access denied or unavailable.');
   });
-
 </script>
+
 </body>
 </html>
