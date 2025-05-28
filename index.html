@@ -27,29 +27,31 @@
     maxZoom: 19
   }).addTo(map);
 
+  // Declare overlays object
+  const overlays = {};
+
   const layersToLoad = [
-  { name: "Flood Zone 2", file: "points.geojson" },
-  { name: "Flood Zone 3", file: "points.geojson" },
-  { name: "SUDS Areas", file: "points.geojson" },
-  // Add up to 10 layers or more
-];
+    { name: "Flood Zone 2", file: "points.geojson" },
+    { name: "Flood Zone 3", file: "points.geojson" },
+    { name: "SUDS Areas", file: "points.geojson" },
+    // Add up to 10 layers or more
+  ];
 
-layersToLoad.forEach(({ name, file }) => {
-  const layer = L.geoJSON(null, {
-    onEachFeature: function (feature, layer) {
-      const label = feature.properties?.name || name;
-      layer.bindPopup(label);
-    }
+  layersToLoad.forEach(({ name, file }) => {
+    const layer = L.geoJSON(null, {
+      onEachFeature: function (feature, layer) {
+        const label = feature.properties?.name || name;
+        layer.bindPopup(label);
+      }
+    });
+
+    // Load the GeoJSON
+    fetch(`Data/${file}`)
+      .then(res => res.json())
+      .then(data => layer.addData(data));
+
+    overlays[name] = layer;
   });
-
-  // Load the GeoJSON
-  fetch(`Data/${file}`)
-    .then(res => res.json())
-    .then(data => layer.addData(data));
-
-  overlays[name] = layer;
-});
-
 
   // Add simple layer control
   L.control.layers(null, overlays, { collapsed: false }).addTo(map);
@@ -57,4 +59,3 @@ layersToLoad.forEach(({ name, file }) => {
 
 </body>
 </html>
-
