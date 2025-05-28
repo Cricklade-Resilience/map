@@ -61,31 +61,23 @@
     }
   });
 
-  // Load local GeoJSON file
   fetch('Data/points.geojson')
-    .then(response => response.json())
-    .then(data => {
-      crickladePoints.addData(data);
-    });
+  .then(response => response.json())
+  .then(data => {
+    crickladePoints.addData(data);
 
-  // Define grouped overlay structure
-  const groupedOverlays = {
-    "Local Layers": {
-      "Cricklade Points": crickladePoints
-    },
-    // You can add more groups like this:
-    // "Flood Layers": {
-    //   "Flood Zone 2": floodZone2,
-    //   "Flood Zone 3": floodZone3
-    // }
-  };
+    const groupedOverlays = {
+      "Local Layers": {
+        "Cricklade Points": crickladePoints
+      }
+    };
 
-  // Add control
-  L.control.groupedLayers(
-    { "OpenStreetMap": baseLayer },
-    groupedOverlays,
-    { collapsed: false }
-  ).addTo(map);
+    L.control.groupedLayers(
+      { "OpenStreetMap": baseLayer },
+      groupedOverlays,
+      { collapsed: false }
+    ).addTo(map);
+  });
 </script>
 
 </body>
