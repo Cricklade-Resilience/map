@@ -31,7 +31,7 @@
   }).addTo(map);
 
   // Load local GeoJSON - file must be in same folder as this HTML
-  fetch('CrickladeWardenZones.geojson')
+  fetch('Data/CrickladeWardenZones.geojson')
     .then(res => res.json())
     .then(data => {
       L.geoJSON(data, {
