@@ -2,74 +2,110 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Cricklade Resilience</title>
+  <title>Leaflet Map with Sidebar Layer Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map {
-      height: 100vh;
-      width: 100%;
+    body { margin: 0; }
+    #map { height: 100vh; }
+    .sidebar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: white;
+      padding: 10px;
+      z-index: 1000;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      max-width: 220px;
+      font-family: sans-serif;
+    }
+    .sidebar h4 {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .sidebar label {
+      display: block;
+      font-size: 13px;
+      margin: 2px 0;
     }
   </style>
 </head>
 <body>
 
+<div class="sidebar">
+  <h4>Flood Layers</h4>
+  <label><input type="checkbox" id="flood2"> Flood Zone 2</label>
+  <label><input type="checkbox" id="flood3" checked> Flood Zone 3</label>
+
+  <h4>Local Layers</h4>
+  <label><input type="checkbox" id="localPoints" checked> Cricklade Points</label>
+
+  <h4>Environment</h4>
+  <label><input type="checkbox" id="sssi"> SSSI Boundaries</label>
+</div>
+
 <div id="map"></div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-  // Centered on Cricklade, Wiltshire
   const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-  // OSM basemap
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
+  const base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
   }).addTo(map);
 
-  // Local GeoJSON Layer
+  const flood2 = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
+    layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_2',
+    format: 'image/png',
+    transparent: true
+  });
+
+  const flood3 = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
+    layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_3',
+    format: 'image/png',
+    transparent: true
+  }).addTo(map); // default ON
+
   const localPoints = L.geoJSON(null, {
-    pointToLayer: (feature, latlng) => {
-      return L.circleMarker(latlng, {
+    pointToLayer: (feature, latlng) =>
+      L.circleMarker(latlng, {
         radius: 6,
         fillColor: "#ff7800",
         color: "#000",
         weight: 1,
-        opacity: 1,
         fillOpacity: 0.8
-      });
-    },
+      }),
     onEachFeature: (feature, layer) => {
       if (feature.properties && feature.properties.name) {
         layer.bindPopup(feature.properties.name);
       }
     }
+  }).addTo(map);
+
+  fetch('Data/cricklade-points.geojson')
+    .then(res => res.json())
+    .then(data => localPoints.addData(data));
+
+  const sssiLayer = L.geoJSON(null); // Placeholder, add your data
+
+  // Hook checkboxes
+  document.getElementById('flood2').addEventListener('change', e => {
+    e.target.checked ? flood2.addTo(map) : map.removeLayer(flood2);
   });
 
-  fetch('Data/points.geojson')
-    .then(res => res.json())
-    .then(data => {
-      localPoints.addData(data);
-    });
+  document.getElementById('flood3').addEventListener('change', e => {
+    e.target.checked ? flood3.addTo(map) : map.removeLayer(flood3);
+  });
 
-  // EA Flood Zone WMS Layer
-  //const floodZones = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
-  //  layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_3',
-   // format: 'image/png',
-    //transparent: true,
-    //attribution: 'Environment Agency Flood Data'
-  //});
+  document.getElementById('localPoints').addEventListener('change', e => {
+    e.target.checked ? localPoints.addTo(map) : map.removeLayer(localPoints);
+  });
 
-  // Layer Control
-  const overlayMaps = {
-    "Local Points": localPoints
-    //"Flood Zone 3 (EA)": floodZones
-  };
-
-  L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+  document.getElementById('sssi').addEventListener('change', e => {
+    e.target.checked ? sssiLayer.addTo(map) : map.removeLayer(sssiLayer);
+  });
 </script>
 
 </body>
