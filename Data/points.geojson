@@ -5,8 +5,8 @@
       "type": "Feature",
       "properties": {
         "name": "Cricklade High Street",
-		"description:" "Opening Hours: 9am-5pm Mon-Fri",
-		"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
+	"description": "Opening Hours: 9am-5pm Mon-Fri",
+	"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
       },
       "geometry": {
         "type": "Point",
@@ -17,8 +17,8 @@
       "type": "Feature",
       "properties": {
         "name": "Thames Path",
-		"description:" "Opening Hours: 9am-5pm Mon-Fri",
-		"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
+	"description": "Opening Hours: 9am-5pm Mon-Fri",
+	"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
       },
       "geometry": {
         "type": "Point",
@@ -29,8 +29,8 @@
       "type": "Feature",
       "properties": {
         "name": "North Meadow Nature Reserve",
-		"description:" "Opening Hours: 9am-5pm Mon-Fri",
-		"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
+	"description": "Opening Hours: 9am-5pm Mon-Fri",
+	"image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cricklade%2C_High_Street_-_geograph.org.uk_-_268609.jpg"
       },
       "geometry": {
         "type": "Point",
