@@ -33,11 +33,25 @@
   // Load local GeoJSON - file must be in same folder as this HTML
   fetch('Data/points.geojson')
     .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        style: { color: 'blue' }
-      }).addTo(map);
-    });
+  .then(data => {
+    L.geoJSON(data, {
+      pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 6,
+          fillColor: "blue",
+          color: "#000",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        });
+      },
+      onEachFeature: function (feature, layer) {
+        if (feature.properties && feature.properties.name) {
+          layer.bindPopup(feature.properties.name);
+        }
+      }
+    }).addTo(map);
+  });
 
   //fetch('second.geojson')
     //.then(res => res.json())
