@@ -98,8 +98,10 @@
 
 
   Promise.all(loadPromises).then(() => {
-    L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
-  });
+    L.control.layers(baseMaps, overlays, {
+  collapsed: window.innerWidth <= 768 // collapsed on mobile
+}).addTo(map);
+
 </script>
 </body>
 </html>
