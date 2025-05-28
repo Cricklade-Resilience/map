@@ -97,19 +97,28 @@
       pointToLayer: icon ? function(feature, latlng) {
         return L.marker(latlng, { icon: icon });
       } : undefined,
-      onEachFeature: function (feature, layerInstance) {
-        const labelText = feature.properties?.id || feature.properties?.name || name;
+      onEachFeature: function(feature, layerInstance) {
+        const props = feature.properties || {};
+        if (feature.geometry.type === "Point") {
+          // Build rich popup content
+          const name = props.name || "No Name";
+          const desc = props.description || "";
+          const imgUrl = props.image || "";
 
-        if (label) {
-          // Permanent label in the center for polygons
+          let popupContent = `<strong>${name}</strong><br>${desc}`;
+          if (imgUrl) {
+            popupContent += `<br><img src="${imgUrl}" alt="${name}">`;
+          }
+          layerInstance.bindPopup(popupContent);
+
+        } else if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
+          // Permanent label for polygons
+          const labelText = props.id || props.name || name;
           layerInstance.bindTooltip(labelText, {
             permanent: true,
             direction: "center",
             className: "polygon-label"
           });
-        } else {
-          // Popup for points
-          layerInstance.bindPopup(labelText);
         }
       }
     });
