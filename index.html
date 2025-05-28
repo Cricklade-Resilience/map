@@ -30,19 +30,36 @@
 <script>
   const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-  const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  // Base layers
+  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
+
+  const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles © Esri'
+  });
+
+  const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap & CartoDB',
+    subdomains: 'abcd',
+    maxZoom: 19
+  });
+
+  const baseMaps = {
+    "OpenStreetMap": osm,
+    "Aerial (Esri)": esriAerial,
+    "Greyscale (Carto)": cartoLight
+  };
+
+  const overlays = {};
+  const loadPromises = [];
 
   const layersToLoad = [
     { name: "Flood Zone 2", file: "Data/points.geojson" },
     { name: "Flood Zone 3", file: "Data/points.geojson" },
     { name: "SUDS Areas", file: "Data/polygons.geojson" }
   ];
-
-  const overlays = {};
-  const loadPromises = [];
 
   layersToLoad.forEach(({ name, file }, index) => {
     const layer = L.geoJSON(null, {
@@ -71,9 +88,8 @@
   });
 
   Promise.all(loadPromises).then(() => {
-    L.control.layers({ "OpenStreetMap": baseLayer }, overlays, { collapsed: false }).addTo(map);
+    L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
   });
 </script>
-
 </body>
 </html>
