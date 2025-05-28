@@ -59,7 +59,7 @@
   });
 
   // Load local GeoJSON file
-  fetch('Data/cricklade-points.geojson')
+  fetch('Data/points.geojson')
     .then(response => response.json())
     .then(data => {
       crickladePoints.addData(data);
