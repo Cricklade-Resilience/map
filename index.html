@@ -33,7 +33,7 @@
       background-color: white;
       border: none;
       padding: 6px 10px;
-      cursor: crosshair;
+      cursor: pointer;
       font-size: 18px;
       border-radius: 4px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.65);
@@ -114,9 +114,12 @@
 
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
     const layer = L.geoJSON(null, {
-      pointToLayer: icon ? function(feature, latlng) {
-        return L.marker(latlng, { icon: icon });
-      } : undefined,
+      style: label ? feature => ({
+        color: "#0000ff",
+        weight: 2,
+        fillColor: "#0000ff",
+        fillOpacity: 0.1
+      }) : undefined,
       onEachFeature: function(feature, layerInstance) {
         const props = feature.properties || {};
 
