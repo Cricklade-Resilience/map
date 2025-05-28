@@ -114,12 +114,17 @@
 
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
   const layer = L.geoJSON(null, {
-    style: label ? feature => ({
-      color: "#0000ff",      // Outline color
-      weight: 2,             // Border thickness
-      fillColor: "#0000ff",  // Fill color
-      fillOpacity: 0.1       // Transparent fill
-    }) : undefined,
+    style: function (feature) {
+  if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+    return {
+      color: "#0000ff",
+      weight: 2,
+      fillColor: "#0000ff",
+      fillOpacity: 0.1
+    };
+  }
+},
+
 
     pointToLayer: icon ? function(feature, latlng) {
       return L.marker(latlng, { icon: icon });
