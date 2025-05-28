@@ -5,12 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Leaflet Layer Control with Async GeoJSON</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     html, body, #map {
       height: 100%;
       margin: 0;
       padding: 0;
     }
+
+    .fa-icon {
+      font-size: 24px;
+      color: blue;
+      text-shadow: 0 0 2px white;
 
     .polygon-label {
       background-color: rgba(255, 255, 255, 0.7);
@@ -53,20 +60,32 @@
     
   };
 
+  / Define the FontAwesome icon for Flood Zone 2
+  const faShopIcon = L.divIcon({
+    className: 'fa-icon',
+    html: '<i class="fa-solid fa-shop"></i>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], // center bottom
+    popupAnchor: [0, -24]
+  });
+
   const overlays = {};
   const loadPromises = [];
 
   const layersToLoad = [
-  { name: "Flood Zone 2", file: "Data/points.geojson", label: false },
+  { name: "Flood Zone 2", file: "Data/points.geojson", icon:faShopIcon, label: false },
   { name: "Flood Zone 3", file: "Data/points.geojson", label: false },
   { name: "SUDS Areas", file: "Data/polygons.geojson", label: true }
 ];
 
 
-  layersToLoad.forEach(({ name, file, label }, index) => {
-  const layer = L.geoJSON(null, {
-    onEachFeature: function (feature, layerInstance) {
-      const labelText = feature.properties?.id || feature.properties?.name || name;
+  layersToLoad.forEach(({ name, file, icon, label }, index) => {
+    const layer = L.geoJSON(null, {
+      pointToLayer: icon ? function(feature, latlng) {
+        return L.marker(latlng, { icon: icon });
+      } : undefined,
+      onEachFeature: function (feature, layerInstance) {
+        const labelText = feature.properties?.id || feature.properties?.name || name;
 
       if (label) {
         // Permanent label in the center for polygons
