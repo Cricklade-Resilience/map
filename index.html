@@ -1,19 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-groupedlayercontrol@0.7.0/leaflet.groupedlayercontrol.min.css" />
-  <script src="https://unpkg.com/leaflet-groupedlayercontrol@0.7.0/leaflet.groupedlayercontrol.min.js"></script>
- 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Map</title>
-
-  <!-- Leaflet CSS -->
+  <title>Simple Layer Control Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <!-- Grouped Layer Control CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-groupedlayercontrol@0.7.0/leaflet.groupedlayercontrol.min.css" />
-
   <style>
     html, body, #map {
       height: 100%;
@@ -26,59 +17,42 @@
 
 <div id="map"></div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- Grouped Layer Control JS -->
-<script src="https://unpkg.com/leaflet-groupedlayercontrol@0.7.0/leaflet.groupedlayercontrol.min.js"></script>
-
 <script>
-  // Initialize map
   const map = L.map('map').setView([51.6409, -1.8577], 14);
 
   // Base layer
   const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
   }).addTo(map);
 
-  // Local GeoJSON layer (Cricklade Points)
-  const crickladePoints = L.geoJSON(null, {
-    pointToLayer: function (feature, latlng) {
-      return L.circleMarker(latlng, {
-        radius: 6,
-        fillColor: "#3388ff",
-        color: "#000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-      });
-    },
-    onEachFeature: function (feature, layer) {
-      if (feature.properties && feature.properties.name) {
-        layer.bindPopup(feature.properties.name);
+  // Object to hold overlay layers
+  const overlays = {};
+
+  // Load 10 GeoJSON layers
+  for (let i = 1; i <= 10; i++) {
+    const layerName = `Layer ${i}`;
+    const layer = L.geoJSON(null, {
+      onEachFeature: function (feature, layer) {
+        const name = feature.properties?.name || `Feature from ${layerName}`;
+        layer.bindPopup(name);
       }
-    }
-  });
+    });
 
-  fetch('Data/points.geojson')
-  .then(response => response.json())
-  .then(data => {
-    crickladePoints.addData(data);
+    // Add the layer to the overlay object
+    overlays[layerName] = layer;
 
-    const groupedOverlays = {
-      "Local Layers": {
-        "Cricklade Points": crickladePoints
-      }
-    };
+    // Load the GeoJSON file
+    fetch(`Data/layer${i}.geojson`)
+      .then(res => res.json())
+      .then(data => layer.addData(data));
+  }
 
-    L.control.groupedLayers(
-      { "OpenStreetMap": baseLayer },
-      groupedOverlays,
-      { collapsed: false }
-    ).addTo(map);
-  });
+  // Add simple layer control
+  L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 </script>
 
 </body>
 </html>
+
