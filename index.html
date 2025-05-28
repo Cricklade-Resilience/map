@@ -30,16 +30,15 @@
 <script>
   const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-  // Add base layer
   const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
   const layersToLoad = [
-    { name: "Flood Zone 2", file: "points.geojson" },
-    { name: "Flood Zone 3", file: "points.geojson" },
-    { name: "SUDS Areas", file: "polygons.geojson" }
+    { name: "Flood Zone 2", file: "Data/points.geojson" },
+    { name: "Flood Zone 3", file: "Data/points.geojson" },
+    { name: "SUDS Areas", file: "Data/polygons.geojson" }
   ];
 
   const overlays = {};
@@ -48,7 +47,7 @@
   layersToLoad.forEach(({ name, file }, index) => {
     const layer = L.geoJSON(null, {
       onEachFeature: function (feature, layer) {
-        const label = feature.properties?.id || "No ID";
+        const label = feature.properties?.id || feature.properties?.name || name;
         layer.bindTooltip(label, {
           permanent: true,
           direction: "center",
@@ -57,7 +56,7 @@
       }
     });
 
-    const p = fetch(`Data/${file}`)
+    const p = fetch(file)
       .then(res => res.json())
       .then(data => {
         layer.addData(data);
@@ -65,7 +64,8 @@
           layer.addTo(map);
         }
         overlays[name] = layer;
-      });
+      })
+      .catch(error => console.error(`Error loading ${file}:`, error));
 
     loadPromises.push(p);
   });
