@@ -30,37 +30,31 @@
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Load local GeoJSON - file must be in same folder as this HTML
-  fetch('Data/points.geojson')
-    .then(res => res.json())
-  .then(data => {
-    L.geoJSON(data, {
-      pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng, {
-          radius: 6,
-          fillColor: "blue",
-          color: "#000",
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        });
-      },
-      onEachFeature: function (feature, layer) {
-        if (feature.properties && feature.properties.name) {
-          layer.bindPopup(feature.properties.name);
-        }
+  // Local GeoJSON Layer
+  const localPoints = L.geoJSON(null, {
+    pointToLayer: (feature, latlng) => {
+      return L.circleMarker(latlng, {
+        radius: 6,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      });
+    },
+    onEachFeature: (feature, layer) => {
+      if (feature.properties && feature.properties.name) {
+        layer.bindPopup(feature.properties.name);
       }
-    }).addTo(map);
+    }
   });
 
-  //fetch('second.geojson')
-    //.then(res => res.json())
-    //.then(data => {
-    //  L.geoJSON(data, {
-    //    style: { color: 'green' }
-    //  }).addTo(map);
-    //});
-  
+  fetch('Data/points.geojson')
+    .then(res => res.json())
+    .then(data => {
+      localPoints.addData(data);
+    });
+
   // EA Flood Zone WMS Layer
   const floodZones = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
     layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_3',
@@ -71,7 +65,7 @@
 
   // Layer Control
   const overlayMaps = {
-    "Local Points": points,
+    "Local Points": localPoints,
     "Flood Zone 3 (EA)": floodZones
   };
 
