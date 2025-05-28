@@ -34,7 +34,7 @@
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  });
 
   const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles © Esri'
@@ -44,7 +44,7 @@
     attribution: '&copy; OpenStreetMap & CartoDB',
     subdomains: 'abcd',
     maxZoom: 19
-  });
+  }).addTo(map);
 
   const baseMaps = {
     "Greyscale (Carto)": cartoLight,
