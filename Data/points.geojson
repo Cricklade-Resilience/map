@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Cricklade High Street"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-1.8577, 51.6413]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Thames Path"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-1.8530, 51.6395]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "North Meadow Nature Reserve"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-1.8605, 51.6440]
+      }
+    }
+  ]
+}
