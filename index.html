@@ -97,10 +97,12 @@
 });
 
 
-  Promise.all(loadPromises).then(() => {
-    L.control.layers(baseMaps, overlays, {
-  collapsed: window.innerWidth <= 768 // collapsed on mobile
-}).addTo(map);
+ Promise.all(loadPromises).then(() => {
+  L.control.layers(baseMaps, overlays, {
+    collapsed: window.innerWidth <= 768 // collapsed on mobile
+  }).addTo(map);
+});
+
 
 </script>
 </body>
