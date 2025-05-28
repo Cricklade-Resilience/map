@@ -56,17 +56,17 @@
     });
 
   // EA Flood Zone WMS Layer
-  const floodZones = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
-    layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_3',
-    format: 'image/png',
-    transparent: true,
-    attribution: 'Environment Agency Flood Data'
-  });
+  //const floodZones = L.tileLayer.wms('https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea/wms', {
+  //  layers: 'Flood_Map_For_Planning_Rivers_And_Sea_Flood_Zone_3',
+   // format: 'image/png',
+    //transparent: true,
+    //attribution: 'Environment Agency Flood Data'
+  //});
 
   // Layer Control
   const overlayMaps = {
-    "Local Points": localPoints,
-    "Flood Zone 3 (EA)": floodZones
+    "Local Points": localPoints
+    //"Flood Zone 3 (EA)": floodZones
   };
 
   L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
