@@ -11,6 +11,15 @@
       margin: 0;
       padding: 0;
     }
+
+    .polygon-label {
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
@@ -36,7 +45,7 @@
   const overlays = {};
   const loadPromises = [];
 
-  layersToLoad.forEach(({name, file}, index) => {
+  layersToLoad.forEach(({ name, file }, index) => {
     const layer = L.geoJSON(null, {
       onEachFeature: function (feature, layer) {
         const label = feature.properties?.id || "No ID";
@@ -44,20 +53,17 @@
           permanent: true,
           direction: "center",
           className: "polygon-label"
+        });
+      }
     });
-  }
-
 
     const p = fetch(`Data/${file}`)
       .then(res => res.json())
       .then(data => {
         layer.addData(data);
-
-        // Add first layer to the map by default
         if (index === 0) {
           layer.addTo(map);
         }
-
         overlays[name] = layer;
       });
 
@@ -65,10 +71,8 @@
   });
 
   Promise.all(loadPromises).then(() => {
-    // Add layer control after all layers are loaded
     L.control.layers({ "OpenStreetMap": baseLayer }, overlays, { collapsed: false }).addTo(map);
   });
-
 </script>
 
 </body>
