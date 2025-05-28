@@ -45,11 +45,22 @@
 
     /* Optional popup image styling */
     .popup-image {
-      max-width: 150px;
-      margin-top: 5px;
-      border-radius: 4px;
-      display: block;
-    }
+  max-width: 100px;
+  max-height: 75px;
+  margin-top: 5px;
+  border-radius: 4px;
+  display: block;
+  object-fit: contain;
+}
+
+/* Larger on small/mobile screens */
+@media (max-width: 768px) {
+  .popup-image {
+    max-width: 180px;
+    max-height: 135px;
+  }
+}
+
   </style>
 </head>
 <body>
