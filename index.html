@@ -100,6 +100,13 @@
     transparent: true,
     attribution: "© Environment Agency"
   });
+
+  const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+    layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+    format: "image/png",
+    transparent: true,
+    attribution: "© Environment Agency"
+  });
   
   // Define the FontAwesome icon for Flood Zone 2 points
   const faShopIcon = L.divIcon({
@@ -132,6 +139,7 @@
   
    // Add WMS it to overlays
   overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
+  overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
 
   
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
