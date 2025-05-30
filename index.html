@@ -102,6 +102,14 @@
     popupAnchor: [0, -24]
   });
 
+  const WILD = L.divIcon({
+    className: 'fa-icon',
+    html: '<i class="fa-solid fa-diamond"></i>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], // center bottom
+    popupAnchor: [0, -24]
+  });
+
   const overlays = {};
   const loadPromises = [];
 
@@ -109,6 +117,7 @@
   const layersToLoad = [
     { name: "Flood Zone 2", file: "Data/points.geojson", icon: faShopIcon, label: false },
     { name: "Flood Zone 3", file: "Data/points.geojson", icon: null, label: false },
+    { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
     { name: "Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true }
   ];
 
