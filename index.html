@@ -93,6 +93,15 @@
     "Aerial (Esri)": esriAerial
   };
 
+  // EA Flood Zone WMS Feeds
+  const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
+    layers: 'Flood Map for Planning (Rivers and Sea) Flood Zone 3',
+    format: 'image/png',
+    transparent: true,
+    attribution: "© Environment Agency"
+  });
+
+  
   // Define the FontAwesome icon for Flood Zone 2 points
   const faShopIcon = L.divIcon({
     className: 'fa-icon',
@@ -115,10 +124,11 @@
 
   // Layers to load with their respective files, icons, and labeling flag
   const layersToLoad = [
-    { name: "Flood Zone 2", file: "Data/points.geojson", icon: faShopIcon, label: false },
-    { name: "Flood Zone 3", file: "Data/points.geojson", icon: null, label: false },
+    { name: "Dummy 1", file: "Data/points.geojson", icon: faShopIcon, label: false },
+    { name: "Dummy 2", file: "Data/points.geojson", icon: null, label: false },
     { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
     { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false },
+    { name: "Flood: EA Flood Zone 3": floodZone3WMS}, 
     { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true }
   ];
 
