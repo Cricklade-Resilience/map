@@ -108,8 +108,8 @@
     attribution: "© Environment Agency"
   });
   
-  // Define the FontAwesome icon for Flood Zone 2 points
-  const faShopIcon = L.divIcon({
+  // FontAwesome Icons
+  const faShopIcon = L.divIcon({ // Supplies
     className: 'fa-icon',
     html: '<i class="fa-solid fa-shop"></i>',
     iconSize: [24, 24],
@@ -117,7 +117,7 @@
     popupAnchor: [0, -24]
   });
 
-  const WILD = L.divIcon({
+  const WILD = L.divIcon({ // WILD Symbol
     className: 'fa-icon',
     html: '<i class="fa-solid fa-diamond"></i>',
     iconSize: [24, 24],
@@ -125,6 +125,41 @@
     popupAnchor: [0, -24]
   });
 
+   const shelter = L.divIcon({ // Shelter
+    className: 'fa-icon',
+    html: '<i class="fa-solid fa-bed"></i>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], // center bottom
+    popupAnchor: [0, -24]
+  });
+
+   const storage = L.divIcon({ // Storage Symbol
+    className: 'fa-icon',
+    html: '<i class="fa-solid fa-boxes-packing"></i>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], // center bottom
+    popupAnchor: [0, -24]
+  });
+
+   const medical = L.divIcon({ // Medical Symbol
+    className: 'fa-icon',
+    html: '<i class="fa-solid fa-house-medical"></i>', 
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], // center bottom
+    popupAnchor: [0, -24]
+  });
+
+   const guage = L.divIcon({ // Water Guages Symbol
+    className: 'fa-icon',
+    html: '<i class="fa-solid fa-gauge"></i>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24], // center bottom
+    popupAnchor: [0, -24]
+  });
+
+
+Water_WaterGuages
+  
   const overlays = {};
   const loadPromises = [];
 
@@ -135,10 +170,10 @@
     { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
     { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false },
     { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: null, label: false },
-    { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: null, label: false },
-    { name: "Feature: Storagge", file: "Data/Features_Storage.geojson", icon: null, label: false },
-    { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: null, label: false },
-    { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: null, label: false },
+    { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: false },
+    { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: false },
+    { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: false },
+    { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: false },
     { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true }
   ];
   
