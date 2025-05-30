@@ -122,16 +122,27 @@
   const overlays = {};
   const loadPromises = [];
 
-  // Layers to load with their respective files, icons, and labeling flag
+  // Layers to load with their respective files, icons, and labeling flag - GeoJSON only
   const layersToLoad = [
     { name: "Dummy 1", file: "Data/points.geojson", icon: faShopIcon, label: false },
     { name: "Dummy 2", file: "Data/points.geojson", icon: null, label: false },
     { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
     { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false },
-    { name: "Flood: EA Flood Zone 3": floodZone3WMS}, 
     { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true }
   ];
+  
+  // WMS Layers
+  const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
+    layers: "Flood Map for Planning (Rivers and Sea) Flood Zone 3",
+    format: "image/png",
+    transparent: true,
+    attribution: "© Environment Agency"
+  });
 
+  // Add it to overlays
+  overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
+
+  
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
   const layer = L.geoJSON(null, {
     style: function (feature) {
