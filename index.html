@@ -57,6 +57,52 @@
         max-height: 135px;
       }
     }
+
+    .point-label-red {
+  color: red;
+  font-weight: bold;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+}
+
+.point-label-green {
+  color: green;
+  font-weight: bold;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+}
+
+.point-label-orange {
+  color: orange;
+  font-weight: bold;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+}
+
+.point-label-blue {
+  color: blue;
+  font-weight: bold;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+}
+
+.point-label-brown {
+  color: brown;
+  font-weight: bold;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+}
+
   </style>
 </head>
 <body>
@@ -118,12 +164,12 @@
 
   const layersToLoad = [
     { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
-    { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: false },
-    { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: false },
-    { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: false },
-    { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: false },
-    { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: false },
-    { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: false },
+    { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
+    { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
+    { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
+    { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
+    { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
+    { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
     { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
     { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
     { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
@@ -154,7 +200,18 @@
             popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" class="popup-image">`;
           }
           layerInstance.bindPopup(popupContent);
+
+          if (label && icon) {
+            // Point label with color
+            const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+            layerInstance.bindTooltip(nameProp, {
+              permanent: true,
+              direction: "top",
+              className: `point-label-${labelColor}`
+            });
+          }
         }
+
 
         if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
           const labelText = props.id || props.name || name;
