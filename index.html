@@ -125,6 +125,7 @@
     { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: false },
     { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: false },
     { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
+    { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
     { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
   ];
 
@@ -187,13 +188,14 @@
 
     // Ordered layers
     const orderedNames = [
-      "Flood: WILD Watercourse Issues",
       "Feature: Medical",
       "Feature: Shelter",
       "Feature: Storage",
       "Feature: Supplies",
+      "Feature: Evacuation Sites",
       "Flood: Water Guages",
       "Flood: Historic Flood Areas",
+      "Flood: WILD Watercourse Issues"
       "Admin: Warden Zones",
       "Admin: Parish Boundary"
     ];
