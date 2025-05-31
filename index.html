@@ -199,6 +199,9 @@
           if (imgUrl) {
             popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" class="popup-image">`;
           }
+          if (siteURL) {
+            popupContent += `<br><a href="${siteURL}" target="_blank" rel="noopener noreferrer">Visit Website</a>`;
+          }
           layerInstance.bindPopup(popupContent);
 
           if (label && icon) {
