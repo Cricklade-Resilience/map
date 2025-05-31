@@ -189,6 +189,17 @@
   overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
   overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
 
+  const overlays = {
+    //"🛒 Supplies": supplies,
+    "💧 Water Gauges": gauge,
+    "🏥 Medical": medical,
+    "🛏️ Shelters": shelter,
+    // "📦 Storage": storageLayer,
+    //"🌀 WILD Issues": wildLayer,
+    //"🗺️ Parish Boundary": parishLayer,
+    "⚠️ Flood Zone 3 (WMS)": floodZone3WMS
+  };
+
   
   layersToLoad.forEach(({ name, file, icon, label }, index) => {
   const layer = L.geoJSON(null, {
