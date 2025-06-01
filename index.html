@@ -34,118 +34,235 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  const map = L.map('map').setView([51.6409, -1.8577], 14);
+const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-  // Base layer
-  const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap & CartoDB',
-    maxZoom: 19
-  }).addTo(map);
+// Base layers (same as before)
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap contributors'
+});
+const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles © Esri'
+});
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
 
-  // Store overlays here
-  const overlayBuffer = new Map();
+const baseMaps = {
+  "Greyscale (Carto)": cartoLight,
+  "OpenStreetMap": osm,
+  "Aerial (Esri)": esriAerial
+};
 
-  // Style function for polygons based on layer name
-  function polygonStyle(layerName) {
-    switch(layerName) {
-      case "Admin: Parish Boundary":
-        return {
-          color: "black",
-          weight: 4,
-          fillOpacity: 0
-        };
-      case "Admin: Warden Zones":
-        return {
-          color: "darkgrey",
-          weight: 2,
-          fillOpacity: 0
-        };
-      case "Feature: Evacuation Sites":
-        return {
-          color: "red",
-          weight: 2,
-          fillColor: "red",
-          fillOpacity: 0.4
-        };
-      default:
-        // Default polygon style
-        return {
-          color: "#0000ff",
-          weight: 2,
-          fillColor: "#0000ff",
-          fillOpacity: 0.1
-        };
-    }
+// WMS layers (same as before)
+const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
+  format: "image/png",
+  transparent: true,
+  attribution: "© Environment Agency"
+});
+const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+  format: "image/png",
+  transparent: true,
+  attribution: "© Environment Agency"
+});
+
+// FontAwesome icons (same as before)
+const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+
+const overlayBuffer = new Map();
+const overlays = {};
+const loadPromises = [];
+
+const layersToLoad = [
+  { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
+  { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
+  { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
+  { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
+  { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
+  { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
+  { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
+  { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
+  { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
+  { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
+];
+
+// Define style functions per layer name
+function getPolygonStyle(layerName) {
+  if (layerName === "Admin: Parish Boundary") {
+    return {
+      color: "black",
+      weight: 4,
+      fillOpacity: 0
+    };
   }
+  if (layerName === "Admin: Warden Zones") {
+    return {
+      color: "darkgrey",
+      weight: 2,
+      fillOpacity: 0
+    };
+  }
+  if (layerName === "Feature: Evacuation Sites") {
+    return {
+      color: "red",
+      weight: 2,
+      fillOpacity: 0.4
+    };
+  }
+  // Default fallback style
+  return {
+    color: "#0000ff",
+    weight: 2,
+    fillOpacity: 0.1
+  };
+}
 
-  const layersToLoad = [
-    { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: true },
-    { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
-    { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true }
-    // add your other layers here as needed
+layersToLoad.forEach(({ name, file, icon, label }) => {
+  const layer = L.geoJSON(null, {
+    style: function(feature) {
+      if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+        return getPolygonStyle(name);
+      }
+      return {};
+    },
+    pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
+    onEachFeature: function(feature, layerInstance) {
+      const props = feature.properties || {};
+      const nameProp = props.name || "No Name";
+      const desc = props.description || "";
+      const imgUrl = props.imageURL || "";
+      const siteURL = props.siteURL || "";
+
+      if (feature.geometry.type === "Point") {
+        // Popup for points
+        let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+        if (imgUrl) popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" class="popup-image">`;
+        if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank" rel="noopener noreferrer">Visit Website</a>`;
+        layerInstance.bindPopup(popupContent);
+
+        if (label && icon) {
+          // Show permanent tooltip labels on points at zoom >= 15
+          const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+          layerInstance.bindTooltip(nameProp, {
+            permanent: true,
+            direction: "top",
+            offset: [0, -20],
+            className: `point-label-${labelColor}`
+          });
+          layerInstance._tooltipRef = layerInstance.getTooltip();
+        }
+      } else if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
+        // Add label at polygon centroid for polygons
+        const centroid = layerInstance.getBounds().getCenter();
+        layerInstance.bindTooltip(nameProp, {
+          permanent: true,
+          direction: "center",
+          className: "polygon-label",
+          offset: [0, 0]
+        }).setLatLng(centroid);
+        layerInstance._tooltipRef = layerInstance.getTooltip();
+      }
+    }
+  });
+
+  const p = fetch(file)
+    .then(res => res.json())
+    .then(data => {
+      layer.addData(data);
+      // Add some default layers if you want:
+      if (name === "Admin: Warden Zones") {
+        layer.addTo(map);
+      }
+      overlayBuffer.set(name, layer);
+    })
+    .catch(err => console.error(`Error loading ${file}:`, err));
+
+  loadPromises.push(p);
+});
+
+Promise.all(loadPromises).then(() => {
+  // Add WMS overlays first
+  overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
+  overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+
+  // Ordered layers for control
+  const orderedNames = [
+    "Feature: Medical",
+    "Feature: Shelter",
+    "Feature: Storage",
+    "Feature: Supplies",
+    "Feature: Evacuation Sites",
+    "Flood: Water Guages",
+    "Flood: Historic Flood Areas",
+    "Flood: WILD Watercourse Issues",
+    "Admin: Warden Zones",
+    "Admin: Parish Boundary"
   ];
 
-  layersToLoad.forEach(({ name, file, icon, label }) => {
-    const layer = L.geoJSON(null, {
-      style: (feature) => {
-        if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
-          return polygonStyle(name);
-        }
-      },
-      pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
-      onEachFeature: (feature, layerInstance) => {
-        const props = feature.properties || {};
-        const nameProp = props.name || "No Name";
+  orderedNames.forEach(name => {
+    if (overlayBuffer.has(name)) {
+      overlays[name] = overlayBuffer.get(name);
+    }
+  });
 
-        if (feature.geometry.type === "Point") {
-          if (label && icon) {
-            // Bind permanent tooltip for points
-            layerInstance.bindTooltip(nameProp, {
-              permanent: true,
-              direction: "top",
-              offset: [0, -20],
-              className: 'point-label-red'  // example, can customize
-            });
-          }
-        } else if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
-          if (label) {
-            // Calculate centroid for label placement
-            const centroid = layerInstance.getBounds().getCenter();
-            layerInstance.bindTooltip(nameProp, {
-              permanent: true,
-              direction: "center",
-              className: "polygon-label",
-              offset: [0, 0]
-            }).setLatLng(centroid);
+  // Label visibility at zoom >= 15
+  const labelVisibilityZoom = 15;
+
+  map.on("zoomend", () => {
+    const currentZoom = map.getZoom();
+    overlayBuffer.forEach(layer => {
+      layer.eachLayer(featureLayer => {
+        if (featureLayer._tooltipRef) {
+          const tooltip = featureLayer.getTooltip();
+          if (tooltip) {
+            if (currentZoom >= labelVisibilityZoom) {
+              map.openTooltip(tooltip);
+            } else {
+              map.closeTooltip(tooltip);
+            }
           }
         }
-      }
+      });
     });
-
-    fetch(file)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to load ${file}: ${res.statusText}`);
-        return res.json();
-      })
-      .then(data => {
-        layer.addData(data);
-        overlayBuffer.set(name, layer);
-        if (name === "Admin: Warden Zones") {
-          layer.addTo(map);  // Add default visible layer
-        }
-        console.log(`Loaded layer: ${name}`);
-      })
-      .catch(err => console.error(err));
   });
 
-  // Wait for all layers to load then add layer control
-  Promise.all(layersToLoad.map(l => fetch(l.file).then(res => res.json()))).then(() => {
-    const overlays = {};
-    overlayBuffer.forEach((layer, name) => overlays[name] = layer);
+  // Add layer control
+  L.control.layers(baseMaps, overlays, {
+    collapsed: window.innerWidth <= 768
+  }).addTo(map);
+});
 
-    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
-  });
+// Locate control (same as before)
+const locateControl = L.control({ position: 'topleft' });
+locateControl.onAdd = function () {
+  const btn = L.DomUtil.create('button', 'locate-button');
+  btn.innerHTML = '📍';
+  btn.title = 'Show My Location';
+  L.DomEvent.on(btn, 'click', () => map.locate({ setView: true, maxZoom: 16 }));
+  return btn;
+};
+locateControl.addTo(map);
+
+map.on('locationfound', e => {
+  const radius = e.accuracy / 2;
+  L.marker(e.latlng).addTo(map).bindPopup(`You are within ${Math.round(radius)} meters.`).openPopup();
+  L.circle(e.latlng, radius).addTo(map);
+});
+map.on('locationerror', () => {
+  alert('Location access denied or unavailable.');
+});
 </script>
+
 </body>
 </html>
 
