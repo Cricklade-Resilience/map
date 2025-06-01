@@ -215,7 +215,7 @@
               className: `point-label-${labelColor}`
             });
             // Store the tooltip reference on the layer
-            layerInstance._tooltipRef = tooltip;
+            layerInstance._tooltipRef = layerInstance.getTooltip();
           }
         }
 
