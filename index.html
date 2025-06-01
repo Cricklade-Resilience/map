@@ -166,13 +166,23 @@ function createOnEachFeature(name, icon, label) {
       let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
 
       if (name === "Admin: Warden Zones") {
-        style.color = "#444";
-        style.weight = 2;
-      } else if (name === "Admin: Parish Boundary") {
-        style.color = "black";
-        style.weight = 4;
-        style.fillOpacity = 0;
-      }
+  layer.eachLayer(l => {
+    // Restore correct styling (dark grey outlines)
+    l.setStyle({
+      color: "#444", // dark grey
+      weight: 2,
+      fillOpacity: 0.1
+    });
+    // Show label if we have one
+    const tooltips = polygonLabels.get(name);
+    if (tooltips) {
+      const tooltip = tooltips.find(t => t._latlng && t._latlng.equals(l.getBounds().getCenter()));
+      if (tooltip) map.addLayer(tooltip);
+    }
+  });
+  layer.addTo(map);
+}
+
 
       layerInstance.setStyle(style);
     }
