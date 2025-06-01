@@ -122,52 +122,53 @@ const layersToLoad = [
   { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
 ];
 
-// Load and style each GeoJSON
-layersToLoad.forEach(({ name, file, icon, label }) => {
-  const layer = L.geoJSON(null, {
-    style: feature => {
-      const type = feature.geometry.type;
-      if (type === "Polygon" || type === "MultiPolygon") {
-        if (name === "Admin: Parish Boundary") {
-          return { color: "black", weight: 4, fillOpacity: 0 };
-        } else if (name === "Admin: Warden Zones") {
-          return { color: "#555", weight: 2, fillOpacity: 0 };
-        } else if (name === "Feature: Evacuation Sites") {
-          return { color: "red", weight: 2, fillColor: "red", fillOpacity: 0.3 };
-        } else {
-          return { color: "#0000ff", weight: 2, fillColor: "#0000ff", fillOpacity: 0.1 };
-        }
-      }
-    },
-    pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
-    onEachFeature: (feature, layerInstance) => {
-      feature.properties.layerName = name; // for zoom styling
+onEachFeature: (feature, layerInstance) => {
+  feature.properties.layerName = name; // for zoom styling
 
-      const props = feature.properties || {};
-      const nameProp = props.name || "No Name";
-      const desc = props.description || "";
-      const imgUrl = props.imageURL || "";
-      const siteURL = props.siteURL || "";
+  const props = feature.properties || {};
+  const nameProp = props.name || "No Name";
+  const desc = props.description || "";
+  const imgUrl = props.imageURL || "";
+  const siteURL = props.siteURL || "";
 
-      if (feature.geometry.type === "Point") {
-        let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-        if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
-        if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
-        layerInstance.bindPopup(popupContent);
+  const geometryType = feature.geometry.type;
 
-        if (label && icon) {
-          const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
-          layerInstance.bindTooltip(nameProp, {
-            permanent: true,
-            direction: "top",
-            offset: [0, -20],
-            className: `point-label-${labelColor}`
-          });
-          layerInstance._tooltipRef = layerInstance.getTooltip();
-        }
-      }
+  if (geometryType === "Point") {
+    let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+    if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
+    if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+    layerInstance.bindPopup(popupContent);
+
+    if (label && icon) {
+      const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+      layerInstance.bindTooltip(nameProp, {
+        permanent: true,
+        direction: "top",
+        offset: [0, -20],
+        className: `point-label-${labelColor}`
+      });
+      layerInstance._tooltipRef = layerInstance.getTooltip();
     }
-  });
+  }
+
+  // 🆕 Add this block for Polygon and MultiPolygon
+  if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    })
+    .setContent(nameProp)
+    .setLatLng(center);
+
+    map.addLayer(tooltip);
+    // Attach tooltip for reference if needed later
+    layerInstance._tooltipRef = tooltip;
+  }
+}
+
 
   const p = fetch(file)
     .then(res => res.json())
