@@ -57,6 +57,17 @@
     .point-label-orange { color: orange; }
     .point-label-blue { color: blue; }
     .point-label-brown { color: brown; }
+
+    .polygon-label {
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 4px;
+      padding: 2px 6px;
+      border: 1px solid #666;
+      font-size: 14px;
+      color: #333;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -109,6 +120,52 @@ const overlayBuffer = new Map();
 const overlays = {};
 const loadPromises = [];
 
+function createOnEachFeature(name, icon, label) {
+  return function(feature, layerInstance) {
+    feature.properties.layerName = name;
+    const props = feature.properties || {};
+    const nameProp = props.name || "No Name";
+    const desc = props.description || "";
+    const imgUrl = props.imageURL || "";
+    const siteURL = props.siteURL || "";
+    const geometryType = feature.geometry.type;
+
+    if (geometryType === "Point") {
+      let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+      if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
+      if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+      layerInstance.bindPopup(popupContent);
+
+      if (label && icon) {
+        const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+        layerInstance.bindTooltip(nameProp, {
+          permanent: true,
+          direction: "top",
+          offset: [0, -20],
+          className: `point-label-${labelColor}`
+        });
+        layerInstance._tooltipRef = layerInstance.getTooltip();
+      }
+    }
+
+    if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
+      const center = layerInstance.getBounds().getCenter();
+      const tooltip = L.tooltip({
+        permanent: true,
+        direction: 'center',
+        className: 'polygon-label',
+        offset: [0, 0]
+      })
+      .setContent(nameProp)
+      .setLatLng(center);
+
+      map.addLayer(tooltip);
+      layerInstance._tooltipRef = tooltip;
+    }
+  };
+}
+
+// Load GeoJSON layers
 const layersToLoad = [
   { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
   { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
@@ -122,53 +179,11 @@ const layersToLoad = [
   { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
 ];
 
-onEachFeature: (feature, layerInstance) => {
-  feature.properties.layerName = name; // for zoom styling
-
-  const props = feature.properties || {};
-  const nameProp = props.name || "No Name";
-  const desc = props.description || "";
-  const imgUrl = props.imageURL || "";
-  const siteURL = props.siteURL || "";
-
-  const geometryType = feature.geometry.type;
-
-  if (geometryType === "Point") {
-    let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-    if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
-    if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
-    layerInstance.bindPopup(popupContent);
-
-    if (label && icon) {
-      const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
-      layerInstance.bindTooltip(nameProp, {
-        permanent: true,
-        direction: "top",
-        offset: [0, -20],
-        className: `point-label-${labelColor}`
-      });
-      layerInstance._tooltipRef = layerInstance.getTooltip();
-    }
-  }
-
-  // 🆕 Add this block for Polygon and MultiPolygon
-  if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
-    const center = layerInstance.getBounds().getCenter();
-    const tooltip = L.tooltip({
-      permanent: true,
-      direction: 'center',
-      className: 'polygon-label',
-      offset: [0, 0]
-    })
-    .setContent(nameProp)
-    .setLatLng(center);
-
-    map.addLayer(tooltip);
-    // Attach tooltip for reference if needed later
-    layerInstance._tooltipRef = tooltip;
-  }
-}
-
+layersToLoad.forEach(({ name, file, icon, label }) => {
+  const layer = L.geoJSON(null, {
+    pointToLayer: (feature, latlng) => icon ? L.marker(latlng, { icon }) : L.marker(latlng),
+    onEachFeature: createOnEachFeature(name, icon, label)
+  });
 
   const p = fetch(file)
     .then(res => res.json())
@@ -182,7 +197,7 @@ onEachFeature: (feature, layerInstance) => {
   loadPromises.push(p);
 });
 
-// Finalize after all layers load
+// Finalize overlays and controls
 Promise.all(loadPromises).then(() => {
   overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
   overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
@@ -201,7 +216,6 @@ Promise.all(loadPromises).then(() => {
 
   function updateMapDisplay() {
     const zoom = map.getZoom();
-
     overlayBuffer.forEach(layer => {
       layer.eachLayer(featureLayer => {
         if (featureLayer._tooltipRef) {
@@ -211,7 +225,6 @@ Promise.all(loadPromises).then(() => {
             featureLayer.closeTooltip();
           }
         }
-
         if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
           const lname = featureLayer.feature.properties?.layerName;
           let weight = 2;
@@ -229,7 +242,7 @@ Promise.all(loadPromises).then(() => {
   L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
-// Locate control
+// Locate button
 const locateControl = L.control({ position: 'topleft' });
 locateControl.onAdd = function () {
   const btn = L.DomUtil.create('button', 'locate-button');
