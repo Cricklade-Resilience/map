@@ -5,28 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cricklade Resilience</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0; padding: 0;
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+
+    .fa-icon {
+      font-size: 24px;
+      color: blue;
+      text-shadow: 0 0 2px white;
     }
-    .polygon-label {
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 2px 4px;
+
+    .locate-button {
+      background-color: white;
+      border: none;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 18px;
       border-radius: 4px;
-      font-weight: bold;
-      font-size: 12px;
-      border: 1px solid #ccc;
-      white-space: nowrap;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     }
-    .point-label-red {
-      color: red;
+
+    .locate-button:hover { background-color: #f0f0f0; }
+
+    .popup-image {
+      max-width: 100px;
+      max-height: 75px;
+      margin-top: 5px;
+      border-radius: 4px;
+      display: block;
+      object-fit: contain;
+    }
+
+    @media (max-width: 768px) {
+      .popup-image {
+        max-width: 180px;
+        max-height: 135px;
+      }
+    }
+
+    .point-label-red, .point-label-green, .point-label-orange,
+    .point-label-blue, .point-label-brown {
       font-weight: bold;
       background: white;
       border-radius: 4px;
       padding: 2px 4px;
       border: 1px solid #ccc;
     }
+
+    .point-label-red { color: red; }
+    .point-label-green { color: green; }
+    .point-label-orange { color: orange; }
+    .point-label-blue { color: blue; }
+    .point-label-brown { color: brown; }
   </style>
 </head>
 <body>
@@ -36,19 +66,18 @@
 <script>
 const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-// Base layers (same as before)
+// Base maps
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
+
 const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '© OpenStreetMap contributors'
+  maxZoom: 19, attribution: '© OpenStreetMap contributors'
 });
+
 const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   attribution: 'Tiles © Esri'
 });
-const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & CartoDB',
-  subdomains: 'abcd',
-  maxZoom: 19
-}).addTo(map);
 
 const baseMaps = {
   "Greyscale (Carto)": cartoLight,
@@ -56,28 +85,25 @@ const baseMaps = {
   "Aerial (Esri)": esriAerial
 };
 
-// WMS layers (same as before)
+// WMS overlays
 const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
   layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
-  format: "image/png",
-  transparent: true,
-  attribution: "© Environment Agency"
-});
-const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
-  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
-  format: "image/png",
-  transparent: true,
-  attribution: "© Environment Agency"
+  format: "image/png", transparent: true, attribution: "© Environment Agency"
 });
 
-// FontAwesome icons (same as before)
-const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+  format: "image/png", transparent: true, attribution: "© Environment Agency"
+});
+
+// FontAwesome icons
+const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 
 const overlayBuffer = new Map();
 const overlays = {};
@@ -96,47 +122,27 @@ const layersToLoad = [
   { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
 ];
 
-// Define style functions per layer name
-function getPolygonStyle(layerName) {
-  if (layerName === "Admin: Parish Boundary") {
-    return {
-      color: "black",
-      weight: 4,
-      fillOpacity: 0
-    };
-  }
-  if (layerName === "Admin: Warden Zones") {
-    return {
-      color: "darkgrey",
-      weight: 2,
-      fillOpacity: 0
-    };
-  }
-  if (layerName === "Feature: Evacuation Sites") {
-    return {
-      color: "red",
-      weight: 2,
-      fillOpacity: 0.4
-    };
-  }
-  // Default fallback style
-  return {
-    color: "#0000ff",
-    weight: 2,
-    fillOpacity: 0.1
-  };
-}
-
+// Load and style each GeoJSON
 layersToLoad.forEach(({ name, file, icon, label }) => {
   const layer = L.geoJSON(null, {
-    style: function(feature) {
-      if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
-        return getPolygonStyle(name);
+    style: feature => {
+      const type = feature.geometry.type;
+      if (type === "Polygon" || type === "MultiPolygon") {
+        if (name === "Admin: Parish Boundary") {
+          return { color: "black", weight: 4, fillOpacity: 0 };
+        } else if (name === "Admin: Warden Zones") {
+          return { color: "#555", weight: 2, fillOpacity: 0 };
+        } else if (name === "Feature: Evacuation Sites") {
+          return { color: "red", weight: 2, fillColor: "red", fillOpacity: 0.3 };
+        } else {
+          return { color: "#0000ff", weight: 2, fillColor: "#0000ff", fillOpacity: 0.1 };
+        }
       }
-      return {};
     },
     pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
-    onEachFeature: function(feature, layerInstance) {
+    onEachFeature: (feature, layerInstance) => {
+      feature.properties.layerName = name; // for zoom styling
+
       const props = feature.properties || {};
       const nameProp = props.name || "No Name";
       const desc = props.description || "";
@@ -144,14 +150,12 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
       const siteURL = props.siteURL || "";
 
       if (feature.geometry.type === "Point") {
-        // Popup for points
         let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-        if (imgUrl) popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" class="popup-image">`;
-        if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank" rel="noopener noreferrer">Visit Website</a>`;
+        if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
+        if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
         layerInstance.bindPopup(popupContent);
 
         if (label && icon) {
-          // Show permanent tooltip labels on points at zoom >= 15
           const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
           layerInstance.bindTooltip(nameProp, {
             permanent: true,
@@ -161,16 +165,6 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
           });
           layerInstance._tooltipRef = layerInstance.getTooltip();
         }
-      } else if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
-        // Add label at polygon centroid for polygons
-        const centroid = layerInstance.getBounds().getCenter();
-        layerInstance.bindTooltip(nameProp, {
-          permanent: true,
-          direction: "center",
-          className: "polygon-label",
-          offset: [0, 0]
-        }).setLatLng(centroid);
-        layerInstance._tooltipRef = layerInstance.getTooltip();
       }
     }
   });
@@ -178,71 +172,63 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
   const p = fetch(file)
     .then(res => res.json())
     .then(data => {
+      data.features.forEach(f => f.properties.layerName = name);
       layer.addData(data);
-      // Add some default layers if you want:
-      if (name === "Admin: Warden Zones") {
-        layer.addTo(map);
-      }
+      if (name === "Admin: Warden Zones") layer.addTo(map);
       overlayBuffer.set(name, layer);
-    })
-    .catch(err => console.error(`Error loading ${file}:`, err));
+    }).catch(err => console.error(`Error loading ${file}:`, err));
 
   loadPromises.push(p);
 });
 
+// Finalize after all layers load
 Promise.all(loadPromises).then(() => {
-  // Add WMS overlays first
   overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
   overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
 
-  // Ordered layers for control
   const orderedNames = [
-    "Feature: Medical",
-    "Feature: Shelter",
-    "Feature: Storage",
-    "Feature: Supplies",
-    "Feature: Evacuation Sites",
-    "Flood: Water Guages",
-    "Flood: Historic Flood Areas",
-    "Flood: WILD Watercourse Issues",
-    "Admin: Warden Zones",
-    "Admin: Parish Boundary"
+    "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
+    "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Historic Flood Areas",
+    "Flood: WILD Watercourse Issues", "Admin: Warden Zones", "Admin: Parish Boundary"
   ];
 
   orderedNames.forEach(name => {
-    if (overlayBuffer.has(name)) {
-      overlays[name] = overlayBuffer.get(name);
-    }
+    if (overlayBuffer.has(name)) overlays[name] = overlayBuffer.get(name);
   });
 
-  // Label visibility at zoom >= 15
   const labelVisibilityZoom = 15;
 
-  map.on("zoomend", () => {
-    const currentZoom = map.getZoom();
+  function updateMapDisplay() {
+    const zoom = map.getZoom();
+
     overlayBuffer.forEach(layer => {
       layer.eachLayer(featureLayer => {
         if (featureLayer._tooltipRef) {
-          const tooltip = featureLayer.getTooltip();
-          if (tooltip) {
-            if (currentZoom >= labelVisibilityZoom) {
-              map.openTooltip(tooltip);
-            } else {
-              map.closeTooltip(tooltip);
-            }
+          if (zoom >= labelVisibilityZoom) {
+            featureLayer.openTooltip();
+          } else {
+            featureLayer.closeTooltip();
           }
+        }
+
+        if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
+          const lname = featureLayer.feature.properties?.layerName;
+          let weight = 2;
+          if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
+          else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
+          featureLayer.setStyle({ weight });
         }
       });
     });
-  });
+  }
 
-  // Add layer control
-  L.control.layers(baseMaps, overlays, {
-    collapsed: window.innerWidth <= 768
-  }).addTo(map);
+  map.on("zoomend", updateMapDisplay);
+  updateMapDisplay();
+
+  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
-// Locate control (same as before)
+// Locate control
 const locateControl = L.control({ position: 'topleft' });
 locateControl.onAdd = function () {
   const btn = L.DomUtil.create('button', 'locate-button');
@@ -258,12 +244,13 @@ map.on('locationfound', e => {
   L.marker(e.latlng).addTo(map).bindPopup(`You are within ${Math.round(radius)} meters.`).openPopup();
   L.circle(e.latlng, radius).addTo(map);
 });
+
 map.on('locationerror', () => {
   alert('Location access denied or unavailable.');
 });
 </script>
-
 </body>
 </html>
+
 
 
