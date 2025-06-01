@@ -220,15 +220,24 @@
         }
 
 
-        if ((feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") && label) {
-          const labelText = props.id || props.name || name;
-          layerInstance.bindTooltip(labelText, {
-            permanent: true,
-            direction: "center",
-            className: "polygon-label"
-          });
-        }
-      }
+        style: function (feature) {
+  const layerName = name; // comes from the outer loop
+  if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+    let color = "#0000ff"; // default
+
+    if (layerName === "Admin: Warden Zones") color = "green";
+    else if (layerName === "Admin: Parish Boundary") color = "orange";
+    else if (layerName === "Feature: Evacuation Sites") color = "red";
+
+    return {
+      color: color,
+      weight: 2,
+      fillColor: color,
+      fillOpacity: 0.2
+    };
+  }
+}
+
     });
 
     const p = fetch(file)
