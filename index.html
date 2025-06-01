@@ -5,100 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cricklade Resilience</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     html, body, #map {
       height: 100%;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
     }
-
-    .fa-icon {
-      font-size: 24px;
-      color: blue;
-      text-shadow: 0 0 2px white;
-    }
-
     .polygon-label {
-      background: white;
-      border: 1px solid #666;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 2px 4px;
       border-radius: 4px;
-      padding: 2px 6px;
       font-weight: bold;
-      color: #333;
-      box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
-      pointer-events: none;
+      font-size: 12px;
+      border: 1px solid #ccc;
       white-space: nowrap;
     }
-
-    .locate-button {
-      background-color: white;
-      border: none;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 18px;
-      border-radius: 4px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    }
-
-    .locate-button:hover {
-      background-color: #f0f0f0;
-    }
-
-    .popup-image {
-      max-width: 100px;
-      max-height: 75px;
-      margin-top: 5px;
-      border-radius: 4px;
-      display: block;
-      object-fit: contain;
-    }
-
-    @media (max-width: 768px) {
-      .popup-image {
-        max-width: 180px;
-        max-height: 135px;
-      }
-    }
-
     .point-label-red {
       color: red;
-      font-weight: bold;
-      background: white;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border: 1px solid #ccc;
-    }
-
-    .point-label-green {
-      color: green;
-      font-weight: bold;
-      background: white;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border: 1px solid #ccc;
-    }
-
-    .point-label-orange {
-      color: orange;
-      font-weight: bold;
-      background: white;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border: 1px solid #ccc;
-    }
-
-    .point-label-blue {
-      color: blue;
-      font-weight: bold;
-      background: white;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border: 1px solid #ccc;
-    }
-
-    .point-label-brown {
-      color: brown;
       font-weight: bold;
       background: white;
       border-radius: 4px;
@@ -108,262 +30,122 @@
   </style>
 </head>
 <body>
-  <div id="map"></div>
+<div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    const map = L.map('map').setView([51.6409, -1.8577], 14);
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-    // Base layers
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    });
+  // Base layer
+  const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap & CartoDB',
+    maxZoom: 19
+  }).addTo(map);
 
-    const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles © Esri'
-    });
+  // Store overlays here
+  const overlayBuffer = new Map();
 
-    const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & CartoDB',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
-
-    const baseMaps = {
-      "Greyscale (Carto)": cartoLight,
-      "OpenStreetMap": osm,
-      "Aerial (Esri)": esriAerial
-    };
-
-    // WMS Layers
-    const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
-      layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
-      format: "image/png",
-      transparent: true,
-      attribution: "© Environment Agency"
-    });
-
-    const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
-      layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
-      format: "image/png",
-      transparent: true,
-      attribution: "© Environment Agency"
-    });
-
-    // FontAwesome Icons
-    const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-    const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-    const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-    const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-    const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-    const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-    const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-
-    const overlayBuffer = new Map(); // maintains order
-    const overlays = {};
-    const loadPromises = [];
-
-    const layersToLoad = [
-      { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
-      { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
-      { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
-      { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
-      { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
-      { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
-      { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
-      { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
-      { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
-      { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
-    ];
-
-    // Style function for polygons according to your specs
-    function polygonStyle(layerName) {
-      if (layerName === "Admin: Parish Boundary") {
+  // Style function for polygons based on layer name
+  function polygonStyle(layerName) {
+    switch(layerName) {
+      case "Admin: Parish Boundary":
         return {
           color: "black",
           weight: 4,
-          fill: false,
-          fillOpacity: 0,
+          fillOpacity: 0
         };
-      }
-      else if (layerName === "Admin: Warden Zones") {
+      case "Admin: Warden Zones":
         return {
           color: "darkgrey",
           weight: 2,
-          fill: false,
-          fillOpacity: 0,
+          fillOpacity: 0
         };
-      }
-      else if (layerName === "Feature: Evacuation Sites") {
+      case "Feature: Evacuation Sites":
         return {
           color: "red",
           weight: 2,
           fillColor: "red",
-          fillOpacity: 0.4,
+          fillOpacity: 0.4
         };
-      }
-      else {
+      default:
+        // Default polygon style
         return {
           color: "#0000ff",
           weight: 2,
           fillColor: "#0000ff",
-          fillOpacity: 0.1,
+          fillOpacity: 0.1
         };
-      }
     }
+  }
 
-    layersToLoad.forEach(({ name, file, icon, label }) => {
-      const layer = L.geoJSON(null, {
-        style: function(feature) {
-          if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
-            return polygonStyle(name);
+  const layersToLoad = [
+    { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: true },
+    { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
+    { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true }
+    // add your other layers here as needed
+  ];
+
+  layersToLoad.forEach(({ name, file, icon, label }) => {
+    const layer = L.geoJSON(null, {
+      style: (feature) => {
+        if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+          return polygonStyle(name);
+        }
+      },
+      pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
+      onEachFeature: (feature, layerInstance) => {
+        const props = feature.properties || {};
+        const nameProp = props.name || "No Name";
+
+        if (feature.geometry.type === "Point") {
+          if (label && icon) {
+            // Bind permanent tooltip for points
+            layerInstance.bindTooltip(nameProp, {
+              permanent: true,
+              direction: "top",
+              offset: [0, -20],
+              className: 'point-label-red'  // example, can customize
+            });
           }
-        },
-        pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
-        onEachFeature: function(feature, layerInstance) {
-          const props = feature.properties || {};
-          const nameProp = props.name || "No Name";
-          const desc = props.description || "";
-          const imgUrl = props.imageURL || "";
-          const siteURL = props.siteURL || "";
-
-          // Attach layer name for style & weight dynamic update
-          feature.properties.layerName = name;
-
-          if (feature.geometry.type === "Point") {
-            let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-            if (imgUrl) {
-              popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" class="popup-image">`;
-            }
-            if (siteURL) {
-              popupContent += `<br><a href="${siteURL}" target="_blank" rel="noopener noreferrer">Visit Website</a>`;
-            }
-            layerInstance.bindPopup(popupContent);
-
-            if (label && icon) {
-              const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
-              layerInstance.bindTooltip(nameProp, {
-                permanent: true,
-                direction: "top",
-                offset: [0, -20],
-                className: `point-label-${labelColor}`
-              });
-              layerInstance._tooltipRef = layerInstance.getTooltip();
-            }
-          }
-          else if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
-            // Polygon labels
+        } else if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+          if (label) {
+            // Calculate centroid for label placement
             const centroid = layerInstance.getBounds().getCenter();
             layerInstance.bindTooltip(nameProp, {
               permanent: true,
-              direction: 'center',
-              className: 'polygon-label',
-              offset: [0, 0],
+              direction: "center",
+              className: "polygon-label",
+              offset: [0, 0]
             }).setLatLng(centroid);
-
-            layerInstance._tooltipRef = layerInstance.getTooltip();
           }
         }
-      });
-
-      const p = fetch(file)
-        .then(res => res.json())
-        .then(data => {
-          layer.addData(data);
-          if (name === "Admin: Warden Zones") {
-            layer.addTo(map); // Add this one by default
-          }
-          overlayBuffer.set(name, layer);
-        })
-        .catch(err => console.error(`Error loading ${file}:`, err));
-
-      loadPromises.push(p);
+      }
     });
 
-    Promise.all(loadPromises).then(() => {
-      // Add WMS layers first
-      overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
-      overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
-
-      // Ordered layers
-      const orderedNames = [
-        "Feature: Medical",
-        "Feature: Shelter",
-        "Feature: Storage",
-        "Feature: Supplies",
-        "Feature: Evacuation Sites",
-        "Flood: Water Guages",
-        "Flood: Historic Flood Areas",
-        "Flood: WILD Watercourse Issues",
-        "Admin: Warden Zones",
-        "Admin: Parish Boundary"
-      ];
-
-      orderedNames.forEach(name => {
-        if (overlayBuffer.has(name)) {
-          overlays[name] = overlayBuffer.get(name);
+    fetch(file)
+      .then(res => {
+        if (!res.ok) throw new Error(`Failed to load ${file}: ${res.statusText}`);
+        return res.json();
+      })
+      .then(data => {
+        layer.addData(data);
+        overlayBuffer.set(name, layer);
+        if (name === "Admin: Warden Zones") {
+          layer.addTo(map);  // Add default visible layer
         }
-      });
+        console.log(`Loaded layer: ${name}`);
+      })
+      .catch(err => console.error(err));
+  });
 
-      // Initial add layer control
-      L.control.layers(baseMaps, overlays, {
-        collapsed: window.innerWidth <= 768
-      }).addTo(map);
+  // Wait for all layers to load then add layer control
+  Promise.all(layersToLoad.map(l => fetch(l.file).then(res => res.json()))).then(() => {
+    const overlays = {};
+    overlayBuffer.forEach((layer, name) => overlays[name] = layer);
 
-      updateMapDisplay(); // Initial label & style update
-    });
-
-    // Show/hide labels and update polygon line thickness on zoom
-    function updateMapDisplay() {
-      const zoom = map.getZoom();
-
-      overlayBuffer.forEach(layer => {
-        layer.eachLayer(featureLayer => {
-          if (featureLayer._tooltipRef) {
-            if (zoom >= 15) {
-              featureLayer.openTooltip();
-            } else {
-              featureLayer.closeTooltip();
-            }
-          }
-
-          if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
-            const lname = featureLayer.feature.properties?.layerName;
-            let weight = 2;
-            if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
-            else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
-            featureLayer.setStyle({ weight });
-          }
-        });
-      });
-    }
-
-    map.on('zoomend', updateMapDisplay);
-
-    // Locate control button (no geolocate on load)
-    const locateBtn = L.control({ position: 'topleft' });
-    locateBtn.onAdd = () => {
-      const btn = L.DomUtil.create('button', 'locate-button');
-      btn.title = 'Find My Location';
-      btn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
-      btn.onclick = () => {
-        map.locate({ setView: true, maxZoom: 16 });
-      };
-      return btn;
-    };
-    locateBtn.addTo(map);
-
-    map.on('locationfound', (e) => {
-      const radius = e.accuracy / 2;
-      L.marker(e.latlng).addTo(map).bindPopup(`You are within ${radius.toFixed(0)} meters from this point`).openPopup();
-      L.circle(e.latlng, radius).addTo(map);
-    });
-
-    map.on('locationerror', () => {
-      alert('Unable to retrieve your location');
-    });
-  </script>
+    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+  });
+</script>
 </body>
 </html>
 
