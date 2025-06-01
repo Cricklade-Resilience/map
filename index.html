@@ -203,7 +203,9 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
     .then(data => {
       data.features.forEach(f => f.properties.layerName = name);
       layer.addData(data);
-      if (name === "Admin: Warden Zones") layer.addTo(map);
+      if (name === "Admin: Warden Zones" && polygonLabels.has(name)) {
+      polygonLabels.get(name).forEach(t => map.addLayer(t));
+      }
       overlayBuffer.set(name, layer);
     }).catch(err => console.error(`Error loading ${file}:`, err));
 
