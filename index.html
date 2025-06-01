@@ -7,12 +7,28 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    html, body, #map { height: 100%; margin: 0; padding: 0; }
+    html, body, #map {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
     .fa-icon {
       font-size: 24px;
       color: blue;
       text-shadow: 0 0 2px white;
+    }
+
+    .polygon-label {
+      background: white;
+      border: 1px solid #666;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-weight: bold;
+      color: #333;
+      box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+      pointer-events: none;
+      white-space: nowrap;
     }
 
     .locate-button {
@@ -25,7 +41,9 @@
       box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     }
 
-    .locate-button:hover { background-color: #f0f0f0; }
+    .locate-button:hover {
+      background-color: #f0f0f0;
+    }
 
     .popup-image {
       max-width: 100px;
@@ -43,8 +61,8 @@
       }
     }
 
-    .point-label-red, .point-label-green, .point-label-orange,
-    .point-label-blue, .point-label-brown {
+    .point-label-red {
+      color: red;
       font-weight: bold;
       background: white;
       border-radius: 4px;
@@ -52,203 +70,301 @@
       border: 1px solid #ccc;
     }
 
-    .point-label-red { color: red; }
-    .point-label-green { color: green; }
-    .point-label-orange { color: orange; }
-    .point-label-blue { color: blue; }
-    .point-label-brown { color: brown; }
+    .point-label-green {
+      color: green;
+      font-weight: bold;
+      background: white;
+      border-radius: 4px;
+      padding: 2px 4px;
+      border: 1px solid #ccc;
+    }
+
+    .point-label-orange {
+      color: orange;
+      font-weight: bold;
+      background: white;
+      border-radius: 4px;
+      padding: 2px 4px;
+      border: 1px solid #ccc;
+    }
+
+    .point-label-blue {
+      color: blue;
+      font-weight: bold;
+      background: white;
+      border-radius: 4px;
+      padding: 2px 4px;
+      border: 1px solid #ccc;
+    }
+
+    .point-label-brown {
+      color: brown;
+      font-weight: bold;
+      background: white;
+      border-radius: 4px;
+      padding: 2px 4px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
-<div id="map"></div>
+  <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-const map = L.map('map').setView([51.6409, -1.8577], 14);
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-// Base maps
-const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
-}).addTo(map);
+    // Base layers
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
 
-const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19, attribution: '© OpenStreetMap contributors'
-});
+    const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles © Esri'
+    });
 
-const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: 'Tiles © Esri'
-});
+    const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap & CartoDB',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
 
-const baseMaps = {
-  "Greyscale (Carto)": cartoLight,
-  "OpenStreetMap": osm,
-  "Aerial (Esri)": esriAerial
-};
+    const baseMaps = {
+      "Greyscale (Carto)": cartoLight,
+      "OpenStreetMap": osm,
+      "Aerial (Esri)": esriAerial
+    };
 
-// WMS overlays
-const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
-  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
-  format: "image/png", transparent: true, attribution: "© Environment Agency"
-});
+    // WMS Layers
+    const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
+      layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
+      format: "image/png",
+      transparent: true,
+      attribution: "© Environment Agency"
+    });
 
-const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
-  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
-  format: "image/png", transparent: true, attribution: "© Environment Agency"
-});
+    const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+      layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+      format: "image/png",
+      transparent: true,
+      attribution: "© Environment Agency"
+    });
 
-// FontAwesome icons
-const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+    // FontAwesome Icons
+    const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+    const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+    const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+    const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+    const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+    const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
+    const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
 
-const overlayBuffer = new Map();
-const overlays = {};
-const loadPromises = [];
+    const overlayBuffer = new Map(); // maintains order
+    const overlays = {};
+    const loadPromises = [];
 
-const layersToLoad = [
-  { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
-  { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
-  { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
-  { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
-  { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
-  { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
-  { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
-  { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
-  { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
-  { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
-];
+    const layersToLoad = [
+      { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
+      { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
+      { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
+      { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
+      { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
+      { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
+      { name: "Flood: Historic Flood Areas", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
+      { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
+      { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
+      { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
+    ];
 
-// Load and style each GeoJSON
-layersToLoad.forEach(({ name, file, icon, label }) => {
-  const layer = L.geoJSON(null, {
-    style: feature => {
-      const type = feature.geometry.type;
-      if (type === "Polygon" || type === "MultiPolygon") {
-        if (name === "Admin: Parish Boundary") {
-          return { color: "black", weight: 4, fillOpacity: 0 };
-        } else if (name === "Admin: Warden Zones") {
-          return { color: "#555", weight: 2, fillOpacity: 0 };
-        } else if (name === "Feature: Evacuation Sites") {
-          return { color: "red", weight: 2, fillColor: "red", fillOpacity: 0.3 };
-        } else {
-          return { color: "#0000ff", weight: 2, fillColor: "#0000ff", fillOpacity: 0.1 };
-        }
+    // Style function for polygons according to your specs
+    function polygonStyle(layerName) {
+      if (layerName === "Admin: Parish Boundary") {
+        return {
+          color: "black",
+          weight: 4,
+          fill: false,
+          fillOpacity: 0,
+        };
       }
-    },
-    pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
-    onEachFeature: (feature, layerInstance) => {
-      feature.properties.layerName = name; // for zoom styling
-
-      const props = feature.properties || {};
-      const nameProp = props.name || "No Name";
-      const desc = props.description || "";
-      const imgUrl = props.imageURL || "";
-      const siteURL = props.siteURL || "";
-
-      if (feature.geometry.type === "Point") {
-        let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-        if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
-        if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
-        layerInstance.bindPopup(popupContent);
-
-        if (label && icon) {
-          const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
-          layerInstance.bindTooltip(nameProp, {
-            permanent: true,
-            direction: "top",
-            offset: [0, -20],
-            className: `point-label-${labelColor}`
-          });
-          layerInstance._tooltipRef = layerInstance.getTooltip();
-        }
+      else if (layerName === "Admin: Warden Zones") {
+        return {
+          color: "darkgrey",
+          weight: 2,
+          fill: false,
+          fillOpacity: 0,
+        };
+      }
+      else if (layerName === "Feature: Evacuation Sites") {
+        return {
+          color: "red",
+          weight: 2,
+          fillColor: "red",
+          fillOpacity: 0.4,
+        };
+      }
+      else {
+        return {
+          color: "#0000ff",
+          weight: 2,
+          fillColor: "#0000ff",
+          fillOpacity: 0.1,
+        };
       }
     }
-  });
 
-  const p = fetch(file)
-    .then(res => res.json())
-    .then(data => {
-      data.features.forEach(f => f.properties.layerName = name);
-      layer.addData(data);
-      if (name === "Admin: Warden Zones") layer.addTo(map);
-      overlayBuffer.set(name, layer);
-    }).catch(err => console.error(`Error loading ${file}:`, err));
+    layersToLoad.forEach(({ name, file, icon, label }) => {
+      const layer = L.geoJSON(null, {
+        style: function(feature) {
+          if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+            return polygonStyle(name);
+          }
+        },
+        pointToLayer: icon ? (feature, latlng) => L.marker(latlng, { icon }) : undefined,
+        onEachFeature: function(feature, layerInstance) {
+          const props = feature.properties || {};
+          const nameProp = props.name || "No Name";
+          const desc = props.description || "";
+          const imgUrl = props.imageURL || "";
+          const siteURL = props.siteURL || "";
 
-  loadPromises.push(p);
-});
+          // Attach layer name for style & weight dynamic update
+          feature.properties.layerName = name;
 
-// Finalize after all layers load
-Promise.all(loadPromises).then(() => {
-  overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
-  overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+          if (feature.geometry.type === "Point") {
+            let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+            if (imgUrl) {
+              popupContent += `<br><img src="${imgUrl}" alt="${nameProp}" class="popup-image">`;
+            }
+            if (siteURL) {
+              popupContent += `<br><a href="${siteURL}" target="_blank" rel="noopener noreferrer">Visit Website</a>`;
+            }
+            layerInstance.bindPopup(popupContent);
 
-  const orderedNames = [
-    "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
-    "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Historic Flood Areas",
-    "Flood: WILD Watercourse Issues", "Admin: Warden Zones", "Admin: Parish Boundary"
-  ];
+            if (label && icon) {
+              const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+              layerInstance.bindTooltip(nameProp, {
+                permanent: true,
+                direction: "top",
+                offset: [0, -20],
+                className: `point-label-${labelColor}`
+              });
+              layerInstance._tooltipRef = layerInstance.getTooltip();
+            }
+          }
+          else if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+            // Polygon labels
+            const centroid = layerInstance.getBounds().getCenter();
+            layerInstance.bindTooltip(nameProp, {
+              permanent: true,
+              direction: 'center',
+              className: 'polygon-label',
+              offset: [0, 0],
+            }).setLatLng(centroid);
 
-  orderedNames.forEach(name => {
-    if (overlayBuffer.has(name)) overlays[name] = overlayBuffer.get(name);
-  });
-
-  const labelVisibilityZoom = 15;
-
-  function updateMapDisplay() {
-    const zoom = map.getZoom();
-
-    overlayBuffer.forEach(layer => {
-      layer.eachLayer(featureLayer => {
-        if (featureLayer._tooltipRef) {
-          if (zoom >= labelVisibilityZoom) {
-            featureLayer.openTooltip();
-          } else {
-            featureLayer.closeTooltip();
+            layerInstance._tooltipRef = layerInstance.getTooltip();
           }
         }
+      });
 
-        if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
-          const lname = featureLayer.feature.properties?.layerName;
-          let weight = 2;
-          if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
-          else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
-          featureLayer.setStyle({ weight });
+      const p = fetch(file)
+        .then(res => res.json())
+        .then(data => {
+          layer.addData(data);
+          if (name === "Admin: Warden Zones") {
+            layer.addTo(map); // Add this one by default
+          }
+          overlayBuffer.set(name, layer);
+        })
+        .catch(err => console.error(`Error loading ${file}:`, err));
+
+      loadPromises.push(p);
+    });
+
+    Promise.all(loadPromises).then(() => {
+      // Add WMS layers first
+      overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
+      overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+
+      // Ordered layers
+      const orderedNames = [
+        "Feature: Medical",
+        "Feature: Shelter",
+        "Feature: Storage",
+        "Feature: Supplies",
+        "Feature: Evacuation Sites",
+        "Flood: Water Guages",
+        "Flood: Historic Flood Areas",
+        "Flood: WILD Watercourse Issues",
+        "Admin: Warden Zones",
+        "Admin: Parish Boundary"
+      ];
+
+      orderedNames.forEach(name => {
+        if (overlayBuffer.has(name)) {
+          overlays[name] = overlayBuffer.get(name);
         }
       });
+
+      // Initial add layer control
+      L.control.layers(baseMaps, overlays, {
+        collapsed: window.innerWidth <= 768
+      }).addTo(map);
+
+      updateMapDisplay(); // Initial label & style update
     });
-  }
 
-  map.on("zoomend", updateMapDisplay);
-  updateMapDisplay();
+    // Show/hide labels and update polygon line thickness on zoom
+    function updateMapDisplay() {
+      const zoom = map.getZoom();
 
-  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
-});
+      overlayBuffer.forEach(layer => {
+        layer.eachLayer(featureLayer => {
+          if (featureLayer._tooltipRef) {
+            if (zoom >= 15) {
+              featureLayer.openTooltip();
+            } else {
+              featureLayer.closeTooltip();
+            }
+          }
 
-// Locate control
-const locateControl = L.control({ position: 'topleft' });
-locateControl.onAdd = function () {
-  const btn = L.DomUtil.create('button', 'locate-button');
-  btn.innerHTML = '📍';
-  btn.title = 'Show My Location';
-  L.DomEvent.on(btn, 'click', () => map.locate({ setView: true, maxZoom: 16 }));
-  return btn;
-};
-locateControl.addTo(map);
+          if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
+            const lname = featureLayer.feature.properties?.layerName;
+            let weight = 2;
+            if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
+            else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
+            featureLayer.setStyle({ weight });
+          }
+        });
+      });
+    }
 
-map.on('locationfound', e => {
-  const radius = e.accuracy / 2;
-  L.marker(e.latlng).addTo(map).bindPopup(`You are within ${Math.round(radius)} meters.`).openPopup();
-  L.circle(e.latlng, radius).addTo(map);
-});
+    map.on('zoomend', updateMapDisplay);
 
-map.on('locationerror', () => {
-  alert('Location access denied or unavailable.');
-});
-</script>
+    // Locate control button (no geolocate on load)
+    const locateBtn = L.control({ position: 'topleft' });
+    locateBtn.onAdd = () => {
+      const btn = L.DomUtil.create('button', 'locate-button');
+      btn.title = 'Find My Location';
+      btn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
+      btn.onclick = () => {
+        map.locate({ setView: true, maxZoom: 16 });
+      };
+      return btn;
+    };
+    locateBtn.addTo(map);
+
+    map.on('locationfound', (e) => {
+      const radius = e.accuracy / 2;
+      L.marker(e.latlng).addTo(map).bindPopup(`You are within ${radius.toFixed(0)} meters from this point`).openPopup();
+      L.circle(e.latlng, radius).addTo(map);
+    });
+
+    map.on('locationerror', () => {
+      alert('Unable to retrieve your location');
+    });
+  </script>
 </body>
 </html>
+
 
