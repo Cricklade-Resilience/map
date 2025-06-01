@@ -66,6 +66,7 @@
       border: 1px solid #999;
       border-radius: 3px;
       font-size: 12px;
+      pointer-events: none; /* so labels don’t capture mouse */
     }
   </style>
 </head>
@@ -148,41 +149,31 @@ function createOnEachFeature(name, icon, label) {
     }
 
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
+      // Warden Zones show 'id', Parish boundary no label
       const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
-      const center = layerInstance.getBounds().getCenter();
-      const tooltip = L.tooltip({
-        permanent: true,
-        direction: 'center',
-        className: 'polygon-label',
-        offset: [0, 0]
-      }).setContent(labelText).setLatLng(center);
+      if(name === "Admin: Warden Zones") {
+        const center = layerInstance.getBounds().getCenter();
+        const tooltip = L.tooltip({
+          permanent: true,
+          direction: 'center',
+          className: 'polygon-label',
+          offset: [0, 0]
+        }).setContent(labelText).setLatLng(center);
 
-      if (!polygonLabels.has(name)) polygonLabels.set(name, []);
-      polygonLabels.get(name).push(tooltip);
-      layerInstance._tooltipRef = tooltip;
+        if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+        polygonLabels.get(name).push(tooltip);
+        layerInstance._tooltipRef = tooltip;
+      }
     }
 
     if (geometryType.includes("Polygon")) {
       let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
 
       if (name === "Admin: Warden Zones") {
-  layer.eachLayer(l => {
-    // Restore correct styling (dark grey outlines)
-    l.setStyle({
-      color: "#444", // dark grey
-      weight: 2,
-      fillOpacity: 0.1
-    });
-    // Show label if we have one
-    const tooltips = polygonLabels.get(name);
-    if (tooltips) {
-      const tooltip = tooltips.find(t => t._latlng && t._latlng.equals(l.getBounds().getCenter()));
-      if (tooltip) map.addLayer(tooltip);
-    }
-  });
-  layer.addTo(map);
-}
-
+        style = { color: "#444", weight: 2, fillOpacity: 0.1 }; // dark grey + lighter fill
+      } else if (name === "Admin: Parish Boundary") {
+        style = { color: "black", weight: 3, fillOpacity: 0 }; // black outline, transparent fill
+      }
 
       layerInstance.setStyle(style);
     }
@@ -214,7 +205,7 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
       data.features.forEach(f => f.properties.layerName = name);
       layer.addData(data);
       if (name === "Admin: Warden Zones" && polygonLabels.has(name)) {
-      polygonLabels.get(name).forEach(t => map.addLayer(t));
+        polygonLabels.get(name).forEach(t => map.addLayer(t));
       }
       overlayBuffer.set(name, layer);
     }).catch(err => console.error(`Error loading ${file}:`, err));
@@ -235,6 +226,25 @@ Promise.all(loadPromises).then(() => {
   orderedNames.forEach(name => {
     if (overlayBuffer.has(name)) overlays[name] = overlayBuffer.get(name);
   });
+
+  // Add Warden Zones & Parish Boundary layers + labels by default on map load
+  if (overlayBuffer.has("Admin: Warden Zones")) {
+    const wardenZonesLayer = overlayBuffer.get("Admin: Warden Zones");
+    wardenZonesLayer.addTo(map);
+    wardenZonesLayer.eachLayer(l => {
+      l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
+    });
+  }
+
+  if (overlayBuffer.has("Admin: Parish Boundary")) {
+    const parishLayer = overlayBuffer.get("Admin: Parish Boundary");
+    parishLayer.addTo(map);
+    parishLayer.eachLayer(l => {
+      l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+    });
+  }
 
   const labelVisibilityZoom = 15;
 
@@ -270,37 +280,37 @@ Promise.all(loadPromises).then(() => {
 
 map.on('overlayadd', e => {
   const layerName = e.name;
-  if (polygonLabels.has(layerName)) {
-    polygonLabels.get(layerName).forEach(t => map.addLayer(t));
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Restore styles on add
+      if (layerName === "Admin: Warden Zones") {
+        l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      }
+      if (layerName === "Admin: Parish Boundary") {
+        l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+      }
+
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
+    });
   }
 });
 
 map.on('overlayremove', e => {
   const layerName = e.name;
-  if (polygonLabels.has(layerName)) {
-    polygonLabels.get(layerName).forEach(t => map.removeLayer(t));
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Optionally reset style or leave as is
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.removeLayer(tooltip);
+    });
   }
 });
 
-const locateControl = L.control({ position: 'topleft' });
-locateControl.onAdd = function () {
-  const btn = L.DomUtil.create('button', 'locate-button');
-  btn.innerHTML = '📍';
-  btn.title = 'Show My Location';
-  L.DomEvent.on(btn, 'click', () => map.locate({ setView: true, maxZoom: 16 }));
-  return btn;
-};
-locateControl.addTo(map);
-
-map.on('locationfound', e => {
-  const radius = e.accuracy / 2;
-  L.marker(e.latlng).addTo(map).bindPopup(`You are within ${Math.round(radius)} meters.`).openPopup();
-  L.circle(e.latlng, radius).addTo(map);
-});
-
-map.on('locationerror', () => {
-  alert('Location access denied or unavailable.');
-});
 </script>
 </body>
 </html>
