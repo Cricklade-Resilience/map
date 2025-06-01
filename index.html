@@ -214,6 +214,8 @@
               offset: [0, -20],
               className: `point-label-${labelColor}`
             });
+            // Store the tooltip reference on the layer
+            layerInstance._tooltipRef = tooltip;
           }
         }
 
@@ -267,6 +269,29 @@
         overlays[name] = overlayBuffer.get(name);
       }
     });
+
+
+
+    const labelVisibilityZoom = 15;  // Set the zoom level threshold
+
+map.on("zoomend", () => {
+  const currentZoom = map.getZoom();
+
+  overlayBuffer.forEach(layer => {
+    layer.eachLayer(featureLayer => {
+      if (featureLayer._tooltipRef) {
+        const tooltip = featureLayer.getTooltip();
+        if (tooltip) {
+          if (currentZoom >= labelVisibilityZoom) {
+            map.openTooltip(tooltip); // Show
+          } else {
+            map.closeTooltip(tooltip); // Hide
+          }
+        }
+      }
+    });
+  });
+});
 
     // Add layer control
     L.control.layers(baseMaps, overlays, {
