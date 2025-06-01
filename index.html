@@ -60,13 +60,12 @@
 
     .polygon-label {
       font-weight: bold;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 4px;
+      color: black;
+      background: white;
       padding: 2px 6px;
-      border: 1px solid #666;
-      font-size: 14px;
-      color: #333;
-      pointer-events: none;
+      border: 1px solid #999;
+      border-radius: 3px;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -77,7 +76,6 @@
 <script>
 const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-// Base maps
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
 }).addTo(map);
@@ -96,7 +94,6 @@ const baseMaps = {
   "Aerial (Esri)": esriAerial
 };
 
-// WMS overlays
 const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
   layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
   format: "image/png", transparent: true, attribution: "© Environment Agency"
@@ -107,7 +104,6 @@ const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialda
   format: "image/png", transparent: true, attribution: "© Environment Agency"
 });
 
-// FontAwesome icons
 const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
@@ -119,21 +115,24 @@ const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: b
 const overlayBuffer = new Map();
 const overlays = {};
 const loadPromises = [];
+const polygonLabels = new Map();
 
 function createOnEachFeature(name, icon, label) {
   return function(feature, layerInstance) {
-    feature.properties.layerName = name;
     const props = feature.properties || {};
-    const nameProp = props.name || "No Name";
-    const desc = props.description || "";
-    const imgUrl = props.imageURL || "";
-    const siteURL = props.siteURL || "";
     const geometryType = feature.geometry.type;
+    feature.properties.layerName = name;
 
     if (geometryType === "Point") {
+      const nameProp = props.name || "No Name";
+      const desc = props.description || "";
+      const imgUrl = props.imageURL || "";
+      const siteURL = props.siteURL || "";
+
       let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
       if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
       if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+
       layerInstance.bindPopup(popupContent);
 
       if (label && icon) {
@@ -149,23 +148,37 @@ function createOnEachFeature(name, icon, label) {
     }
 
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
+      const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
       const center = layerInstance.getBounds().getCenter();
       const tooltip = L.tooltip({
         permanent: true,
         direction: 'center',
         className: 'polygon-label',
         offset: [0, 0]
-      })
-      .setContent(nameProp)
-      .setLatLng(center);
+      }).setContent(labelText).setLatLng(center);
 
-      map.addLayer(tooltip);
+      if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+      polygonLabels.get(name).push(tooltip);
       layerInstance._tooltipRef = tooltip;
+    }
+
+    if (geometryType.includes("Polygon")) {
+      let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
+
+      if (name === "Admin: Warden Zones") {
+        style.color = "#444";
+        style.weight = 2;
+      } else if (name === "Admin: Parish Boundary") {
+        style.color = "black";
+        style.weight = 4;
+        style.fillOpacity = 0;
+      }
+
+      layerInstance.setStyle(style);
     }
   };
 }
 
-// Load GeoJSON layers
 const layersToLoad = [
   { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
   { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
@@ -181,7 +194,7 @@ const layersToLoad = [
 
 layersToLoad.forEach(({ name, file, icon, label }) => {
   const layer = L.geoJSON(null, {
-    pointToLayer: (feature, latlng) => icon ? L.marker(latlng, { icon }) : L.marker(latlng),
+    pointToLayer: (f, latlng) => icon ? L.marker(latlng, { icon }) : L.marker(latlng),
     onEachFeature: createOnEachFeature(name, icon, label)
   });
 
@@ -197,7 +210,6 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
   loadPromises.push(p);
 });
 
-// Finalize overlays and controls
 Promise.all(loadPromises).then(() => {
   overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
   overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
@@ -216,6 +228,7 @@ Promise.all(loadPromises).then(() => {
 
   function updateMapDisplay() {
     const zoom = map.getZoom();
+
     overlayBuffer.forEach(layer => {
       layer.eachLayer(featureLayer => {
         if (featureLayer._tooltipRef) {
@@ -225,6 +238,7 @@ Promise.all(loadPromises).then(() => {
             featureLayer.closeTooltip();
           }
         }
+
         if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
           const lname = featureLayer.feature.properties?.layerName;
           let weight = 2;
@@ -242,7 +256,20 @@ Promise.all(loadPromises).then(() => {
   L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
-// Locate button
+map.on('overlayadd', e => {
+  const layerName = e.name;
+  if (polygonLabels.has(layerName)) {
+    polygonLabels.get(layerName).forEach(t => map.addLayer(t));
+  }
+});
+
+map.on('overlayremove', e => {
+  const layerName = e.name;
+  if (polygonLabels.has(layerName)) {
+    polygonLabels.get(layerName).forEach(t => map.removeLayer(t));
+  }
+});
+
 const locateControl = L.control({ position: 'topleft' });
 locateControl.onAdd = function () {
   const btn = L.DomUtil.create('button', 'locate-button');
@@ -265,6 +292,3 @@ map.on('locationerror', () => {
 </script>
 </body>
 </html>
-
-
-
