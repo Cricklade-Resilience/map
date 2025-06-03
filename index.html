@@ -26,6 +26,20 @@
     }
 
     .locate-button:hover { background-color: #f0f0f0; }
+    .locate-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background-color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+}
+
 
     .popup-image {
       max-width: 100px;
@@ -71,11 +85,11 @@
   </style>
 </head>
 <body>
-<div id="map">
+<div id="map"></div>
 <button onclick="locateUser()" class="locate-button">
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
-</div>
+</body>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
