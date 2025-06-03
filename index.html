@@ -167,34 +167,36 @@ function createOnEachFeature(name, icon, label) {
     }
 
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
-      // Warden Zones show 'id', Parish boundary no label
-      const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
-      if(name === "Admin: Warden Zones") {
-        const center = layerInstance.getBounds().getCenter();
-        const tooltip = L.tooltip({
-          permanent: true,
-          direction: 'center',
-          className: 'polygon-label',
-          offset: [0, 0]
-        }).setContent(labelText).setLatLng(center);
+  const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
 
-        else if (name === "Feature: Evacuation Sites") {
-  const labelText = props.name || "Evac Site";
-  const center = layerInstance.getBounds().getCenter();
+  if (name === "Admin: Warden Zones") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
 
-  const tooltip = L.tooltip({
-    permanent: true,
-    direction: 'center',
-    className: 'polygon-label',
-    offset: [0, 0]
-  }).setContent(labelText).setLatLng(center);
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
 
-  if (!polygonLabels.has(name)) polygonLabels.set(name, []);
-  polygonLabels.get(name).push(tooltip);
-  layerInstance._tooltipRef = tooltip;
+  } else if (name === "Feature: Evacuation Sites") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
+
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
+  }
 }
 
-    }
 
     if (geometryType.includes("Polygon")) {
   let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
