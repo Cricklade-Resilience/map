@@ -315,7 +315,15 @@ map.on('overlayremove', e => {
   }
 });
 
+let userLocationMarker = null;
+
 function locateUser() {
+  if (userLocationMarker) {
+    map.removeLayer(userLocationMarker);
+    userLocationMarker = null;
+    return;
+  }
+
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
     return;
@@ -325,7 +333,13 @@ function locateUser() {
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
 
-    const marker = L.marker([lat, lng]).addTo(map)
+    const locationIcon = L.divIcon({
+      html: '<i class="fa-solid fa-location-crosshairs" style="color: purple;"></i>',
+      className: 'fa-icon',
+      iconSize: [24, 24]
+    });
+
+    userLocationMarker = L.marker([lat, lng], { icon: locationIcon }).addTo(map)
       .bindPopup("You are here").openPopup();
 
     map.setView([lat, lng], 15);
@@ -333,6 +347,7 @@ function locateUser() {
     alert("Unable to retrieve your location.");
   });
 }
+
 
   
 </script>
