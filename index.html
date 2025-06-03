@@ -178,23 +178,38 @@ function createOnEachFeature(name, icon, label) {
           offset: [0, 0]
         }).setContent(labelText).setLatLng(center);
 
-        if (!polygonLabels.has(name)) polygonLabels.set(name, []);
-        polygonLabels.get(name).push(tooltip);
-        layerInstance._tooltipRef = tooltip;
-      }
+        else if (name === "Feature: Evacuation Sites") {
+  const labelText = props.name || "Evac Site";
+  const center = layerInstance.getBounds().getCenter();
+
+  const tooltip = L.tooltip({
+    permanent: true,
+    direction: 'center',
+    className: 'polygon-label',
+    offset: [0, 0]
+  }).setContent(labelText).setLatLng(center);
+
+  if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+  polygonLabels.get(name).push(tooltip);
+  layerInstance._tooltipRef = tooltip;
+}
+
     }
 
     if (geometryType.includes("Polygon")) {
-      let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
+  let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
 
-      if (name === "Admin: Warden Zones") {
-        style = { color: "#444", weight: 2, fillOpacity: 0.1 }; // dark grey + lighter fill
-      } else if (name === "Admin: Parish Boundary") {
-        style = { color: "black", weight: 3, fillOpacity: 0 }; // black outline, transparent fill
-      }
+  if (name === "Admin: Warden Zones") {
+    style = { color: "#444", weight: 2, fillOpacity: 0.1 };
+  } else if (name === "Admin: Parish Boundary") {
+    style = { color: "black", weight: 3, fillOpacity: 0 };
+  } else if (name === "Feature: Evacuation Sites") {
+    style = { color: "red", weight: 2, fillOpacity: 0.1 };  // ✅ red fill/outline
+  }
 
-      layerInstance.setStyle(style);
-    }
+  layerInstance.setStyle(style);
+}
+
   };
 }
 
