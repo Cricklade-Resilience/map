@@ -71,7 +71,11 @@
   </style>
 </head>
 <body>
-<div id="map"></div>
+<div id="map">
+<button class="locate-button" onclick="locateUser()" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+  <i class="fa-solid fa-location-crosshairs"></i>
+</button>
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -311,6 +315,26 @@ map.on('overlayremove', e => {
   }
 });
 
+function locateUser() {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(position => {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    const marker = L.marker([lat, lng]).addTo(map)
+      .bindPopup("You are here").openPopup();
+
+    map.setView([lat, lng], 15);
+  }, () => {
+    alert("Unable to retrieve your location.");
+  });
+}
+
+  
 </script>
 </body>
 </html>
