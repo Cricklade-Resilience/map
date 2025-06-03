@@ -315,12 +315,25 @@ map.on('overlayremove', e => {
   }
 });
 
-let userLocationMarker = null;
+////////////////////////////////////////
+// Locate Button
+////////////////////////////////////////
+let watchId = null;
+let userMarker = null;
+let accuracyCircle = null;
+let headingArrow = null;
 
 function locateUser() {
-  if (userLocationMarker) {
-    map.removeLayer(userLocationMarker);
-    userLocationMarker = null;
+  if (watchId !== null) {
+    // Stop tracking
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+
+    if (userMarker) map.removeLayer(userMarker);
+    if (accuracyCircle) map.removeLayer(accuracyCircle);
+    if (headingArrow) map.removeLayer(headingArrow);
+
+    userMarker = accuracyCircle = headingArrow = null;
     return;
   }
 
@@ -329,23 +342,82 @@ function locateUser() {
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(position => {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-
-    const locationIcon = L.divIcon({
-      html: '<i class="fa-solid fa-location-crosshairs" style="color: purple;"></i>',
-      className: 'fa-icon',
-      iconSize: [24, 24]
-    });
-
-    userLocationMarker = L.marker([lat, lng], { icon: locationIcon }).addTo(map)
-      .bindPopup("You are here").openPopup();
-
-    map.setView([lat, lng], 15);
-  }, () => {
-    alert("Unable to retrieve your location.");
+  const locationIcon = L.divIcon({
+    html: '<i class="fa-solid fa-location-crosshairs" style="color: purple;"></i>',
+    className: 'fa-icon',
+    iconSize: [24, 24]
   });
+
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
+      const heading = pos.coords.heading; // may be null
+
+      const latlng = [lat, lng];
+
+      // Update or create marker
+      if (!userMarker) {
+        userMarker = L.marker(latlng, { icon: locationIcon }).addTo(map).bindPopup("You are here");
+      } else {
+        userMarker.setLatLng(latlng);
+      }
+
+      // Update or create accuracy circle
+      if (!accuracyCircle) {
+        accuracyCircle = L.circle(latlng, {
+          radius: accuracy,
+          color: 'blue',
+          fillColor: '#1E90FF',
+          fillOpacity: 0.2,
+          weight: 1
+        }).addTo(map);
+      } else {
+        accuracyCircle.setLatLng(latlng).setRadius(accuracy);
+      }
+
+      // Update or create heading arrow
+      if (heading !== null && !isNaN(heading)) {
+        const arrowLength = 30; // meters
+        const angleRad = (heading - 90) * (Math.PI / 180); // Leaflet's 0° is East
+
+        const destLat = lat + (arrowLength / 111320) * Math.cos(angleRad);
+        const destLng = lng + (arrowLength / (40075000 * Math.cos(lat * Math.PI / 180) / 360)) * Math.sin(angleRad);
+
+        const arrowCoords = [[lat, lng], [destLat, destLng]];
+
+        if (!headingArrow) {
+          headingArrow = L.polyline(arrowCoords, {
+            color: 'purple',
+            weight: 3,
+            opacity: 0.8,
+            dashArray: '5, 5'
+          }).addTo(map);
+        } else {
+          headingArrow.setLatLngs(arrowCoords);
+        }
+      } else if (headingArrow) {
+        // Remove arrow if no heading
+        map.removeLayer(headingArrow);
+        headingArrow = null;
+      }
+
+      // Zoom to user's position on first update
+      if (!map.getBounds().contains(latlng)) {
+        map.setView(latlng, 15);
+      }
+    },
+    err => {
+      alert("Unable to retrieve your location.");
+      console.error(err);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
+    }
+  );
 }
 
 
