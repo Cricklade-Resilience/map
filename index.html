@@ -4,25 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cricklade Resilience</title>
-
-  <!-- Leaflet CSS for map styling -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
   <style>
-    /* Make map fill the page */
     html, body, #map { height: 100%; margin: 0; padding: 0; }
 
-    /* Style for FontAwesome icons on map */
     .fa-icon {
       font-size: 24px;
       color: blue;
       text-shadow: 0 0 2px white;
     }
 
-    /* Locate button styling */
     .locate-button {
       background-color: white;
       border: none;
@@ -33,25 +25,22 @@
       box-shadow: 0 1px 5px rgba(0,0,0,0.65);
     }
 
-    /* Hover effect on locate button */
     .locate-button:hover { background-color: #f0f0f0; }
-
-    /* Position the locate button in bottom right */
     .locate-button {
-      position: absolute;
-      bottom: 20px;
-      right: 10px;
-      z-index: 1000;
-      background-color: white;
-      border: none;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 18px;
-      border-radius: 4px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    }
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+  z-index: 1000;
+  background-color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+}
 
-    /* Style for images inside popups */
+
     .popup-image {
       max-width: 100px;
       max-height: 75px;
@@ -61,7 +50,6 @@
       object-fit: contain;
     }
 
-    /* Larger images on smaller screens */
     @media (max-width: 768px) {
       .popup-image {
         max-width: 180px;
@@ -69,7 +57,6 @@
       }
     }
 
-    /* Label styles for different point colors */
     .point-label-red, .point-label-green, .point-label-orange,
     .point-label-blue, .point-label-brown {
       font-weight: bold;
@@ -85,7 +72,6 @@
     .point-label-blue { color: blue; }
     .point-label-brown { color: brown; }
 
-    /* Style for polygon labels */
     .polygon-label {
       font-weight: bold;
       color: black;
@@ -94,299 +80,448 @@
       border: 1px solid #999;
       border-radius: 3px;
       font-size: 12px;
-      pointer-events: none; /* labels don’t capture mouse events */
+      pointer-events: none; /* so labels don’t capture mouse */
     }
 
-    /* Info box styling (bottom left) */
-    .info-box {
-      position: absolute;
-      bottom: 60px;
-      left: 10px;
-      width: 300px;
-      background: white;
-      border: 1px solid #999;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      padding: 15px;
-      z-index: 1100;
-      font-family: sans-serif;
-    }
+  .info-box {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  width: 300px;
+  background: white;
+  border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  padding: 15px;
+  z-index: 1100;
+  font-family: sans-serif;
+}
 
-    .info-box h3 {
-      margin-top: 0;
-    }
+.info-box h3 {
+  margin-top: 0;
+}
 
-    /* Buttons inside info box */
-    .info-box button {
-      margin-top: 10px;
-      background: #eee;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
+.info-box button {
+  margin-top: 10px;
+  background: #eee;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.info-box button:hover {
+  background: #ddd;
+}
 
-    .info-box button:hover {
-      background: #ddd;
-    }
+
   </style>
 </head>
 <body>
+<div id="map"></div>
+<button onclick="locateUser()" class="locate-button">
+  <i class="fa-solid fa-location-crosshairs"></i>
+</button>
 
-  <!-- Map container -->
-  <div id="map"></div>
+<div id="infoBox" class="info-box" style="display: none;">
+  <h3>Cricklade Resilience Map</h3>
+  <img src="Images/CrickladeLogo.png" alt="Cricklade" style="width:50px;height:100px;">
+  <p>This map helps residents and responders understand flood risks, evacuation sites, and key infrastructure.</p>
+  <p>
+    <a href="https://example.com/document1.pdf" target="_blank">📄 Emergency Plan (PDF)</a><br>
+    <a href="https://example.com/document2" target="_blank">🌐 Visit our Website</a>
+  </p>
+  <button onclick="closeInfoBox()">Close</button>
+</div>
 
-  <!-- Button to toggle user location tracking -->
-  <button onclick="locateUser()" class="locate-button">
-    <i class="fa-solid fa-location-crosshairs"></i>
-  </button>
+</body>
 
-  <!-- Information box initially hidden -->
-  <div id="infoBox" class="info-box" style="display: none;">
-    <h3>Cricklade Resilience Map</h3>
-    <img src="Images/CrickladeLogo.png" alt="Cricklade" style="width:50px;height:100px;">
-    <p>This map helps residents and responders understand flood risks, evacuation sites, and key infrastructure.</p>
-    <p>
-      <a href="https://example.com/document1.pdf" target="_blank">📄 Emergency Plan (PDF)</a><br>
-      <a href="https://example.com/document2" target="_blank">🌐 Visit our Website</a>
-    </p>
-    <button onclick="closeInfoBox()">Close</button>
-  </div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([51.6409, -1.8577], 14);
 
-  <!-- Leaflet JS library -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
 
-  <script>
-    // Initialize the map centered on Cricklade
-    const map = L.map('map').setView([51.6409, -1.8577], 14);
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '© OpenStreetMap contributors'
+});
 
-    // Define base map layers
-    const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
-    }).addTo(map);  // Add Carto greyscale as default
+const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles © Esri'
+});
 
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '© OpenStreetMap contributors'
-    });
+const baseMaps = {
+  "Greyscale (Carto)": cartoLight,
+  "OpenStreetMap": osm,
+  "Aerial (Esri)": esriAerial
+};
 
-    const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles © Esri'
-    });
+const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
+  format: "image/png", transparent: true, attribution: "© Environment Agency"
+});
 
-    // Base maps object for layer control
-    const baseMaps = {
-      "Greyscale (Carto)": cartoLight,
-      "OpenStreetMap": osm,
-      "Aerial (Esri)": esriAerial
-    };
+const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+  format: "image/png", transparent: true, attribution: "© Environment Agency"
+});
 
-    // WMS flood zone overlays from Environment Agency
-    const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
-      layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
-      format: "image/png", transparent: true, attribution: "© Environment Agency"
-    });
+const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 
-    const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
-      layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
-      format: "image/png", transparent: true, attribution: "© Environment Agency"
-    });
+const overlayBuffer = new Map();
+const overlays = {};
+const loadPromises = [];
+const polygonLabels = new Map();
 
-    // Define various icons for different feature types using FontAwesome icons
-    const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-    const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-    const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-    const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-    const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-    const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
-    const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+function createOnEachFeature(name, icon, label) {
+  return function(feature, layerInstance) {
+    const props = feature.properties || {};
+    const geometryType = feature.geometry.type;
+    feature.properties.layerName = name;
 
-    // Storage for layers before adding to map controls
-    const overlayBuffer = new Map();
-    const overlays = {};
-    const loadPromises = [];
-    const polygonLabels = new Map();
+    if (geometryType === "Point") {
+      const nameProp = props.name || "No Name";
+      const desc = props.description || "";
+      const imgUrl = props.imageURL || "";
+      const siteURL = props.siteURL || "";
 
-    // Function to create popup and tooltip on each GeoJSON feature
-    function createOnEachFeature(name, icon, label) {
-      return function(feature, layerInstance) {
-        const props = feature.properties || {};
-        const geometryType = feature.geometry.type;
-        feature.properties.layerName = name;  // Track layer name in properties
+      let popupContent = <strong>${nameProp}</strong><br>${desc};
+      if (imgUrl) popupContent += <br><img src="${imgUrl}" class="popup-image">;
+      if (siteURL) popupContent += <br><a href="${siteURL}" target="_blank">Visit Website</a>;
 
-        // For Point features: add popup and optional label tooltip
-        if (geometryType === "Point") {
-          const nameProp = props.name || "Unknown";
-          const type = props.type || "";
-          const description = props.description || "";
-          let popupContent = `<strong>${nameProp}</strong><br>${description}`;
+      layerInstance.bindPopup(popupContent);
 
-          // Append photo if available
-          if (props.photo) {
-            popupContent += `<br><img src="${props.photo}" alt="${nameProp}" class="popup-image" />`;
-          }
-
-          // Bind popup to the marker
-          layerInstance.bindPopup(popupContent);
-
-          // Add a tooltip label if label parameter is true
-          if (label) {
-            const labelClass = `point-label-${label}`;
-            layerInstance.bindTooltip(nameProp, {
-              permanent: true,
-              direction: 'right',
-              className: labelClass,
-              offset: [10, 0]
-            });
-          }
-
-          // Set icon for the marker if provided
-          if (icon) layerInstance.setIcon(icon);
-        } 
-        else if (geometryType === "Polygon" || geometryType === "MultiPolygon") {
-          // For polygons, add popup and a label marker in the centroid
-
-          let popupContent = `<strong>${props.name || "Area"}</strong><br>${props.description || ""}`;
-
-          // Bind popup to polygon
-          layerInstance.bindPopup(popupContent);
-
-          // Compute polygon centroid for label
-          let centroid = null;
-          if (geometryType === "Polygon") {
-            centroid = getPolygonCentroid(feature.geometry.coordinates[0]);
-          } else if (geometryType === "MultiPolygon") {
-            // Just use the first polygon for centroid
-            centroid = getPolygonCentroid(feature.geometry.coordinates[0][0]);
-          }
-
-          if (centroid) {
-            // Create a non-interactive label marker at centroid
-            const labelMarker = L.marker([centroid[1], centroid[0]], {
-              icon: L.divIcon({
-                className: 'polygon-label',
-                html: props.name || "Area",
-                iconSize: null
-              }),
-              interactive: false
-            }).addTo(map);
-
-            polygonLabels.set(layerInstance, labelMarker);
-          }
-        }
-      };
-    }
-
-    // Calculate centroid of polygon coordinates
-    function getPolygonCentroid(coords) {
-      let area = 0, x = 0, y = 0;
-      for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
-        let p1 = coords[i];
-        let p2 = coords[j];
-        let f = p1[0] * p2[1] - p2[0] * p1[1];
-        area += f;
-        x += (p1[0] + p2[0]) * f;
-        y += (p1[1] + p2[1]) * f;
-      }
-      area /= 2;
-      x /= (6 * area);
-      y /= (6 * area);
-      return [x, y];
-    }
-
-    // Add a new GeoJSON layer and store it for layer control
-    function addLayer(name, url, icon, label) {
-      // Fetch GeoJSON data
-      const promise = fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          // Create GeoJSON layer with popups and icons
-          const layer = L.geoJSON(data, {
-            onEachFeature: createOnEachFeature(name, icon, label)
-          });
-
-          // Add to buffer map for overlays and layer control
-          overlayBuffer.set(name, layer);
-          overlays[name] = layer;
-        }).catch(err => {
-          console.error(`Failed to load layer ${name} from ${url}:`, err);
+      if (label && icon) {
+        const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+        layerInstance.bindTooltip(nameProp, {
+          permanent: true,
+          direction: "top",
+          offset: [0, -20],
+          className: point-label-${labelColor}
         });
-
-      loadPromises.push(promise);
+        layerInstance._tooltipRef = layerInstance.getTooltip();
+      }
     }
 
-    // URLs for GeoJSON layers — replace with your real URLs
-    addLayer("Flood Warning Areas", "https://gist.githubusercontent.com/cmc2468/12bb1ff4663e54809c335cc352bce132/raw/floodwarningareas.geojson", null, false);
-    addLayer("Emergency Assembly Points", "https://gist.githubusercontent.com/cmc2468/d2614e865cc4d677f5bdb8d58ec1d6e2/raw/emergencyassemblypoints.geojson", faShopIcon, "orange");
-    addLayer("Flood History", "https://gist.githubusercontent.com/cmc2468/0b65e259a969d9b9df53cc538f7a8320/raw/historicalflood.geojson", histflood, "blue");
-    addLayer("Evacuation Points", "https://gist.githubusercontent.com/cmc2468/531f78f15df3dbf09a13db16b3d8e09d/raw/evacuationpoints.geojson", shelter, "green");
-    addLayer("Storage", "https://gist.githubusercontent.com/cmc2468/8573c5e21b206dbb84e4764328a4ac43/raw/storage.geojson", storage, "brown");
-    addLayer("Medical", "https://gist.githubusercontent.com/cmc2468/3d23d0d7922ef2a3eb9833ed15439d01/raw/medical.geojson", medical, "red");
-    addLayer("Flood Gauges", "https://gist.githubusercontent.com/cmc2468/30ed7f35b492efeb3e5c236ee465302c/raw/floodgauges.geojson", guage, "blue");
+    if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
+  const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
 
-    // Wait for all GeoJSON layers to load before adding controls and overlays
-    Promise.all(loadPromises).then(() => {
-      // Add all overlay layers to the map by default
-      for (const [name, layer] of overlayBuffer.entries()) {
-        layer.addTo(map);
+  if (name === "Admin: Warden Zones") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
+
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
+
+  } else if (name === "Feature: Evacuation Sites") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
+
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
+  }
+}
+
+
+    if (geometryType.includes("Polygon")) {
+  let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
+
+  if (name === "Admin: Warden Zones") {
+    style = { color: "#444", weight: 2, fillOpacity: 0.1 };
+  } else if (name === "Admin: Parish Boundary") {
+    style = { color: "black", weight: 3, fillOpacity: 0 };
+  } else if (name === "Feature: Evacuation Sites") {
+    style = { color: "red", weight: 2, fillOpacity: 0.1 };  // ✅ red fill/outline
+  }
+
+  layerInstance.setStyle(style);
+}
+
+  };
+}
+
+const layersToLoad = [
+  { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
+  { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
+  { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
+  { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
+  { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
+  { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
+  { name: "Flood: Areas of Concern", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
+  { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
+  { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
+  { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
+];
+
+layersToLoad.forEach(({ name, file, icon, label }) => {
+  const layer = L.geoJSON(null, {
+    pointToLayer: (f, latlng) => icon ? L.marker(latlng, { icon }) : L.marker(latlng),
+    onEachFeature: createOnEachFeature(name, icon, label)
+  });
+
+  const p = fetch(file)
+    .then(res => res.json())
+    .then(data => {
+      data.features.forEach(f => f.properties.layerName = name);
+      layer.addData(data);
+      if (name === "Admin: Warden Zones" && polygonLabels.has(name)) {
+        polygonLabels.get(name).forEach(t => map.addLayer(t));
       }
+      overlayBuffer.set(name, layer);
+    }).catch(err => console.error(Error loading ${file}:, err));
 
-      // Add flood zone WMS overlays (off by default)
-      overlays["Flood Zone 2"] = floodZone2WMS;
-      overlays["Flood Zone 3"] = floodZone3WMS;
+  loadPromises.push(p);
+});
 
-      // Add layer control to map
-      L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
+Promise.all(loadPromises).then(() => {
+  overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
+  overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+
+  const orderedNames = [
+    "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
+    "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
+    "Flood: WILD Watercourse Issues", "Admin: Warden Zones", "Admin: Parish Boundary"
+  ];
+
+  orderedNames.forEach(name => {
+    if (overlayBuffer.has(name)) overlays[name] = overlayBuffer.get(name);
+  });
+
+  // Add Warden Zones & Parish Boundary layers + labels by default on map load
+  if (overlayBuffer.has("Admin: Warden Zones")) {
+    const wardenZonesLayer = overlayBuffer.get("Admin: Warden Zones");
+    wardenZonesLayer.addTo(map);
+    wardenZonesLayer.eachLayer(l => {
+      l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
     });
+  }
 
-    // Function to toggle user geolocation tracking
-    let locateOn = false;
-    let userLocationMarker;
+  if (overlayBuffer.has("Admin: Parish Boundary")) {
+    const parishLayer = overlayBuffer.get("Admin: Parish Boundary");
+    parishLayer.addTo(map);
+    parishLayer.eachLayer(l => {
+      l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+    });
+  }
 
-    function locateUser() {
-      if (!locateOn) {
-        // Start locating user
-        map.locate({ setView: true, watch: true, maxZoom: 17 });
-        locateOn = true;
-      } else {
-        // Stop locating user
-        map.stopLocate();
-        locateOn = false;
-        if (userLocationMarker) {
-          map.removeLayer(userLocationMarker);
-          userLocationMarker = null;
+  const labelVisibilityZoom = 15;
+
+  function updateMapDisplay() {
+    const zoom = map.getZoom();
+
+    overlayBuffer.forEach(layer => {
+      layer.eachLayer(featureLayer => {
+        if (featureLayer._tooltipRef) {
+          if (zoom >= labelVisibilityZoom) {
+            featureLayer.openTooltip();
+          } else {
+            featureLayer.closeTooltip();
+          }
         }
-      }
-    }
 
-    // Handle location found event
-    map.on('locationfound', function(e) {
-      if (!userLocationMarker) {
-        userLocationMarker = L.marker(e.latlng).addTo(map);
-        userLocationMarker.bindPopup("You are here").openPopup();
+        if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
+          const lname = featureLayer.feature.properties?.layerName;
+          let weight = 2;
+          if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
+          else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
+          featureLayer.setStyle({ weight });
+        }
+      });
+    });
+  }
+
+  map.on("zoomend", updateMapDisplay);
+  updateMapDisplay();
+
+  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
+});
+
+map.on('overlayadd', e => {
+  const layerName = e.name;
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Restore styles on add
+      if (layerName === "Admin: Warden Zones") {
+        l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      }
+      if (layerName === "Admin: Parish Boundary") {
+        l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+      }
+
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
+    });
+  }
+});
+
+map.on('overlayremove', e => {
+  const layerName = e.name;
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Optionally reset style or leave as is
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.removeLayer(tooltip);
+    });
+  }
+});
+
+////////////////////////////////////////
+// Locate Button
+////////////////////////////////////////
+let watchId = null;
+let userMarker = null;
+let accuracyCircle = null;
+let headingArrow = null;
+
+function locateUser() {
+  if (watchId !== null) {
+    // Stop tracking
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+
+    if (userMarker) map.removeLayer(userMarker);
+    if (accuracyCircle) map.removeLayer(accuracyCircle);
+    if (headingArrow) map.removeLayer(headingArrow);
+
+    userMarker = accuracyCircle = headingArrow = null;
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  const locationIcon = L.divIcon({
+    html: '<i class="fa-solid fa-location-crosshairs" style="color: purple;"></i>',
+    className: 'fa-icon',
+    iconSize: [24, 24]
+  });
+
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
+      const heading = pos.coords.heading; // may be null
+
+      const latlng = [lat, lng];
+
+      // Update or create marker
+      if (!userMarker) {
+        userMarker = L.marker(latlng, { icon: locationIcon }).addTo(map).bindPopup("You are here");
       } else {
-        userLocationMarker.setLatLng(e.latlng);
+        userMarker.setLatLng(latlng);
       }
-    });
 
-    // Handle location error event
-    map.on('locationerror', function(e) {
-      alert("Location access denied.");
-    });
+      // Update or create accuracy circle
+      if (!accuracyCircle) {
+        accuracyCircle = L.circle(latlng, {
+          radius: accuracy,
+          color: 'blue',
+          fillColor: '#1E90FF',
+          fillOpacity: 0.2,
+          weight: 1
+        }).addTo(map);
+      } else {
+        accuracyCircle.setLatLng(latlng).setRadius(accuracy);
+      }
 
-    // Info box functions
-    function showInfoBox() {
+      // Update or create heading arrow
+      if (heading !== null && !isNaN(heading)) {
+        const arrowLength = 30; // meters
+        const angleRad = (heading - 90) * (Math.PI / 180); // Leaflet's 0° is East
+
+        const destLat = lat + (arrowLength / 111320) * Math.cos(angleRad);
+        const destLng = lng + (arrowLength / (40075000 * Math.cos(lat * Math.PI / 180) / 360)) * Math.sin(angleRad);
+
+        const arrowCoords = [[lat, lng], [destLat, destLng]];
+
+        if (!headingArrow) {
+          headingArrow = L.polyline(arrowCoords, {
+            color: 'purple',
+            weight: 3,
+            opacity: 0.8,
+            dashArray: '5, 5'
+          }).addTo(map);
+        } else {
+          headingArrow.setLatLngs(arrowCoords);
+        }
+      } else if (headingArrow) {
+        // Remove arrow if no heading
+        map.removeLayer(headingArrow);
+        headingArrow = null;
+      }
+
+      // Zoom to user's position on first update
+      if (!map.getBounds().contains(latlng)) {
+        map.setView(latlng, 15);
+      }
+    },
+    err => {
+      alert("Unable to retrieve your location.");
+      console.error(err);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
+    }
+  );
+}
+
+////////////////////////////////////////
+// Info Button
+////////////////////////////////////////
+L.Control.InfoButton = L.Control.extend({
+  onAdd: function(map) {
+    const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom info-button');
+    container.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+    container.title = 'Information';
+
+    L.DomEvent.disableClickPropagation(container);
+
+    container.onclick = function() {
       document.getElementById('infoBox').style.display = 'block';
-    }
-
-    function closeInfoBox() {
-      document.getElementById('infoBox').style.display = 'none';
-    }
-
-    // Show info box when page loads
-    window.onload = () => {
-      showInfoBox();
     };
-  </script>
 
+    return container;
+  },
+  onRemove: function(map) {}
+});
+
+function closeInfoBox() {
+  document.getElementById('infoBox').style.display = 'none';
+};
+
+new L.Control.InfoButton({ position: 'bottomleft' }).addTo(map);
+
+
+</script>
 </body>
 </html>
