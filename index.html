@@ -82,6 +82,22 @@
       font-size: 12px;
       pointer-events: none; /* so labels don’t capture mouse */
     }
+
+    .info-button {
+  background-color: white;
+  width: 34px;
+  height: 34px;
+  text-align: center;
+  line-height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  border-radius: 4px;
+}
+.info-button:hover {
+  background-color: #f0f0f0;
+}
+
   </style>
 </head>
 <body>
@@ -454,7 +470,34 @@ function locateUser() {
 ////////////////////////////////////////
 // Info Button
 ////////////////////////////////////////
-var infoButton = L.control.infoButton({position:'bottomleft'}).addTo(map);
+L.Control.InfoButton = L.Control.extend({
+  onAdd: function(map) {
+    const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom info-button');
+    container.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+    container.title = 'Information';
+
+    // Prevent clicks from propagating to the map
+    L.DomEvent.disableClickPropagation(container);
+
+    container.onclick = function() {
+      alert("Welcome to the Cricklade Resilience Map.\n\nUse the layers panel to toggle features and explore flood risk zones.");
+      // You could also show a modal, sidebar, or custom div instead
+    };
+
+    return container;
+  },
+
+  onRemove: function(map) {
+    // Nothing to do here
+  }
+});
+
+
+L.control.infoButton = function(opts) {
+  return new L.Control.InfoButton(opts);
+}
+
+L.control.infoButton({ position: 'bottomleft' }).addTo(map);
 
 
   
