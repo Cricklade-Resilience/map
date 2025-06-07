@@ -83,20 +83,36 @@
       pointer-events: none; /* so labels don’t capture mouse */
     }
 
-    .info-button {
-  background-color: white;
-  width: 34px;
-  height: 34px;
-  text-align: center;
-  line-height: 34px;
-  font-size: 18px;
+  .info-box {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  width: 300px;
+  background: white;
+  border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  padding: 15px;
+  z-index: 1001;
+  font-family: sans-serif;
+}
+
+.info-box h3 {
+  margin-top: 0;
+}
+
+.info-box button {
+  margin-top: 10px;
+  background: #eee;
+  border: none;
+  padding: 5px 10px;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   border-radius: 4px;
 }
-.info-button:hover {
-  background-color: #f0f0f0;
+.info-box button:hover {
+  background: #ddd;
 }
+
 
   </style>
 </head>
@@ -105,6 +121,17 @@
 <button onclick="locateUser()" class="locate-button">
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
+
+<div id="infoBox" class="info-box" style="display: none;">
+  <h3>Cricklade Resilience Map</h3>
+  <p>This map helps residents and responders understand flood risks, evacuation sites, and key infrastructure.</p>
+  <p>
+    <a href="https://example.com/document1.pdf" target="_blank">📄 Emergency Plan (PDF)</a><br>
+    <a href="https://example.com/document2" target="_blank">🌐 Visit our Website</a>
+  </p>
+  <button onclick="closeInfoBox()">Close</button>
+</div>
+
 </body>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -476,28 +503,22 @@ L.Control.InfoButton = L.Control.extend({
     container.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
     container.title = 'Information';
 
-    // Prevent clicks from propagating to the map
     L.DomEvent.disableClickPropagation(container);
 
     container.onclick = function() {
-      alert("Welcome to the Cricklade Resilience Map.\n\nUse the layers panel to toggle features and explore flood risk zones.");
-      // You could also show a modal, sidebar, or custom div instead
+      document.getElementById('infoBox').style.display = 'block';
     };
 
     return container;
   },
-
-  onRemove: function(map) {
-    // Nothing to do here
-  }
+  onRemove: function(map) {}
 });
 
+function closeInfoBox() {
+  document.getElementById('infoBox').style.display = 'none';
+};
 
-L.control.infoButton = function(opts) {
-  return new L.Control.InfoButton(opts);
-}
 
-L.control.infoButton({ position: 'bottomleft' }).addTo(map);
 
 
   
