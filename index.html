@@ -192,9 +192,10 @@ function createOnEachFeature(name, icon, label) {
       const imgUrl = props.imageURL || "";
       const siteURL = props.siteURL || "";
 
-      let popupContent = <strong>${nameProp}</strong><br>${desc};
-      if (imgUrl) popupContent += <br><img src="${imgUrl}" class="popup-image">;
-      if (siteURL) popupContent += <br><a href="${siteURL}" target="_blank">Visit Website</a>;
+      let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+      if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
+      if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+
 
       layerInstance.bindPopup(popupContent);
 
