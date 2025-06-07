@@ -196,7 +196,6 @@ function createOnEachFeature(name, icon, label) {
       if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
       if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
 
-
       layerInstance.bindPopup(popupContent);
 
       if (label && icon) {
@@ -205,7 +204,7 @@ function createOnEachFeature(name, icon, label) {
           permanent: true,
           direction: "top",
           offset: [0, -20],
-          className: point-label-${labelColor}
+          className: `point-label-${labelColor}`
         });
         layerInstance._tooltipRef = layerInstance.getTooltip();
       }
@@ -288,7 +287,7 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
         polygonLabels.get(name).forEach(t => map.addLayer(t));
       }
       overlayBuffer.set(name, layer);
-    }).catch(err => console.error(Error loading ${file}:, err));
+    }).catch(err => console.error(`Error loading ${file}:`, err));
 
   loadPromises.push(p);
 });
@@ -523,6 +522,9 @@ function closeInfoBox() {
 new L.Control.InfoButton({ position: 'bottomleft' }).addTo(map);
 
 
+
+
+  
 </script>
 </body>
 </html>
