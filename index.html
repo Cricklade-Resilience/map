@@ -400,7 +400,7 @@ map.on('overlayremove', e => {
 let watchId = null;
 let userMarker = null;
 let accuracyCircle = null;
-let headingArrow = null;
+let firstUpdate = true; // Track first location update
 
 function locateUser() {
   if (watchId !== null) {
@@ -410,9 +410,9 @@ function locateUser() {
 
     if (userMarker) map.removeLayer(userMarker);
     if (accuracyCircle) map.removeLayer(accuracyCircle);
-    if (headingArrow) map.removeLayer(headingArrow);
 
-    userMarker = accuracyCircle = headingArrow = null;
+    userMarker = accuracyCircle = null;
+    firstUpdate = true;
     return;
   }
 
@@ -420,12 +420,6 @@ function locateUser() {
     alert("Geolocation is not supported by your browser.");
     return;
   }
-
-  const locationIcon = L.divIcon({
-    html: '<i class="fa-solid fa-location-crosshairs" style="color: purple;"></i>',
-    className: 'fa-icon',
-    iconSize: [24, 24]
-  });
 
   watchId = navigator.geolocation.watchPosition(
     pos => {
@@ -436,11 +430,20 @@ function locateUser() {
 
       const latlng = [lat, lng];
 
-      // Update or create marker
+      // Create custom arrow icon rotated by heading
+      const headingDeg = (heading !== null && !isNaN(heading)) ? heading : 0;
+      const rotatedIcon = L.divIcon({
+        html: `<i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(${headingDeg}deg); transform-origin: center;"></i>`,
+        className: 'fa-icon',
+        iconSize: [24, 24],
+      });
+
+      // Update or create marker with arrow icon
       if (!userMarker) {
-        userMarker = L.marker(latlng, { icon: locationIcon }).addTo(map).bindPopup("You are here");
+        userMarker = L.marker(latlng, { icon: rotatedIcon }).addTo(map).bindPopup("You are here");
       } else {
         userMarker.setLatLng(latlng);
+        userMarker.setIcon(rotatedIcon); // update icon to rotate arrow
       }
 
       // Update or create accuracy circle
@@ -456,36 +459,12 @@ function locateUser() {
         accuracyCircle.setLatLng(latlng).setRadius(accuracy);
       }
 
-      // Update or create heading arrow
-      if (heading !== null && !isNaN(heading)) {
-        const arrowLength = 30; // meters
-        const angleRad = (heading - 90) * (Math.PI / 180); // Leaflet's 0° is East
-
-        const destLat = lat + (arrowLength / 111320) * Math.cos(angleRad);
-        const destLng = lng + (arrowLength / (40075000 * Math.cos(lat * Math.PI / 180) / 360)) * Math.sin(angleRad);
-
-        const arrowCoords = [[lat, lng], [destLat, destLng]];
-
-        if (!headingArrow) {
-          headingArrow = L.polyline(arrowCoords, {
-            color: 'purple',
-            weight: 3,
-            opacity: 0.8,
-            dashArray: '5, 5'
-          }).addTo(map);
-        } else {
-          headingArrow.setLatLngs(arrowCoords);
-        }
-      } else if (headingArrow) {
-        // Remove arrow if no heading
-        map.removeLayer(headingArrow);
-        headingArrow = null;
-      }
-
       // Zoom to user's position on first update
-      if (!map.getBounds().contains(latlng)) {
+      if (firstUpdate) {
         map.setView(latlng, 15);
+        firstUpdate = false;
       }
+
     },
     err => {
       alert("Unable to retrieve your location.");
@@ -498,6 +477,7 @@ function locateUser() {
     }
   );
 }
+
 
 ////////////////////////////////////////
 // Info Button
