@@ -190,7 +190,8 @@ const polygonLabels = new Map();
 ////////////////////////////////////////
 // Esri MetOffice Info
 ////////////////////////////////////////
-const esriWarningsLayer = L.esri.featureLayer({
+<!-- 
+  const esriWarningsLayer = L.esri.featureLayer({
   url: "https://services.arcgis.com/Lq3V5RFuTBC9I7kv/arcgis/rest/services/Met_Office_National_Severe_Weather_Warning_Service_Live/FeatureServer/0",
   style: function (feature) {
     const level = feature.properties.warninglevel;
@@ -241,6 +242,7 @@ const esriWarningsLayer = L.esri.featureLayer({
 // Add to overlay tracking and layer control
 overlayBuffer.set("Weather: Met Office Warnings", esriWarningsLayer);
 overlays["Weather: Met Office Warnings"] = esriWarningsLayer;
+-->
  
 function createOnEachFeature(name, icon, label) {
   return function(feature, layerInstance) {
