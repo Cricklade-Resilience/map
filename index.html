@@ -364,7 +364,7 @@ Promise.all(loadPromises).then(() => {
   map.on("zoomend", updateMapDisplay);
   updateMapDisplay();
 
-  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
+  //L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
 map.on('overlayadd', e => {
@@ -570,6 +570,7 @@ function closeInfoBox() {
   document.getElementById('infoBox').style.display = 'none';
 };
 
+L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 new L.Control.InfoButton({ position: 'bottomleft' }).addTo(map);
 
 
