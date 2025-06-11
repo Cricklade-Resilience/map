@@ -6,8 +6,8 @@
   <title>Cricklade Resilience</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- Esri Leaflet plugin -->
-  <script src="https://unpkg.com/esri-leaflet@3.0.11/dist/esri-leaflet.js"></script>
+  <!-- Esri Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
     html, body, #map { height: 100%; margin: 0; padding: 0; }
@@ -140,6 +140,11 @@
   <button onclick="closeInfoBox()">Close</button>
 </div>
 
+ <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Esri Leaflet JS -->
+  <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+  
 </body>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -177,7 +182,9 @@ const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialda
 ////////////////////////////////////////
 // Esri MetOffice Info
 ////////////////////////////////////////
-
+const esriLayer = L.esri.featureLayer({
+      url: 'https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/UK_Parliamentary_Constituencies_2024/FeatureServer/0',
+    }).addTo(map);
 
   
 const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
