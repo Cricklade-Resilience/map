@@ -190,59 +190,65 @@ const polygonLabels = new Map();
 ////////////////////////////////////////
 // Esri MetOffice Info
 ////////////////////////////////////////
-<!--- 
-//  const esriWarningsLayer = L.esri.featureLayer({
-//  url: "https://services.arcgis.com/Lq3V5RFuTBC9I7kv/arcgis/rest/services/Met_Office_National_Severe_Weather_Warning_Service_Live/FeatureServer/0",
-//  style: function (feature) {
-//    const level = feature.properties.warninglevel;
- //   let fillColor;
-//
- //   switch (level) {
-   //   case "RED":
-     //   fillColor = "rgba(204, 0, 51, 0.65)";
-       // break;
-      //case "AMBER":
-       // fillColor = "rgba(255, 153, 0, 0.65)";
-        //break;
-      //case "YELLOW":
-       // fillColor = "rgba(255, 233, 35, 0.65)";
-        //break;
-      //default:
-       // fillColor = "rgba(170, 170, 170, 0.65)";
-    //}
+const esriWarningsLayer = L.esri.featureLayer({
+  url: "https://services.arcgis.com/Lq3V5RFuTBC9I7kv/arcgis/rest/services/Met_Office_National_Severe_Weather_Warning_Service_Live/FeatureServer/0",
+  
+  style: function (feature) {
+    const level = feature?.properties?.warninglevel || "UNKNOWN";
+    let fillColor;
 
-    //return {
-     // color: "#999",
-      //weight: 1.5,
-      //fillColor: fillColor,
-      //fillOpacity: 0.65
-    //};
-  //},
-  //onEachFeature: function (feature, layer) {
-   // const p = feature.properties;
-    //const popupContent = `
-     // <strong>${p.warningheadline || "No headline"}</strong><br>
-      //<strong>Level:</strong> ${p.warninglevel || "N/A"}<br>
-      //<strong>Type:</strong> ${p.weathertype || "N/A"}<br>
-      //<strong>Impact:</strong> ${p.warningImpact || "N/A"}<br>
-      //<strong>Likelihood:</strong> ${p.warningLikelihood || "N/A"}<br>
-      //<strong>Version:</strong> ${p.warningVersion || "N/A"}<br>
-      //<strong>Affected Areas:</strong><br><em>${p.affectedAreas || "N/A"}</em><br><br>
-      //<strong>Issued:</strong> ${p.issuedDateString || "N/A"}<br>
-  //<strong>Valid From:</strong> ${p.validFromDateString || "N/A"}<br>
-   //   <strong>Valid To:</strong> ${p.validToDateString || "N/A"}<br><br>
-    //  <strong>What to Expect:</strong><br>${p.whatToExpect || "N/A"}<br><br>
-     // <strong>Further Details:</strong><br>${p.warningFurtherDetails || "N/A"}<br><br>
-      //<strong>Update:</strong><br>${p.warningUpdateDescription || "N/A"}
-    //`;
-    //layer.bindPopup(popupContent);
- // }
-//});
+    switch (level) {
+      case "RED":
+        fillColor = "rgba(204, 0, 51, 0.65)";
+        break;
+      case "AMBER":
+        fillColor = "rgba(255, 153, 0, 0.65)";
+        break;
+      case "YELLOW":
+        fillColor = "rgba(255, 233, 35, 0.65)";
+        break;
+      default:
+        fillColor = "rgba(170, 170, 170, 0.65)";
+    }
+
+    return {
+      color: "#999",
+      weight: 1.5,
+      fillColor: fillColor,
+      fillOpacity: 0.65
+    };
+  },
+
+  onEachFeature: function (feature, layer) {
+    const p = feature?.properties || {};
+    const popupContent = `
+      <strong>${p.warningheadline || "No headline"}</strong><br>
+      <strong>Level:</strong> ${p.warninglevel || "N/A"}<br>
+      <strong>Type:</strong> ${p.weathertype || "N/A"}<br>
+      <strong>Impact:</strong> ${p.warningImpact || "N/A"}<br>
+      <strong>Likelihood:</strong> ${p.warningLikelihood || "N/A"}<br>
+      <strong>Version:</strong> ${p.warningVersion || "N/A"}<br>
+      <strong>Affected Areas:</strong><br><em>${p.affectedAreas || "N/A"}</em><br><br>
+      <strong>Issued:</strong> ${p.issuedDateString || "N/A"}<br>
+      <strong>Valid From:</strong> ${p.validFromDateString || "N/A"}<br>
+      <strong>Valid To:</strong> ${p.validToDateString || "N/A"}<br><br>
+      <strong>What to Expect:</strong><br>${p.whatToExpect || "N/A"}<br><br>
+      <strong>Further Details:</strong><br>${p.warningFurtherDetails || "N/A"}<br><br>
+      <strong>Update:</strong><br>${p.warningUpdateDescription || "N/A"}
+    `;
+    layer.bindPopup(popupContent);
+  }
+});
+
+// Optional: Log errors to console
+esriWarningsLayer.on('error', function (e) {
+  console.error("ESRI Layer error:", e);
+});
 
 // Add to overlay tracking and layer control
-//overlayBuffer.set("Weather: Met Office Warnings", esriWarningsLayer);
-//overlays["Weather: Met Office Warnings"] = esriWarningsLayer;
--->
+overlayBuffer.set("Weather: Met Office Warnings", esriWarningsLayer);
+overlays["Weather: Met Office Warnings"] = esriWarningsLayer;
+
  
 function createOnEachFeature(name, icon, label) {
   return function(feature, layerInstance) {
