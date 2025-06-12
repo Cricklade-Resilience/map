@@ -1,23 +1,25 @@
-html, body, #map { height: 100%; margin: 0; padding: 0; }
+/*----------------------------------
+  1. Basic Layout: full page & map
+-----------------------------------*/
+html, body, #map {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
-    .fa-icon {
-      font-size: 24px;
-      color: blue;
-      text-shadow: 0 0 2px white;
-    }
+/*----------------------------------
+  2. Font Awesome Marker Icons
+-----------------------------------*/
+.fa-icon {
+  font-size: 24px;
+  color: blue;               /* Default color; overridden inline for specific icons */
+  text-shadow: 0 0 2px white;
+}
 
-    .locate-button {
-      background-color: white;
-      border: none;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 18px;
-      border-radius: 4px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    }
-
-    .locate-button:hover { background-color: #f0f0f0; }
-    .locate-button {
+/*----------------------------------
+  3. Locate Button Styling
+-----------------------------------*/
+.locate-button {
   position: absolute;
   bottom: 20px;
   right: 10px;
@@ -31,50 +33,69 @@ html, body, #map { height: 100%; margin: 0; padding: 0; }
   box-shadow: 0 1px 5px rgba(0,0,0,0.65);
 }
 
+.locate-button:hover {
+  background-color: #f0f0f0;
+}
 
-    .popup-image {
-      max-width: 100px;
-      max-height: 75px;
-      margin-top: 5px;
-      border-radius: 4px;
-      display: block;
-      object-fit: contain;
-    }
+/*----------------------------------
+  4. Popup Image Styling
+-----------------------------------*/
+.popup-image {
+  max-width: 100px;
+  max-height: 75px;
+  margin-top: 5px;
+  border-radius: 4px;
+  display: block;
+  object-fit: contain;
+}
 
-    @media (max-width: 768px) {
-      .popup-image {
-        max-width: 180px;
-        max-height: 135px;
-      }
-    }
+/* Responsive popup images for smaller screens */
+@media (max-width: 768px) {
+  .popup-image {
+    max-width: 180px;
+    max-height: 135px;
+  }
+}
 
-    .point-label-red, .point-label-green, .point-label-orange,
-    .point-label-blue, .point-label-brown {
-      font-weight: bold;
-      background: white;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border: 1px solid #ccc;
-    }
+/*----------------------------------
+  5. Point Label Styles (Tooltips)
+-----------------------------------*/
+.point-label-red, 
+.point-label-green, 
+.point-label-orange,
+.point-label-blue, 
+.point-label-brown {
+  font-weight: bold;
+  background: white;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+}
 
-    .point-label-red { color: red; }
-    .point-label-green { color: green; }
-    .point-label-orange { color: orange; }
-    .point-label-blue { color: blue; }
-    .point-label-brown { color: brown; }
+.point-label-red { color: red; }
+.point-label-green { color: green; }
+.point-label-orange { color: orange; }
+.point-label-blue { color: blue; }
+.point-label-brown { color: brown; }
 
-    .polygon-label {
-      font-weight: bold;
-      color: black;
-      background: white;
-      padding: 2px 6px;
-      border: 1px solid #999;
-      border-radius: 3px;
-      font-size: 12px;
-      pointer-events: none; /* so labels don’t capture mouse */
-    }
+/*----------------------------------
+  6. Polygon Label Styling
+-----------------------------------*/
+.polygon-label {
+  font-weight: bold;
+  color: black;
+  background: white;
+  padding: 2px 6px;
+  border: 1px solid #999;
+  border-radius: 3px;
+  font-size: 12px;
+  pointer-events: none; /* so labels don’t block mouse interaction */
+}
 
-  .info-box {
+/*----------------------------------
+  7. Info Box Styling
+-----------------------------------*/
+.info-box {
   position: absolute;
   bottom: 60px;
   left: 10px;
@@ -86,7 +107,7 @@ html, body, #map { height: 100%; margin: 0; padding: 0; }
   padding: 15px;
   z-index: 1100;
   font-family: sans-serif;
-  font-size: 16px
+  font-size: 16px;
 }
 
 .info-box h3 {
@@ -98,10 +119,11 @@ html, body, #map { height: 100%; margin: 0; padding: 0; }
   background: #eee;
   border: none;
   padding: 10px 18px;
-  font-size: 16px
+  font-size: 16px;
   cursor: pointer;
   border-radius: 4px;
 }
+
 .info-box button:hover {
   background: #ddd;
 }
