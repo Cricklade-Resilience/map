@@ -23,6 +23,13 @@
 <div id="map"></div>
 
 <!-- ===============================
+     JavaScript Libraries (Loaded Last)
+=============================== -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Leaflet JS (required for map functionality) -->
+<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script> <!-- Esri Leaflet (optional: useful if you're using Esri basemaps or services) -->
+<script src="scripts.js"></script> <!-- Your custom JS that initializes the map and controls -->
+
+<!-- ===============================
      Locate Button
 =============================== -->
 <!-- This button calls the locateUser() function in your JS to find the user's location -->
@@ -49,13 +56,6 @@
   <br><br>
   <button onclick="closeInfoBox()">Close</button>
 </div>
-
-<!-- ===============================
-     JavaScript Libraries (Loaded Last)
-=============================== -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Leaflet JS (required for map functionality) -->
-<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script> <!-- Esri Leaflet (optional: useful if you're using Esri basemaps or services) -->
-<script src="scripts.js"></script> <!-- Your custom JS that initializes the map and controls -->
-
+  
 </body>
 </html>
