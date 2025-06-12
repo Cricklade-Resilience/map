@@ -287,8 +287,8 @@ map.on('locationerror', onLocationError);
 ////////////////////////////////////////
 // 10. Info Button Control
 ////////////////////////////////////////
-const infoButton = document.getElementById('infoButton');
 const infoBox = document.getElementById('infoBox');
+const infoButton = document.getElementById('infoButton');
 
 infoButton.addEventListener('click', () => {
   if (infoBox.style.display === 'none' || infoBox.style.display === '') {
@@ -301,3 +301,4 @@ infoButton.addEventListener('click', () => {
 function closeInfoBox() {
   infoBox.style.display = 'none';
 }
+
