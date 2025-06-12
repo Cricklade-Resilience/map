@@ -287,18 +287,17 @@ map.on('locationerror', onLocationError);
 ////////////////////////////////////////
 // 10. Info Button Control
 ////////////////////////////////////////
-const infoControl = L.control({ position: 'topleft' });
-infoControl.onAdd = function() {
-  const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-  div.innerHTML = '<i class="fa-solid fa-circle-info" title="Info"></i>';
-  div.style.cursor = 'pointer';
-  div.style.width = '34px';
-  div.style.height = '34px';
+const infoButton = document.getElementById('infoButton');
+const infoBox = document.getElementById('infoBox');
 
-  div.onclick = () => {
-    alert("Welcome to the Flood Map!\n\nUse the controls to toggle layers and locate yourself.");
-  };
+infoButton.addEventListener('click', () => {
+  if (infoBox.style.display === 'none' || infoBox.style.display === '') {
+    infoBox.style.display = 'block';
+  } else {
+    infoBox.style.display = 'none';
+  }
+});
 
-  return div;
-};
-infoControl.addTo(map);
+function closeInfoBox() {
+  infoBox.style.display = 'none';
+}
