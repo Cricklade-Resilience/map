@@ -127,3 +127,24 @@ html, body, #map {
 .info-box button:hover {
   background: #ddd;
 }
+
+/*----------------------------------
+  7. Layers Box Styling
+-----------------------------------*/
+#layers-box {
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  width: 300px;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 1050;
+  display: block; /* make sure it’s visible by default */
+}
+
+@media (max-width: 768px) {
+  #layers-box {
+    display: none; /* hide on small screens */
+  }
+}
