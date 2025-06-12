@@ -31,6 +31,12 @@ html, body, #map { height: 100%; margin: 0; padding: 0; }
   box-shadow: 0 1px 5px rgba(0,0,0,0.65);
 }
 
+.locate-button,
+.info-box {
+  z-index: 2000 !important;
+  pointer-events: auto !important;
+}
+
 
     .popup-image {
       max-width: 100px;
