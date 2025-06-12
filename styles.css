@@ -1,24 +1,11 @@
-/*----------------------------------
-  1. Basic Layout: full page & map
------------------------------------*/
+/* === Base Layout === */
 html, body, #map {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-/*----------------------------------
-  2. Font Awesome Marker Icons
------------------------------------*/
-.fa-icon {
-  font-size: 24px;
-  color: blue;               /* Default color; overridden inline for specific icons */
-  text-shadow: 0 0 2px white;
-}
-
-/*----------------------------------
-  3. Locate Button Styling
------------------------------------*/
+/* === Locate Button === */
 .locate-button {
   position: absolute;
   bottom: 20px;
@@ -30,16 +17,20 @@ html, body, #map {
   cursor: pointer;
   font-size: 18px;
   border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
 }
-
 .locate-button:hover {
   background-color: #f0f0f0;
 }
 
-/*----------------------------------
-  4. Popup Image Styling
------------------------------------*/
+/* === FontAwesome Icon Styling === */
+.fa-icon {
+  font-size: 24px;
+  color: blue;
+  text-shadow: 0 0 2px white;
+}
+
+/* === Popup Image Styling === */
 .popup-image {
   max-width: 100px;
   max-height: 75px;
@@ -48,8 +39,6 @@ html, body, #map {
   display: block;
   object-fit: contain;
 }
-
-/* Responsive popup images for smaller screens */
 @media (max-width: 768px) {
   .popup-image {
     max-width: 180px;
@@ -57,13 +46,11 @@ html, body, #map {
   }
 }
 
-/*----------------------------------
-  5. Point Label Styles (Tooltips)
------------------------------------*/
-.point-label-red, 
-.point-label-green, 
+/* === Point Labels (Color Coded) === */
+.point-label-red,
+.point-label-green,
 .point-label-orange,
-.point-label-blue, 
+.point-label-blue,
 .point-label-brown {
   font-weight: bold;
   background: white;
@@ -71,16 +58,13 @@ html, body, #map {
   padding: 2px 4px;
   border: 1px solid #ccc;
 }
-
 .point-label-red { color: red; }
 .point-label-green { color: green; }
 .point-label-orange { color: orange; }
 .point-label-blue { color: blue; }
 .point-label-brown { color: brown; }
 
-/*----------------------------------
-  6. Polygon Label Styling
------------------------------------*/
+/* === Polygon Labels === */
 .polygon-label {
   font-weight: bold;
   color: black;
@@ -89,12 +73,10 @@ html, body, #map {
   border: 1px solid #999;
   border-radius: 3px;
   font-size: 12px;
-  pointer-events: none; /* so labels don’t block mouse interaction */
+  pointer-events: none; /* prevent label from blocking mouse events */
 }
 
-/*----------------------------------
-  7. Info Box Styling
------------------------------------*/
+/* === Info Box === */
 .info-box {
   position: absolute;
   bottom: 60px;
@@ -103,17 +85,15 @@ html, body, #map {
   background: white;
   border: 1px solid #999;
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   padding: 15px;
   z-index: 1100;
   font-family: sans-serif;
   font-size: 16px;
 }
-
 .info-box h3 {
   margin-top: 0;
 }
-
 .info-box button {
   margin-top: 10px;
   background: #eee;
@@ -123,28 +103,6 @@ html, body, #map {
   cursor: pointer;
   border-radius: 4px;
 }
-
 .info-box button:hover {
   background: #ddd;
-}
-
-/*----------------------------------
-  7. Layers Box Styling
------------------------------------*/
-#layers-box {
-  position: fixed;
-  top: 50px;
-  right: 10px;
-  width: 300px;
-  background: white;
-  border: 1px solid #ccc;
-  padding: 10px;
-  z-index: 1050;
-  display: block; /* make sure it’s visible by default */
-}
-
-@media (max-width: 768px) {
-  #layers-box {
-    display: none; /* hide on small screens */
-  }
 }
