@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cricklade Resilience</title>
 
-  <!-- ********************************************* 
-  Stylesheets
-  ********************************************* --> 
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="styles.css">  
-
 </head>
 <body>
+
 <div id="map"></div>
+
 <button onclick="locateUser()" class="locate-button">
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
@@ -23,23 +21,22 @@
 <div id="infoBox" class="info-box" style="display: none;">
   <h3>Cricklade Resilience Map</h3>
   <img src="Images/CrickladeLogo.png" alt="Cricklade" style="width:75px;height:100px;">
-  <p>This map is designed to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate and monitor known risks within the town and local area.  Use the Layers menu to browse the available datasets, use the Locate button to view were you are in relation to specific features, and use the links below to record any actions and notes.</p>
-  <p>
+  <p>This map is designed to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate and monitor known risks within the town and local area. Use the Layers menu to browse the available datasets, use the Locate button to view where you are in relation to specific features, and use the links below to record any actions and notes.</p>
   <p>Documents accessible for Cricklade Councillors and Resilience Wardens only:</p>
-    <a href="https://www.dropbox.com/scl/fi/phwnkt0tiwfbdguzj1kv1/Cricklade-Town-Council-Resilience-Plan_CouncilUpdate.docx?rlkey=oskyd4yajlnibqi3q8lp1bcz9&st=l56m902a&dl=0" target="_blank">📄 Resilience Plan  (PDF)</a><br>
-    <a href="https://www.dropbox.com/scl/fi/drdvws0x2s315gxj24fe2/Area-Checklist.xlsx?rlkey=2906kyl08vcdb4z8t4grewsqm&st=kjxrzig9&dl=0" target="_blank">✅ Area Checklist</a>
-    <a href="https://www.dropbox.com/scl/fi/2lvxyoccpvv06sbc5kza2/Emergency-kit-list-may-2022-v3.xlsx?rlkey=21j35rdh277gaunas3lm3mn5z&st=46bg5yxw&dl=0" target="_blank"> Emergency Kit List</a>
-  </p>
+  <a href="https://www.dropbox.com/scl/fi/phwnkt0tiwfbdguzj1kv1/Cricklade-Town-Council-Resilience-Plan_CouncilUpdate.docx?rlkey=oskyd4yajlnibqi3q8lp1bcz9&st=l56m902a&dl=0" target="_blank">📄 Resilience Plan  (PDF)</a><br>
+  <a href="https://www.dropbox.com/scl/fi/drdvws0x2s315gxj24fe2/Area-Checklist.xlsx?rlkey=2906kyl08vcdb4z8t4grewsqm&st=kjxrzig9&dl=0" target="_blank">✅ Area Checklist</a><br>
+  <a href="https://www.dropbox.com/scl/fi/2lvxyoccpvv06sbc5kza2/Emergency-kit-list-may-2022-v3.xlsx?rlkey=21j35rdh277gaunas3lm3mn5z&st=46bg5yxw&dl=0" target="_blank">🗃️ Emergency Kit List</a>
+  <br>
   <button onclick="closeInfoBox()">Close</button>
 </div>
 
- <!-- Leaflet JS and Esri - move into head
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script -->
-  
-</body>
+<!-- Required JS Libraries -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
 
+<!-- Your custom JS -->
 <script src="scripts.js"></script>
 
 </body>
 </html>
+
