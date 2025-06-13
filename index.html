@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cricklade Resilience 4</title>
+  <title>Cricklade Resilience 5</title>
   
   <!-- ===============================
        Stylesheets
@@ -15,21 +15,37 @@
 </head>
 
 <body>
+<!-- ===============================
+     Map Container
+=============================== -->
+<!-- This <div> is where Leaflet will render the interactive map -->
 <div id="map"></div>
+
+<!-- ===============================
+     Locate Button
+=============================== -->
+<!-- This button calls the locateUser() function in your JS to find the user's location -->
 <button onclick="locateUser()" class="locate-button">
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
 
+<!-- ===============================
+     Information Box
+=============================== -->
+<!-- Initially hidden box that shows helpful info and documents -->
 <div id="infoBox" class="info-box" style="display: none;">
   <h3>Cricklade Resilience Map</h3>
   <img src="Images/CrickladeLogo.png" alt="Cricklade" style="width:75px;height:100px;">
-  <p>This map is designed to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate and monitor known risks within the town and local area.  Use the Layers menu to browse the available datasets, use the Locate button to view were you are in relation to specific features, and use the links below to record any actions and notes.</p>
-  <p>
-  <p>Documents accessible for Cricklade Councillors and Resilience Wardens only:</p>
-    <a href="https://www.dropbox.com/scl/fi/phwnkt0tiwfbdguzj1kv1/Cricklade-Town-Council-Resilience-Plan_CouncilUpdate.docx?rlkey=oskyd4yajlnibqi3q8lp1bcz9&st=l56m902a&dl=0" target="_blank">ðŸ“„ Resilience Plan  (PDF)</a><br>
-    <a href="https://www.dropbox.com/scl/fi/drdvws0x2s315gxj24fe2/Area-Checklist.xlsx?rlkey=2906kyl08vcdb4z8t4grewsqm&st=kjxrzig9&dl=0" target="_blank">âœ… Area Checklist</a>
-    <a href="https://www.dropbox.com/scl/fi/2lvxyoccpvv06sbc5kza2/Emergency-kit-list-may-2022-v3.xlsx?rlkey=21j35rdh277gaunas3lm3mn5z&st=46bg5yxw&dl=0" target="_blank">ï‡ƒ Emergency Kit List</a>
-  </p>
+  
+  <p>This map is designed to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate, and monitor known risks within the town and local area.</p>
+  <p>Use the Layers menu to browse datasets, the Locate button to view your location, and the links below to log actions and notes.</p>
+  
+  <p><strong>Documents (Restricted Access):</strong></p>
+  <a href="https://www.dropbox.com/scl/fi/phwnkt0tiwfbdguzj1kv1/Cricklade-Town-Council-Resilience-Plan_CouncilUpdate.docx?rlkey=oskyd4yajlnibqi3q8lp1bcz9&st=l56m902a&dl=0" target="_blank">ðŸ“„ Resilience Plan (PDF)</a><br>
+  <a href="https://www.dropbox.com/scl/fi/drdvws0x2s315gxj24fe2/Area-Checklist.xlsx?rlkey=2906kyl08vcdb4z8t4grewsqm&st=kjxrzig9&dl=0" target="_blank">âœ… Area Checklist</a><br>
+  <a href="https://www.dropbox.com/scl/fi/2lvxyoccpvv06sbc5kza2/Emergency-kit-list-may-2022-v3.xlsx?rlkey=21j35rdh277gaunas3lm3mn5z&st=46bg5yxw&dl=0" target="_blank">ðŸ—ƒï¸ Emergency Kit List</a>
+  
+  <br><br>
   <button onclick="closeInfoBox()">Close</button>
 </div>
 
