@@ -62,7 +62,6 @@ function createOnEachFeature(name, icon, label) {
     const geometryType = feature.geometry.type;
     feature.properties.layerName = name;
 
-    // Handle Point Features: popups & labels
     if (geometryType === "Point") {
       const nameProp = props.name || "No Name";
       const desc = props.description || "";
@@ -75,7 +74,6 @@ function createOnEachFeature(name, icon, label) {
 
       layerInstance.bindPopup(popupContent);
 
-      // Bind label tooltip if requested
       if (label && icon) {
         const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
         layerInstance.bindTooltip(nameProp, {
@@ -88,40 +86,52 @@ function createOnEachFeature(name, icon, label) {
       }
     }
 
-    // Handle Polygon/MultiPolygon Features: styles & labels
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
-      const labelText = (name === "Admin: Warden Zones") ? (props.id || "No ID") : (props.name || "No Name");
-      const center = layerInstance.getBounds().getCenter();
+  const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
 
-      // Create permanent tooltip centered on polygon
-      if (name === "Admin: Warden Zones" || name === "Feature: Evacuation Sites") {
-        const tooltip = L.tooltip({
-          permanent: true,
-          direction: 'center',
-          className: 'polygon-label',
-          offset: [0, 0]
-        }).setContent(labelText).setLatLng(center);
+  if (name === "Admin: Warden Zones") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
 
-        if (!polygonLabels.has(name)) polygonLabels.set(name, []);
-        polygonLabels.get(name).push(tooltip);
-        layerInstance._tooltipRef = tooltip;
-      }
-    }
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
 
-    // Set polygon styles
+  } else if (name === "Feature: Evacuation Sites") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
+
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
+  }
+}
+
+
     if (geometryType.includes("Polygon")) {
-      let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
+  let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
 
-      if (name === "Admin: Warden Zones") {
-        style = { color: "#444", weight: 2, fillOpacity: 0.1 };
-      } else if (name === "Admin: Parish Boundary") {
-        style = { color: "black", weight: 3, fillOpacity: 0 };
-      } else if (name === "Feature: Evacuation Sites") {
-        style = { color: "red", weight: 2, fillOpacity: 0.1 };
-      }
+  if (name === "Admin: Warden Zones") {
+    style = { color: "#444", weight: 2, fillOpacity: 0.1 };
+  } else if (name === "Admin: Parish Boundary") {
+    style = { color: "black", weight: 3, fillOpacity: 0 };
+  } else if (name === "Feature: Evacuation Sites") {
+    style = { color: "red", weight: 2, fillOpacity: 0.1 };  // âœ… red fill/outline
+  }
 
-      layerInstance.setStyle(style);
-    }
+  layerInstance.setStyle(style);
+}
+
   };
 }
 
@@ -165,11 +175,10 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
 // 7. Map Display Logic & Controls
 ////////////////////////////////////////
 Promise.all(loadPromises).then(() => {
-  // Add WMS flood zone overlays
   overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
   overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+   
 
-  // Add GeoJSON overlays in preferred order
   const orderedNames = [
     "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
     "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
@@ -180,7 +189,7 @@ Promise.all(loadPromises).then(() => {
     if (overlayBuffer.has(name)) overlays[name] = overlayBuffer.get(name);
   });
 
-  // Add default layers (Warden Zones & Parish Boundary) with labels
+  // Add Warden Zones & Parish Boundary layers + labels by default on map load
   if (overlayBuffer.has("Admin: Warden Zones")) {
     const wardenZonesLayer = overlayBuffer.get("Admin: Warden Zones");
     wardenZonesLayer.addTo(map);
@@ -199,106 +208,180 @@ Promise.all(loadPromises).then(() => {
     });
   }
 
-  // Tooltip visibility & polygon weight changes based on zoom level
-  map.on('zoomend', () => {
+  const labelVisibilityZoom = 15;
+
+  function updateMapDisplay() {
     const zoom = map.getZoom();
 
-    // Show polygon labels only if zoomed in enough
-    polygonLabels.forEach((tooltips, name) => {
-      tooltips.forEach(t => {
-        if (zoom > 14) {
-          if (!map.hasLayer(t)) map.addLayer(t);
-        } else {
-          if (map.hasLayer(t)) map.removeLayer(t);
+    overlayBuffer.forEach(layer => {
+      layer.eachLayer(featureLayer => {
+        if (featureLayer._tooltipRef) {
+          if (zoom >= labelVisibilityZoom) {
+            featureLayer.openTooltip();
+          } else {
+            featureLayer.closeTooltip();
+          }
+        }
+
+        if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
+          const lname = featureLayer.feature.properties?.layerName;
+          let weight = 2;
+          if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
+          else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
+          featureLayer.setStyle({ weight });
         }
       });
     });
+  }
 
-    // Adjust polygon styles by zoom
-    if (overlayBuffer.has("Admin: Warden Zones")) {
-      overlayBuffer.get("Admin: Warden Zones").eachLayer(l => {
-        l.setStyle({ weight: zoom > 14 ? 3 : 1 });
-      });
-    }
-    if (overlayBuffer.has("Admin: Parish Boundary")) {
-      overlayBuffer.get("Admin: Parish Boundary").eachLayer(l => {
-        l.setStyle({ weight: zoom > 14 ? 4 : 2 });
-      });
-    }
-  });
+  map.on("zoomend", updateMapDisplay);
+  updateMapDisplay();
 
-  // Add overlay controls to map
-  L.control.layers(baseMaps, overlays).addTo(map);
+  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
 ////////////////////////////////////////
 // 8. Overlay Events (Label Toggling)
 ////////////////////////////////////////
 map.on('overlayadd', e => {
-  const layerName = e.name || e.layer?.options?.name;
-  if (layerName && polygonLabels.has(layerName)) {
-    polygonLabels.get(layerName).forEach(t => map.addLayer(t));
+  const layerName = e.name;
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Restore styles on add
+      if (layerName === "Admin: Warden Zones") {
+        l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      }
+      if (layerName === "Admin: Parish Boundary") {
+        l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+      }
+
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
+    });
   }
 });
 
 map.on('overlayremove', e => {
-  const layerName = e.name || e.layer?.options?.name;
-  if (layerName && polygonLabels.has(layerName)) {
-    polygonLabels.get(layerName).forEach(t => map.removeLayer(t));
+  const layerName = e.name;
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Optionally reset style or leave as is
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.removeLayer(tooltip);
+    });
   }
 });
 
 ////////////////////////////////////////
 // 9. Locate Button Functionality
 ////////////////////////////////////////
-let locationMarker, locationCircle;
-function onLocationFound(e) {
-  if (locationMarker) {
-    locationMarker.setLatLng(e.latlng);
-    locationCircle.setLatLng(e.latlng).setRadius(e.accuracy);
-  } else {
-    locationMarker = L.marker(e.latlng).addTo(map).bindPopup("You are here").openPopup();
-    locationCircle = L.circle(e.latlng, e.accuracy).addTo(map);
+let watchId = null;
+let userMarker = null;
+let accuracyCircle = null;
+let firstUpdate = true; // Track first location update
+
+function locateUser() {
+  if (watchId !== null) {
+    // Stop tracking
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+
+    if (userMarker) map.removeLayer(userMarker);
+    if (accuracyCircle) map.removeLayer(accuracyCircle);
+
+    userMarker = accuracyCircle = null;
+    firstUpdate = true;
+    return;
   }
-  map.setView(e.latlng, 15);
+
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
+      const heading = pos.coords.heading; // may be null
+
+      const latlng = [lat, lng];
+
+      // Create custom arrow icon rotated by heading
+      const headingDeg = (heading !== null && !isNaN(heading)) ? heading : 0;
+      const rotatedIcon = L.divIcon({
+        html: `<i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(${headingDeg}deg); transform-origin: center;"></i>`,
+        className: 'fa-icon',
+        iconSize: [24, 24],
+      });
+
+      // Update or create marker with arrow icon
+      if (!userMarker) {
+        userMarker = L.marker(latlng, { icon: rotatedIcon }).addTo(map).bindPopup("You are here");
+      } else {
+        userMarker.setLatLng(latlng);
+        userMarker.setIcon(rotatedIcon); // update icon to rotate arrow
+      }
+
+      // Update or create accuracy circle
+      if (!accuracyCircle) {
+        accuracyCircle = L.circle(latlng, {
+          radius: accuracy,
+          color: 'blue',
+          fillColor: '#1E90FF',
+          fillOpacity: 0.2,
+          weight: 1
+        }).addTo(map);
+      } else {
+        accuracyCircle.setLatLng(latlng).setRadius(accuracy);
+      }
+
+      // Zoom to user's position on first update
+      if (firstUpdate) {
+        map.setView(latlng, 15);
+        firstUpdate = false;
+      }
+
+    },
+    err => {
+      alert("Unable to retrieve your location.");
+      console.error(err);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
+    }
+  );
 }
-
-function onLocationError(e) {
-  alert(e.message);
-}
-
-const locateControl = L.control({ position: 'topleft' });
-locateControl.onAdd = function() {
-  const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-  div.innerHTML = '<i class="fa-solid fa-location-crosshairs" title="Locate Me"></i>';
-  div.style.cursor = 'pointer';
-  div.style.width = '34px';
-  div.style.height = '34px';
-
-  div.onclick = () => map.locate({ setView: true, maxZoom: 16 });
-
-  return div;
-};
-locateControl.addTo(map);
-
-map.on('locationfound', onLocationFound);
-map.on('locationerror', onLocationError);
-
 ////////////////////////////////////////
 // 10. Info Button Control
 ////////////////////////////////////////
-const infoBox = document.getElementById('infoBox');
-const infoButton = document.getElementById('infoButton');
+L.Control.InfoButton = L.Control.extend({
+  onAdd: function(map) {
+    const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom info-button');
+    container.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+    container.title = 'Information';
 
-infoButton.addEventListener('click', () => {
-  if (infoBox.style.display === 'none' || infoBox.style.display === '') {
-    infoBox.style.display = 'block';
-  } else {
-    infoBox.style.display = 'none';
-  }
+    L.DomEvent.disableClickPropagation(container);
+
+    container.onclick = function() {
+      document.getElementById('infoBox').style.display = 'block';
+    };
+
+    return container;
+  },
+  onRemove: function(map) {}
 });
 
 function closeInfoBox() {
-  infoBox.style.display = 'none';
-}
+  document.getElementById('infoBox').style.display = 'none';
+};
 
+
+new L.Control.InfoButton({ position: 'bottomleft' }).addTo(map);
