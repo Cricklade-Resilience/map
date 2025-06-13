@@ -300,6 +300,9 @@ Promise.all(loadPromises).then(() => {
   L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
+////////////////////////////////////////
+// 8. Overlay Events (Label Toggling)
+////////////////////////////////////////
 map.on('overlayadd', e => {
   const layerName = e.name;
 
