@@ -398,69 +398,37 @@ function locateUser() {
 document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.getElementById('navLinks');
   const linksMenu = document.getElementById('linksMenu');
+  const aboutLink = document.querySelector('.about-link');
+  const linksMenuLink = document.querySelector('.links-menu-link');
   const menuToggle = document.querySelector('.menu-toggle');
-  const aboutModal = document.getElementById('aboutModal');
 
-  function toggleMenu(event) {
-    event.stopPropagation();
+  function toggleMenu() {
     navLinks.classList.toggle('show');
     if (!navLinks.classList.contains('show')) {
       linksMenu.classList.remove('submenu-open');
     }
   }
 
-  function toggleSubmenu(event) {
-    event.preventDefault();
-    event.stopPropagation();
+  function toggleSubmenu(e) {
+    e.preventDefault();
     linksMenu.classList.toggle('submenu-open');
   }
 
-  function showAbout(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    aboutModal.style.display = 'flex';
+  function showAbout(e) {
+    e.preventDefault();
+    document.getElementById('aboutModal').style.display = 'flex';
     navLinks.classList.remove('show');
     linksMenu.classList.remove('submenu-open');
   }
 
-  function closeAbout() {
-    aboutModal.style.display = 'none';
-  }
+  menuToggle.addEventListener('click', toggleMenu);
+  linksMenuLink.addEventListener('click', toggleSubmenu);
+  aboutLink.addEventListener('click', showAbout);
 
-  document.addEventListener('click', function(event) {
+  document.addEventListener('click', (event) => {
     if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
       navLinks.classList.remove('show');
       linksMenu.classList.remove('submenu-open');
     }
   });
-
-  menuToggle.addEventListener('click', toggleMenu);
-  menuToggle.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    toggleMenu(e);
-  });
-
-  // This selector must match your actual 'Links' anchor inside #linksMenu
-  const linksMenuAnchor = document.querySelector('#linksMenu > a');
-  if (linksMenuAnchor) {
-    linksMenuAnchor.addEventListener('click', toggleSubmenu);
-    linksMenuAnchor.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      toggleSubmenu(e);
-    });
-  }
-
-  // Your About link: adjust selector if necessary
-  const aboutLink = document.querySelector('a[href="#about"]');
-  if (aboutLink) {
-    aboutLink.addEventListener('click', showAbout);
-    aboutLink.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      showAbout(e);
-    });
-  }
-
-  // Make closeAbout available globally if used by HTML buttons
-  window.closeAbout = closeAbout;
 });
-
