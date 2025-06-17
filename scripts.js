@@ -73,9 +73,9 @@ function createOnEachFeature(name, icon, label) {
       const imgUrl = props.imageURL || "";
       const siteURL = props.siteURL || "";
 
-      let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-      if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
-      if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+      let popupContent = <strong>${nameProp}</strong><br>${desc};
+      if (imgUrl) popupContent += <br><img src="${imgUrl}" class="popup-image">;
+      if (siteURL) popupContent += <br><a href="${siteURL}" target="_blank">Visit Website</a>;
 
       layerInstance.bindPopup(popupContent);
 
@@ -85,7 +85,7 @@ function createOnEachFeature(name, icon, label) {
           permanent: true,
           direction: "top",
           offset: [0, -20],
-          className: `point-label-${labelColor}`
+          className: point-label-${labelColor}
         });
         layerInstance._tooltipRef = layerInstance.getTooltip();
       }
@@ -171,7 +171,7 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
         polygonLabels.get(name).forEach(t => map.addLayer(t));
       }
       overlayBuffer.set(name, layer);
-    }).catch(err => console.error(`Error loading ${file}:`, err));
+    }).catch(err => console.error(Error loading ${file}:, err));
 
   loadPromises.push(p);
 });
@@ -320,7 +320,7 @@ function locateUser() {
       // Create custom arrow icon rotated by heading
       const headingDeg = (heading !== null && !isNaN(heading)) ? heading : 0;
       const rotatedIcon = L.divIcon({
-        html: `<i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(${headingDeg}deg); transform-origin: center;"></i>`,
+        html: <i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(${headingDeg}deg); transform-origin: center;"></i>,
         className: 'fa-icon',
         iconSize: [24, 24],
       });
