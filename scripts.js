@@ -395,40 +395,37 @@ function locateUser() {
 // 11. Navigation Menu
 /////////////////////////////////
 
-document.addEventListener('DOMContentLoaded', () => {
-  const navLinks = document.getElementById('navLinks');
-  const linksMenu = document.getElementById('linksMenu');
-  const aboutLink = document.querySelector('.about-link');
-  const linksMenuLink = document.querySelector('.links-menu-link');
-  const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.getElementById('navLinks');
+const linksMenu = document.getElementById('linksMenu');
 
-  function toggleMenu() {
-    navLinks.classList.toggle('show');
-    if (!navLinks.classList.contains('show')) {
-      linksMenu.classList.remove('submenu-open');
-    }
+function toggleMenu() {
+  navLinks.classList.toggle('show');
+  if (!navLinks.classList.contains('show')) {
+    linksMenu.classList.remove('submenu-open');
   }
+}
 
-  function toggleSubmenu(e) {
-    e.preventDefault();
-    linksMenu.classList.toggle('submenu-open');
-  }
+function toggleSubmenu(event) {
+  event.preventDefault();
+  linksMenu.classList.toggle('submenu-open');
+}
 
-  function showAbout(e) {
-    e.preventDefault();
-    document.getElementById('aboutModal').style.display = 'flex';
+function showAbout(e) {
+  e.preventDefault();
+  document.getElementById('aboutModal').style.display = 'flex';
+  navLinks.classList.remove('show');
+  linksMenu.classList.remove('submenu-open');
+}
+
+function closeAbout() {
+  document.getElementById('aboutModal').style.display = 'none';
+}
+
+// Close nav if clicked outside
+document.addEventListener('click', function(event) {
+  const isClickInsideNav = navLinks.contains(event.target) || event.target.closest('.menu-toggle');
+  if (!isClickInsideNav) {
     navLinks.classList.remove('show');
     linksMenu.classList.remove('submenu-open');
   }
-
-  menuToggle.addEventListener('click', toggleMenu);
-  linksMenuLink.addEventListener('click', toggleSubmenu);
-  aboutLink.addEventListener('click', showAbout);
-
-  document.addEventListener('click', (event) => {
-    if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
-      navLinks.classList.remove('show');
-      linksMenu.classList.remove('submenu-open');
-    }
-  });
 });
