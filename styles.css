@@ -1,17 +1,4 @@
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-#map {
-  width: 100%;
-  height: 100%; 
-}
-
-
-/* Font Awesome icon style: size, color, and white glow */
+ /* Font Awesome icon style: size, color, and white glow */
 .fa-icon {
   font-size: 24px;
   color: blue;
@@ -107,8 +94,6 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  margin:0;
   background-color: #f0f0f0;
 }
 header {
@@ -144,32 +129,18 @@ nav {
   display: none;
   flex-direction: column;
   cursor: pointer;
-  width: 30px;
-  height: 25px;
-  justify-content: space-between;
-  z-index: 1500; /* make sure it’s above other elements */
-  position: relative;
 }
 .menu-toggle div {
   height: 3px;
-  width: 100%;
+  width: 25px;
   background-color: #999999;
-  border-radius: 2px;
-  margin: 0;
+  margin: 4px 0;
 }
 .nav-links {
-  display: none;
-  flex-direction: column;
-  background-color: white;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 180px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  border-radius: 0 0 6px 6px;
-  padding: 10px 0;
-  transition: all 0.3s ease;
-  z-index: 1400;
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  align-items: center;
 }
 .nav-links li {
   position: relative;
@@ -217,8 +188,6 @@ nav {
 }
 #map-container {
   flex: 1;
-  height: calc(100vh - 50px); /* Adjust if your header is taller */
-  overflow: hidden;
   background: white;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.35);
   border: none;
