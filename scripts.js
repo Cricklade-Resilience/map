@@ -395,64 +395,72 @@ function locateUser() {
 // 11. Navigation Menu
 /////////////////////////////////
 
-const navLinks = document.getElementById('navLinks');
-const linksMenu = document.getElementById('linksMenu');
-const menuToggle = document.querySelector('.menu-toggle');
-const aboutModal = document.getElementById('aboutModal');
+document.addEventListener('DOMContentLoaded', () => {
+  const navLinks = document.getElementById('navLinks');
+  const linksMenu = document.getElementById('linksMenu');
+  const menuToggle = document.querySelector('.menu-toggle');
+  const aboutModal = document.getElementById('aboutModal');
 
-// Toggle main menu
-function toggleMenu(event) {
-  event.stopPropagation(); // Prevent document click handler from firing immediately
-  navLinks.classList.toggle('show');
-  if (!navLinks.classList.contains('show')) {
-    linksMenu.classList.remove('submenu-open');
+  function toggleMenu(event) {
+    event.stopPropagation();
+    navLinks.classList.toggle('show');
+    if (!navLinks.classList.contains('show')) {
+      linksMenu.classList.remove('submenu-open');
+    }
   }
-}
 
-// Toggle submenu
-function toggleSubmenu(event) {
-  event.preventDefault();
-  event.stopPropagation(); // Prevent closing the menu immediately
-  linksMenu.classList.toggle('submenu-open');
-}
+  function toggleSubmenu(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    linksMenu.classList.toggle('submenu-open');
+  }
 
-// Show About modal
-function showAbout(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  aboutModal.style.display = 'flex';
-  navLinks.classList.remove('show');
-  linksMenu.classList.remove('submenu-open');
-}
-
-// Close About modal
-function closeAbout() {
-  aboutModal.style.display = 'none';
-}
-
-// Close nav if clicked outside
-document.addEventListener('click', function(event) {
-  if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+  function showAbout(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    aboutModal.style.display = 'flex';
     navLinks.classList.remove('show');
     linksMenu.classList.remove('submenu-open');
   }
+
+  function closeAbout() {
+    aboutModal.style.display = 'none';
+  }
+
+  document.addEventListener('click', function(event) {
+    if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+      navLinks.classList.remove('show');
+      linksMenu.classList.remove('submenu-open');
+    }
+  });
+
+  menuToggle.addEventListener('click', toggleMenu);
+  menuToggle.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    toggleMenu(e);
+  });
+
+  // This selector must match your actual 'Links' anchor inside #linksMenu
+  const linksMenuAnchor = document.querySelector('#linksMenu > a');
+  if (linksMenuAnchor) {
+    linksMenuAnchor.addEventListener('click', toggleSubmenu);
+    linksMenuAnchor.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      toggleSubmenu(e);
+    });
+  }
+
+  // Your About link: adjust selector if necessary
+  const aboutLink = document.querySelector('a[href="#about"]');
+  if (aboutLink) {
+    aboutLink.addEventListener('click', showAbout);
+    aboutLink.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      showAbout(e);
+    });
+  }
+
+  // Make closeAbout available globally if used by HTML buttons
+  window.closeAbout = closeAbout;
 });
 
-// Add event listeners for toggle and submenu
-menuToggle.addEventListener('click', toggleMenu);
-menuToggle.addEventListener('touchstart', function(e) {
-  e.preventDefault(); // Prevent double events on mobile
-  toggleMenu(e);
-});
-
-document.querySelector('#linksMenu > a').addEventListener('click', toggleSubmenu);
-document.querySelector('#linksMenu > a').addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  toggleSubmenu(e);
-});
-
-document.querySelector('a[href="#about"]').addEventListener('click', showAbout);
-document.querySelector('a[href="#about"]').addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  showAbout(e);
-});
