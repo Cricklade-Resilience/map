@@ -1,12 +1,7 @@
 ////////////////////////////////////////
 // 1. Map Initialization
 ////////////////////////////////////////
-//const map = L.map('map').setView([51.6409, -1.8577], 14);
-const map = L.map('map', {
-  center: [51.6409, -1.8577], // Cricklade
-  zoom: 14,
-  zoomControl: false // ✅ Removes the +/- zoom control
-});
+const map = L.map('map').setView([51.6409, -1.8577], 14);
 
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
@@ -242,7 +237,7 @@ Promise.all(loadPromises).then(() => {
   map.on("zoomend", updateMapDisplay);
   updateMapDisplay();
 
-  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768, position:'topleft'}).addTo(map);
+  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768 }).addTo(map);
 });
 
 ////////////////////////////////////////
@@ -367,65 +362,26 @@ function locateUser() {
 ////////////////////////////////////////
 // 10. Info Button Control
 ////////////////////////////////////////
-//L.Control.InfoButton = L.Control.extend({
-//  onAdd: function(map) {
-//    const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom info-button');
-//    container.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
-//    container.title = 'Information';
+L.Control.InfoButton = L.Control.extend({
+  onAdd: function(map) {
+    const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom info-button');
+    container.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+    container.title = 'Information';
 
-//    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableClickPropagation(container);
 
-//    container.onclick = function() {
-//      document.getElementById('infoBox').style.display = 'block';
-//    };
+    container.onclick = function() {
+      document.getElementById('infoBox').style.display = 'block';
+    };
 
-//    return container;
-//  },
-//  onRemove: function(map) {}
-//});
-
-//function closeInfoBox() {
-  document.getElementById('infoBox').style.display = 'none';
-//};
-
-
-//new L.Control.InfoButton({ position: 'bottomleft' }).addTo(map);
-
-/////////////////////////////////
-// 11. Navigation Menu
-/////////////////////////////////
-
-const navLinks = document.getElementById('navLinks');
-const linksMenu = document.getElementById('linksMenu');
-
-function toggleMenu() {
-  navLinks.classList.toggle('show');
-  if (!navLinks.classList.contains('show')) {
-    linksMenu.classList.remove('submenu-open');
-  }
-}
-
-function toggleSubmenu(event) {
-  event.preventDefault();
-  linksMenu.classList.toggle('submenu-open');
-}
-
-function showAbout(e) {
-  e.preventDefault();
-  document.getElementById('aboutModal').style.display = 'flex';
-  navLinks.classList.remove('show');
-  linksMenu.classList.remove('submenu-open');
-}
-
-function closeAbout() {
-  document.getElementById('aboutModal').style.display = 'none';
-}
-
-// Close nav if clicked outside
-document.addEventListener('click', function(event) {
-  const isClickInsideNav = navLinks.contains(event.target) || event.target.closest('.menu-toggle');
-  if (!isClickInsideNav) {
-    navLinks.classList.remove('show');
-    linksMenu.classList.remove('submenu-open');
-  }
+    return container;
+  },
+  onRemove: function(map) {}
 });
+
+function closeInfoBox() {
+  document.getElementById('infoBox').style.display = 'none';
+};
+
+
+new L.Control.InfoButton({ position: 'bottomleft' }).addTo(map);

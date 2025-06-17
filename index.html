@@ -4,52 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cricklade Resilience</title>
-  <link rel="icon" type="image/png" href="Images/favicon.png" />
   
   <!-- ===============================
        Stylesheets
   =============================== -->
-  <link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-sA+e2if4F1gG8G+ZKpY5mGZpV7MXH7Ea41a7g6M3zXQ="
-  crossorigin=""/>   <!-- Leaflet CSS (required for map styling) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />   <!-- Leaflet CSS (required for map styling) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />   <!-- Font Awesome for icons (e.g., location button) -->
   <link rel="stylesheet" href="styles.css">   <!-- Your custom stylesheet --> 
  
 </head>
+
 <body>
-
-<!-- ===============================
-     Navigation Menu
-=============================== -->
-
-<header>
-  <div class="title">
-    <img src="Images/CrickladeLogo.png" alt="Logo" />
-    CRICKLADE RESILIENCE
-  </div>
-
-  <nav>
-    <div class="menu-toggle" onclick="toggleMenu()">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#" onclick="showAbout(event)">About</a></li>
-      <li id="linksMenu">
-        <a href="#" onclick="toggleSubmenu(event)">Links</a>
-        <ul>
-          <li><a href="https://www.dropbox.com/scl/fi/phwnkt0tiwfbdguzj1kv1/Cricklade-Town-Council-Resilience-Plan_CouncilUpdate.docx?rlkey=oskyd4yajlnibqi3q8lp1bcz9&st=l56m902a&dl=0" target="_blank" rel="noopener">Resilience Plan</a></li>
-		  <li><a href="https://www.dropbox.com/scl/fi/drdvws0x2s315gxj24fe2/Area-Checklist.xlsx?rlkey=2906kyl08vcdb4z8t4grewsqm&st=kjxrzig9&dl=0" target="_blank" rel="noopener">Area Checklist</a></li>
-          <li><a href="https://www.dropbox.com/scl/fi/2lvxyoccpvv06sbc5kza2/Emergency-kit-list-may-2022-v3.xlsx?rlkey=21j35rdh277gaunas3lm3mn5z&st=46bg5yxw&dl=0" target="_blank" rel="noopener">Emergency Kit List</a></li>
-        </ul>
-      </li>
-    </ul>
-  </nav>
-</header>
-
 <!-- ===============================
      Map Container
 =============================== -->
@@ -67,8 +32,7 @@
 <!-- ===============================
      Information Box
 =============================== -->
-<!-- 
-<!-- Initially hidden box that shows helpful info and documents
+<!-- Initially hidden box that shows helpful info and documents -->
 <div id="infoBox" class="info-box" style="display: none;">
   <h3>Cricklade Resilience Map</h3>
   <img src="Images/CrickladeLogo.png" alt="Cricklade" style="width:75px;height:100px;">
@@ -83,23 +47,7 @@
   <br><br>
   <button onclick="closeInfoBox()">Close</button>
   <p style="font-size: 8px;">  Website built by <a href="https://www.linkedin.com/in/richardpetermartin/" target="blank">Richard Martin</a></p>
-</div> -->
-
-
-<!-- ===============================
-     About Box
-=============================== -->
-<div class="modal" id="aboutModal">
-  <div class="modal-content">
-    <h2>About Cricklade Resilience</h2>
-    <p>This map is designed to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate, and monitor known risks within the town and local area.</p><br>
-	<p>Use the Layers menu to browse datasets, the Locate button to view your location.</p><br>
-	<p>Use the Links section to view key documents and log actions/notes.  Access to these documents is restricted.</p><br>
-	<p style="font-size: 9px;">  Website built by <a href="https://www.linkedin.com/in/richardpetermartin/" target="blank">Richard Martin</a></p>
-    <button onclick="closeAbout()">Close</button>
-  </div>
 </div>
-
 
   <!-- ===============================
      JavaScript Libraries (Loaded Last)
