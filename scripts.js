@@ -397,35 +397,62 @@ function locateUser() {
 
 const navLinks = document.getElementById('navLinks');
 const linksMenu = document.getElementById('linksMenu');
+const menuToggle = document.querySelector('.menu-toggle');
+const aboutModal = document.getElementById('aboutModal');
 
-function toggleMenu() {
+// Toggle main menu
+function toggleMenu(event) {
+  event.stopPropagation(); // Prevent document click handler from firing immediately
   navLinks.classList.toggle('show');
   if (!navLinks.classList.contains('show')) {
     linksMenu.classList.remove('submenu-open');
   }
 }
 
+// Toggle submenu
 function toggleSubmenu(event) {
   event.preventDefault();
+  event.stopPropagation(); // Prevent closing the menu immediately
   linksMenu.classList.toggle('submenu-open');
 }
 
-function showAbout(e) {
-  e.preventDefault();
-  document.getElementById('aboutModal').style.display = 'flex';
+// Show About modal
+function showAbout(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  aboutModal.style.display = 'flex';
   navLinks.classList.remove('show');
   linksMenu.classList.remove('submenu-open');
 }
 
+// Close About modal
 function closeAbout() {
-  document.getElementById('aboutModal').style.display = 'none';
+  aboutModal.style.display = 'none';
 }
 
 // Close nav if clicked outside
 document.addEventListener('click', function(event) {
-  const isClickInsideNav = navLinks.contains(event.target) || event.target.closest('.menu-toggle');
-  if (!isClickInsideNav) {
+  if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
     navLinks.classList.remove('show');
     linksMenu.classList.remove('submenu-open');
   }
+});
+
+// Add event listeners for toggle and submenu
+menuToggle.addEventListener('click', toggleMenu);
+menuToggle.addEventListener('touchstart', function(e) {
+  e.preventDefault(); // Prevent double events on mobile
+  toggleMenu(e);
+});
+
+document.querySelector('#linksMenu > a').addEventListener('click', toggleSubmenu);
+document.querySelector('#linksMenu > a').addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  toggleSubmenu(e);
+});
+
+document.querySelector('a[href="#about"]').addEventListener('click', showAbout);
+document.querySelector('a[href="#about"]').addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  showAbout(e);
 });
