@@ -7,7 +7,7 @@ html, body {
 }
 #map {
   width: 100%;
-  height: calc(100vh - 50px); /* adjust based on header height */
+  height: 100%; 
 }
 
 
@@ -107,6 +107,8 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  margin:0;
   background-color: #f0f0f0;
 }
 header {
@@ -201,6 +203,8 @@ nav {
 }
 #map-container {
   flex: 1;
+  height: calc(100vh - 50px); /* Adjust if your header is taller */
+  overflow: hidden;
   background: white;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.35);
   border: none;
