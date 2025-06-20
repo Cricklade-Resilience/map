@@ -2,26 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cricklade Resilience</title>
-  
-  <!-- ===============================
+  <link rel="icon" type="image/png" href="Images/favicon.png" />
+    <!-- ===============================
        Stylesheets
   =============================== -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />   <!-- Leaflet CSS (required for map styling) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />   <!-- Font Awesome for icons (e.g., location button) -->
   <link rel="stylesheet" href="styles.css">   <!-- Your custom stylesheet --> 
- 
-</head>
 
+
+  
+</head>
 <body>
-<!-- ===============================
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="brand">
+      <img src="Images/CrickladeLogo.png" alt="Logo" />
+      CRICKLADE RESILIENCE
+    </div>
+    <div class="navbar-toggle" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+    <ul id="navbar-links">
+      <li><a href="index.html">Map</a></li>
+      <li><a href="info.html">Info</a></li>
+    </ul>
+  </nav>
+
+ <!-- ===============================
      Map Container
 =============================== -->
 <!-- This <div> is where Leaflet will render the interactive map -->
-<div id="map"></div>
-
-<!-- ===============================
+  <div id="map"></div>
+  
+  <!-- ===============================
      Locate Button
 =============================== -->
 <!-- This button calls the locateUser() function in your JS to find the user's location -->
@@ -29,31 +46,383 @@
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
 
-<!-- ===============================
-     Information Box
-=============================== -->
-<!-- Initially hidden box that shows helpful info and documents -->
-<div id="infoBox" class="info-box" style="display: none;">
-  <h3>Cricklade Resilience Map</h3>
-  <img src="Images/CrickladeLogo.png" alt="Cricklade" style="width:75px;height:100px;">
-  
-  <p>This map is designed to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate, and monitor known risks within the town and local area.</p>
-  <p>Use the Layers menu to browse datasets, the Locate button to view your location, and the links below to log actions and notes.</p>
-  
-  <p><strong>Documents (Restricted Access):</strong></p>
-  <a href="https://www.dropbox.com/scl/fi/phwnkt0tiwfbdguzj1kv1/Cricklade-Town-Council-Resilience-Plan_CouncilUpdate.docx?rlkey=oskyd4yajlnibqi3q8lp1bcz9&st=l56m902a&dl=0" target="_blank">📄 Resilience Plan (PDF)</a><br>
-  <a href="https://www.dropbox.com/scl/fi/drdvws0x2s315gxj24fe2/Area-Checklist.xlsx?rlkey=2906kyl08vcdb4z8t4grewsqm&st=kjxrzig9&dl=0" target="_blank">✅ Area Checklist</a><br>
-  <a href="https://www.dropbox.com/scl/fi/2lvxyoccpvv06sbc5kza2/Emergency-kit-list-may-2022-v3.xlsx?rlkey=21j35rdh277gaunas3lm3mn5z&st=46bg5yxw&dl=0" target="_blank">Emergency Kit List</a>
-  <br><br>
-  <button onclick="closeInfoBox()">Close</button>
-  <p style="font-size: 8px;">  Website built by <a href="https://www.linkedin.com/in/richardpetermartin/" target="blank">Richard Martin</a></p>
-</div>
-
-  <!-- ===============================
+ <!-- ===============================
      JavaScript Libraries (Loaded Last)
 =============================== -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Leaflet JS (required for map functionality) -->
-<script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script> <!-- Esri Leaflet (optional: useful if you're using Esri basemaps or services) -->
-<script src="scripts.js"></script> <!-- Your custom JS that initializes the map and controls -->
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script> <!-- Esri Leaflet (optional: useful if you're using Esri basemaps or services) -->
+  <script>
+  
+    // Toggle mobile menu
+    function toggleMenu() {
+      document.getElementById('navbar-links').classList.toggle('show');
+    }
+	
+	////////////////////////////////////////
+// 1. Map Initialization
+////////////////////////////////////////
+const map = L.map('map', {zoomControl:false}).setView([51.6409, -1.8577], 14);
+
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
+
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '© OpenStreetMap contributors'
+});
+
+const esriAerial = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles © Esri'
+});
+
+const baseMaps = {
+  "Greyscale (Carto)": cartoLight,
+  "OpenStreetMap": osm,
+  "Aerial (Esri)": esriAerial
+};
+
+////////////////////////////////////////
+// 2. Icon Definitions (Font Awesome divIcons)
+////////////////////////////////////////
+const faShopIcon = L.divIcon({ html: '<i class="fa-solid fa-shop" style="color: orange;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const WILD = L.divIcon({ html: '<i class="fa-solid fa-diamond" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const shelter = L.divIcon({ html: '<i class="fa-solid fa-bed" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="color: brown;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+
+////////////////////////////////////////
+// 3. WMS Layers (Flood Zones)
+////////////////////////////////////////
+const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
+  format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
+});
+
+const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+  format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
+});
+
+////////////////////////////////////////
+// 4. Utility Maps & Buffers
+////////////////////////////////////////
+const overlayBuffer = new Map();    // Temporary storage for loaded layers
+const overlays = {};                // Final overlay layers for control
+const loadPromises = [];            // Promises for loading GeoJSON files
+const polygonLabels = new Map();    // Store polygon tooltips by layer name
+
+////////////////////////////////////////
+// 5. Feature Handler (Popups, Labels, Styles)
+////////////////////////////////////////
+function createOnEachFeature(name, icon, label) {
+  return function(feature, layerInstance) {
+    const props = feature.properties || {};
+    const geometryType = feature.geometry.type;
+    feature.properties.layerName = name;
+
+    if (geometryType === "Point") {
+      const nameProp = props.name || "No Name";
+      const desc = props.description || "";
+      const imgUrl = props.imageURL || "";
+      const siteURL = props.siteURL || "";
+
+      let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
+      if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
+      if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+
+      layerInstance.bindPopup(popupContent);
+
+      if (label && icon) {
+        const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
+        layerInstance.bindTooltip(nameProp, {
+          permanent: true,
+          direction: "top",
+          offset: [0, -20],
+          className: `point-label-${labelColor}`
+        });
+        layerInstance._tooltipRef = layerInstance.getTooltip();
+      }
+    }
+
+    if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
+  const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
+
+  if (name === "Admin: Warden Zones") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
+
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
+
+  } else if (name === "Feature: Evacuation Sites") {
+    const center = layerInstance.getBounds().getCenter();
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: 'center',
+      className: 'polygon-label',
+      offset: [0, 0]
+    }).setContent(labelText).setLatLng(center);
+
+    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+    polygonLabels.get(name).push(tooltip);
+    layerInstance._tooltipRef = tooltip;
+  }
+}
+
+
+    if (geometryType.includes("Polygon")) {
+  let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
+
+  if (name === "Admin: Warden Zones") {
+    style = { color: "#444", weight: 2, fillOpacity: 0.1 };
+  } else if (name === "Admin: Parish Boundary") {
+    style = { color: "black", weight: 3, fillOpacity: 0 };
+  } else if (name === "Feature: Evacuation Sites") {
+    style = { color: "red", weight: 2, fillOpacity: 0.1 };  // âœ… red fill/outline
+  }
+
+  layerInstance.setStyle(style);
+}
+
+  };
+}
+
+////////////////////////////////////////
+// 6. Load GeoJSON Layers
+////////////////////////////////////////
+const layersToLoad = [
+  { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
+  { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
+  { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
+  { name: "Feature: Storage", file: "Data/Features_Storage.geojson", icon: storage, label: true },
+  { name: "Feature: Supplies", file: "Data/Features_Supplies.geojson", icon: faShopIcon, label: true },
+  { name: "Flood: Water Guages", file: "Data/Water_WaterGuages.geojson", icon: guage, label: true },
+  { name: "Flood: Areas of Concern", file: "Data/Flood_HistAreas.geojson", icon: histflood, label: true },
+  { name: "Admin: Warden Zones", file: "Data/CrickladeWardenZones.geojson", icon: null, label: true },
+  { name: "Feature: Evacuation Sites", file: "Data/Features_EvacSites.geojson", icon: null, label: true },
+  { name: "Admin: Parish Boundary", file: "Data/Admin_ParishBoundary.geojson", icon: null, label: false }
+];
+
+layersToLoad.forEach(({ name, file, icon, label }) => {
+  const layer = L.geoJSON(null, {
+    pointToLayer: (f, latlng) => icon ? L.marker(latlng, { icon }) : L.marker(latlng),
+    onEachFeature: createOnEachFeature(name, icon, label)
+  });
+
+  const p = fetch(file)
+    .then(res => res.json())
+    .then(data => {
+      data.features.forEach(f => f.properties.layerName = name);
+      layer.addData(data);
+      if (name === "Admin: Warden Zones" && polygonLabels.has(name)) {
+        polygonLabels.get(name).forEach(t => map.addLayer(t));
+      }
+      overlayBuffer.set(name, layer);
+    }).catch(err => console.error(`Error loading ${file}:`, err));
+
+  loadPromises.push(p);
+});
+
+////////////////////////////////////////
+// 7. Map Display Logic & Controls
+////////////////////////////////////////
+Promise.all(loadPromises).then(() => {
+  overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
+  overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+   
+
+  const orderedNames = [
+    "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
+    "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
+    "Flood: WILD Watercourse Issues", "Admin: Warden Zones", "Admin: Parish Boundary"
+  ];
+
+  orderedNames.forEach(name => {
+    if (overlayBuffer.has(name)) overlays[name] = overlayBuffer.get(name);
+  });
+
+  // Add Warden Zones & Parish Boundary layers + labels by default on map load
+  if (overlayBuffer.has("Admin: Warden Zones")) {
+    const wardenZonesLayer = overlayBuffer.get("Admin: Warden Zones");
+    wardenZonesLayer.addTo(map);
+    wardenZonesLayer.eachLayer(l => {
+      l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
+    });
+  }
+
+  if (overlayBuffer.has("Admin: Parish Boundary")) {
+    const parishLayer = overlayBuffer.get("Admin: Parish Boundary");
+    parishLayer.addTo(map);
+    parishLayer.eachLayer(l => {
+      l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+    });
+  }
+
+  const labelVisibilityZoom = 15;
+
+  function updateMapDisplay() {
+    const zoom = map.getZoom();
+
+    overlayBuffer.forEach(layer => {
+      layer.eachLayer(featureLayer => {
+        if (featureLayer._tooltipRef) {
+          if (zoom >= labelVisibilityZoom) {
+            featureLayer.openTooltip();
+          } else {
+            featureLayer.closeTooltip();
+          }
+        }
+
+        if (featureLayer.setStyle && featureLayer.feature?.geometry?.type?.includes("Polygon")) {
+          const lname = featureLayer.feature.properties?.layerName;
+          let weight = 2;
+          if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
+          else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
+          featureLayer.setStyle({ weight });
+        }
+      });
+    });
+  }
+
+  map.on("zoomend", updateMapDisplay);
+  updateMapDisplay();
+
+  L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768, position: 'topleft' }).addTo(map);
+});
+
+////////////////////////////////////////
+// 8. Overlay Events (Label Toggling)
+////////////////////////////////////////
+map.on('overlayadd', e => {
+  const layerName = e.name;
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Restore styles on add
+      if (layerName === "Admin: Warden Zones") {
+        l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
+      }
+      if (layerName === "Admin: Parish Boundary") {
+        l.setStyle({ color: "black", weight: 3, fillOpacity: 0 });
+      }
+
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.addLayer(tooltip);
+    });
+  }
+});
+
+map.on('overlayremove', e => {
+  const layerName = e.name;
+
+  const layerGroup = overlayBuffer.get(layerName);
+  if (layerGroup) {
+    layerGroup.eachLayer(l => {
+      // Optionally reset style or leave as is
+      const tooltip = l._tooltipRef;
+      if (tooltip) map.removeLayer(tooltip);
+    });
+  }
+});
+
+////////////////////////////////////////
+// 9. Locate Button Functionality
+////////////////////////////////////////
+let watchId = null;
+let userMarker = null;
+let accuracyCircle = null;
+let firstUpdate = true; // Track first location update
+
+function locateUser() {
+  if (watchId !== null) {
+    // Stop tracking
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+
+    if (userMarker) map.removeLayer(userMarker);
+    if (accuracyCircle) map.removeLayer(accuracyCircle);
+
+    userMarker = accuracyCircle = null;
+    firstUpdate = true;
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  watchId = navigator.geolocation.watchPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
+      const heading = pos.coords.heading; // may be null
+
+      const latlng = [lat, lng];
+
+      // Create custom arrow icon rotated by heading
+      const headingDeg = (heading !== null && !isNaN(heading)) ? heading : 0;
+      const rotatedIcon = L.divIcon({
+        html: `<i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(${headingDeg}deg); transform-origin: center;"></i>`,
+        className: 'fa-icon',
+        iconSize: [24, 24],
+      });
+
+      // Update or create marker with arrow icon
+      if (!userMarker) {
+        userMarker = L.marker(latlng, { icon: rotatedIcon }).addTo(map).bindPopup("You are here");
+      } else {
+        userMarker.setLatLng(latlng);
+        userMarker.setIcon(rotatedIcon); // update icon to rotate arrow
+      }
+
+      // Update or create accuracy circle
+      if (!accuracyCircle) {
+        accuracyCircle = L.circle(latlng, {
+          radius: accuracy,
+          color: 'blue',
+          fillColor: '#1E90FF',
+          fillOpacity: 0.2,
+          weight: 1
+        }).addTo(map);
+      } else {
+        accuracyCircle.setLatLng(latlng).setRadius(accuracy);
+      }
+
+      // Zoom to user's position on first update
+      if (firstUpdate) {
+        map.setView(latlng, 15);
+        firstUpdate = false;
+      }
+
+    },
+    err => {
+      alert("Unable to retrieve your location.");
+      console.error(err);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
+    }
+  );
+}	
+
+
+  </script>
+
 </body>
 </html>
