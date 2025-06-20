@@ -167,6 +167,15 @@ html, body {
   object-fit: contain;
 } */
 
+.leaflet-popup-content-wrapper {
+  max-width: 280px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.leaflet-popup {
+  max-width: 300px;
+}
+
 /* 1. Limit popup content width */
 .leaflet-popup-content {
   max-width: 250px; /* Adjust to suit your layout */
