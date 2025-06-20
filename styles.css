@@ -167,12 +167,21 @@ html, body {
   object-fit: contain;
 } */
 
+/* 1. Limit popup content width */
+.leaflet-popup-content {
+  max-width: 250px; /* Adjust to suit your layout */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* 2. Ensure image doesn't exceed popup width */
 .popup-image {
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  height: auto !important;
   display: block;
-  margin-top: 8px;
   border-radius: 4px;
+  margin: 8px 0;
+  box-sizing: border-box;
 }
 
 /* Responsive image sizing on smaller screens */
