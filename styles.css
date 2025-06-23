@@ -176,6 +176,8 @@ html, body {
 }
 
 .leaflet-popup-content {
+  width: 280px !important; /* force width */
+  max-width: 280px !important;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
