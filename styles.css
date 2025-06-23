@@ -183,7 +183,6 @@ html, body {
 
 /* Popup image fix */
 .leaflet-popup-content .popup-image {
-  width: auto !important;
   max-width: 100% !important;
   height: auto !important;
   display: block;
@@ -191,6 +190,7 @@ html, body {
   margin: 8px 0;
   box-sizing: border-box;
 }
+
 
 @media (max-width: 768px) {
   .leaflet-popup-content .popup-image {
