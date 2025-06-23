@@ -118,22 +118,27 @@ const polygonLabels = new Map();    // Store polygon tooltips by layer name
 // 5. Feature Handler (Popups, Labels, Styles)
 ////////////////////////////////////////
 function createOnEachFeature(name, icon, label) {
-  return function(feature, layerInstance) {
+  return function (feature, layerInstance) {
     const props = feature.properties || {};
     const geometryType = feature.geometry.type;
     feature.properties.layerName = name;
 
+    // Handle Point features
     if (geometryType === "Point") {
       const nameProp = props.name || "No Name";
-      const desc = props.description || "";
-      const imgUrl = props.imageURL || "";
-      const siteURL = props.siteURL || "";
+	  const desc = props.description || "";
+	  const imgUrl = props.imageURL || "";
+	  const siteURL = props.siteURL || "";
 
-      let popupContent = `<strong>${nameProp}</strong><br>${desc}`;
-      if (imgUrl) popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
-      if (siteURL) popupContent += `<br><a href="${siteURL}" target="_blank">Visit Website</a>`;
+	let popupContent = "<strong>" + nameProp + "</strong><br>" + desc;
+	if (imgUrl) {
+		popupContent += "<br><img src=\"" + imgUrl + "\" class=\"popup-image\">";
+	}
+	if (siteURL) {
+		popupContent += "<br><a href=\"" + siteURL + "\" target=\"_blank\" rel=\"noopener\">Visit Website</a>";
+	}
 
-      layerInstance.bindPopup(popupContent);
+    layerInstance.bindPopup(popupContent);
 
       if (label && icon) {
         const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
@@ -147,52 +152,37 @@ function createOnEachFeature(name, icon, label) {
       }
     }
 
+    // Handle Polygon and MultiPolygon label logic
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
-  const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
+      const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
+      const center = layerInstance.getBounds().getCenter();
 
-  if (name === "Admin: Warden Zones") {
-    const center = layerInstance.getBounds().getCenter();
-    const tooltip = L.tooltip({
-      permanent: true,
-      direction: 'center',
-      className: 'polygon-label',
-      offset: [0, 0]
-    }).setContent(labelText).setLatLng(center);
+      const tooltip = L.tooltip({
+        permanent: true,
+        direction: 'center',
+        className: 'polygon-label',
+        offset: [0, 0]
+      }).setContent(labelText).setLatLng(center);
 
-    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
-    polygonLabels.get(name).push(tooltip);
-    layerInstance._tooltipRef = tooltip;
+      if (!polygonLabels.has(name)) polygonLabels.set(name, []);
+      polygonLabels.get(name).push(tooltip);
+      layerInstance._tooltipRef = tooltip;
+    }
 
-  } else if (name === "Feature: Evacuation Sites") {
-    const center = layerInstance.getBounds().getCenter();
-    const tooltip = L.tooltip({
-      permanent: true,
-      direction: 'center',
-      className: 'polygon-label',
-      offset: [0, 0]
-    }).setContent(labelText).setLatLng(center);
-
-    if (!polygonLabels.has(name)) polygonLabels.set(name, []);
-    polygonLabels.get(name).push(tooltip);
-    layerInstance._tooltipRef = tooltip;
-  }
-}
-
-
+    // Set styles for Polygon-type features
     if (geometryType.includes("Polygon")) {
-  let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
+      let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
 
-  if (name === "Admin: Warden Zones") {
-    style = { color: "#444", weight: 2, fillOpacity: 0.1 };
-  } else if (name === "Admin: Parish Boundary") {
-    style = { color: "black", weight: 3, fillOpacity: 0 };
-  } else if (name === "Feature: Evacuation Sites") {
-    style = { color: "red", weight: 2, fillOpacity: 0.1 };  // âœ… red fill/outline
-  }
+      if (name === "Admin: Warden Zones") {
+        style = { color: "#444", weight: 2, fillOpacity: 0.1 };
+      } else if (name === "Admin: Parish Boundary") {
+        style = { color: "black", weight: 3, fillOpacity: 0 };
+      } else if (name === "Feature: Evacuation Sites") {
+        style = { color: "red", weight: 2, fillOpacity: 0.1 };
+      }
 
-  layerInstance.setStyle(style);
-}
-
+      layerInstance.setStyle(style);
+    }
   };
 }
 
@@ -376,10 +366,12 @@ function locateUser() {
       // Create custom arrow icon rotated by heading
       const headingDeg = (heading !== null && !isNaN(heading)) ? heading : 0;
       const rotatedIcon = L.divIcon({
-        html: `<i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(${headingDeg}deg); transform-origin: center;"></i>`,
-        className: 'fa-icon',
-        iconSize: [24, 24],
-      });
+		html: '<i class="fa-solid fa-location-arrow" style="color: purple; transform: rotate(' +
+        headingDeg + 'deg); transform-origin: center;"></i>',
+	className: 'fa-icon',
+	iconSize: [24, 24],
+	});
+
 
       // Update or create marker with arrow icon
       if (!userMarker) {
@@ -421,8 +413,7 @@ function locateUser() {
   );
 }	
 
-
-  </script>
+</script>
 
 </body>
 </html>
