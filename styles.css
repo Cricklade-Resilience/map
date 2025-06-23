@@ -171,7 +171,6 @@ html, body {
 .leaflet-popup-content-wrapper {
   width: 280px !important;
   max-width: 280px !important;
-  width: 280px !important;
   box-sizing: border-box;
 }
 
