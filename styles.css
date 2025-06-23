@@ -168,10 +168,9 @@ html, body {
 } */
 
 .leaflet-popup,
-.leaflet-popup-content-wrapper,
-.leaflet-popup-content {
-  max-width: 280px;
-  width: 100%;
+.leaflet-popup-content-wrapper {
+  max-width: 280px !important;
+  width: 280px !important;
   box-sizing: border-box;
 }
 
