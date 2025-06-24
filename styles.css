@@ -200,7 +200,7 @@ html, body {
 }
 
  
-/* -------------------- Labels: Shared styles for various colored point labels */
+/* -------------------- Labels: Shared styles for various colored point labels 
 .point-label-red, .point-label-green, .point-label-orange,
 .point-label-blue, .point-label-brown {
   font-weight: bold;
@@ -210,12 +210,12 @@ html, body {
   border: 1px solid #ccc;
 }
 
-/* Specific colors for each point label variant */
+Specific colors for each point label variant 
 .point-label-red { color: red; }
 .point-label-green { color: green; }
 .point-label-orange { color: orange; }
 .point-label-blue { color: blue; }
-.point-label-brown { color: brown; }
+.point-label-brown { color: brown; } ----------------------- */
 
 /* Label style for polygons: styled tooltip with pointer-events disabled */
 .polygon-label {
