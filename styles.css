@@ -158,14 +158,6 @@ html, body {
   text-shadow: 0 0 2px white;
   
  /* ------------------ Image inside popup: size constraints and styling */
-/*.popup-image {
-  max-width: 100px;
-  max-height: 75px;
-  margin-top: 5px;
-  border-radius: 4px;
-  display: block;
-  object-fit: contain;
-} */
 
 .leaflet-popup,
 .leaflet-popup-content-wrapper {
@@ -177,19 +169,20 @@ html, body {
 .leaflet-popup-content {
   width: 280px !important; /* force width */
   max-width: 280px !important;
-  overflow-wrap: normal;
-  word-wrap: normal;
+  overflow-wrap: hidden;
+  word-wrap: break-word;
 }
 
 /* Popup image fix */
-.leaflet-popup-content .popup-image {
-  max-width: 100% !important;
-  height: auto !important;
+.leaflet-popup-content img.popup-image {
+  max-width: 100%;
+  height: auto;
   display: block;
   border-radius: 4px;
-  margin: 8px 0;
-  box-sizing: border-box;
+  margin-top: 8px;
+  object-fit: contain;
 }
+
 
 
 @media (max-width: 768px) {
