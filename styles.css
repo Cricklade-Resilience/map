@@ -174,21 +174,20 @@ html, body {
 }
 
 /* Popup image fix */
-.leaflet-popup-content img.popup-image {
+.leaflet-popup-content .popup-image {
   max-width: 100%;
   height: auto;
   display: block;
   border-radius: 4px;
-  margin-top: 8px;
-  object-fit: contain;
+  margin: 8px 0;
+  object-fit: contain; /* Ensures aspect ratio is preserved */
+  box-sizing: border-box;
 }
-
-
 
 @media (max-width: 768px) {
   .leaflet-popup-content .popup-image {
     max-width: 100%;
-    max-height: 235px;
+    max-height: 150px;
   }
 }
 
