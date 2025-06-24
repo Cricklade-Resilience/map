@@ -1,5 +1,6 @@
-/* General layout */
-
+/* ======================
+   General Layout
+====================== */
 html, body {
   height: 100%;
   margin: 0;
@@ -11,12 +12,16 @@ html, body {
   padding-top: 30px;
 }
 
-/* Map page specific */
+/* ======================
+   Map Page Specific
+====================== */
 #map {
   height: calc(100vh - 60px); /* Assuming navbar height ~60px */
 }
 
-/* Info page content container */
+/* ======================
+   Info Page Content Container
+====================== */
 .content {
   max-width: 800px;
   margin: 40px auto 40px;
@@ -25,8 +30,6 @@ html, body {
   box-sizing: border-box;
   overflow-y: auto;
 }
-
-
 
 /* ======================
    NAVIGATION
@@ -132,7 +135,10 @@ html, body {
   z-index: 0;
 }
 
-/* --------------------- Style for the locate button: visual styling */
+/* ======================
+   Locate Button
+====================== */
+/* visual styling */
 .locate-button {
   position: absolute;
   bottom: 10px;
@@ -150,15 +156,18 @@ html, body {
   font-size: 18px;
 } 
 
-
-/* -------------------- Font Awesome icon style: size, color, and white glow */
+/* ======================
+   Font Awesome Icons
+====================== */
+/* size, color, and white glow */
 .fa-icon {
   font-size: 24px;
   color: blue;
   text-shadow: 0 0 2px white;
-  
- /* ------------------ Image inside popup: size constraints and styling */
 
+/* ======================
+   Popup Content
+====================== */
 /* Popup sizing */
 .leaflet-popup-content,
 .leaflet-popup-content-wrapper {
@@ -177,6 +186,7 @@ html, body {
   max-height: 180px;
   object-fit: contain;
   border-radius: 4px;
+  border: 1px solid #ccc;
   margin: 8px 0;
   box-sizing: border-box;
 }
@@ -188,24 +198,9 @@ html, body {
   }
 }
 
- 
-/* -------------------- Labels: Shared styles for various colored point labels 
-.point-label-red, .point-label-green, .point-label-orange,
-.point-label-blue, .point-label-brown {
-  font-weight: bold;
-  background: white;
-  border-radius: 4px;
-  padding: 2px 4px;
-  border: 1px solid #ccc;
-}
-
-Specific colors for each point label variant 
-.point-label-red { color: red; }
-.point-label-green { color: green; }
-.point-label-orange { color: orange; }
-.point-label-blue { color: blue; }
-.point-label-brown { color: brown; } ----------------------- */
-
+/* ======================
+   Polygon labels
+====================== */ 
 /* Label style for polygons: styled tooltip with pointer-events disabled */
 .polygon-label {
   font-weight: bold;
@@ -217,4 +212,3 @@ Specific colors for each point label variant
   font-size: 12px;
   pointer-events: none; /* so labels don’t capture mouse */
 } 
-  
