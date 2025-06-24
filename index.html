@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 1</title>
+  <title>Cricklade Resilience 2</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -129,7 +129,10 @@ function createOnEachFeature(name, icon, label) {
   const siteURL = props.siteURL || "";
 
   let popupContent = "<strong>" + nameProp + "</strong><br>" + desc;
-  //if (imgUrl) {
+  if (imgUrl) {
+  	popupContent += `<br><div style="max-width:100%; overflow:hidden;"><img src="${imgUrl}" class="popup-image"></div>`;
+	}
+ //if (imgUrl) {
     //popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
   //}
   if (siteURL) {
