@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 5</title>
+  <title>Cricklade Resilience 6</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -434,11 +434,22 @@ function locateUser() {
 //////////////////// image controller
 map.on('popupopen', function(e) {
   const popupContentEl = e.popup.getElement().querySelector('.leaflet-popup-content');
+
   if (popupContentEl) {
     popupContentEl.style.width = '280px';
     popupContentEl.style.maxWidth = '280px';
+
+    const img = popupContentEl.querySelector('img.popup-image');
+    if (img) {
+      img.style.maxWidth = '100%';
+      img.style.width = '100%';
+      img.style.height = 'auto';
+      img.style.maxHeight = '180px';
+      img.style.objectFit = 'contain';
+    }
   }
 });
+
 
 
 
