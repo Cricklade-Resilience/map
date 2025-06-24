@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 3</title>
+  <title>Cricklade Resilience 4</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -122,7 +122,7 @@ function createOnEachFeature(name, icon, label) {
     feature.properties.layerName = name;
 
     // Handle Point features
-    if (geometryType === "Point") {
+ if (geometryType === "Point") {
   const nameProp = props.name || "No Name";
   const desc = props.description || "";
   const imgUrl = props.imageURL || "";
@@ -140,21 +140,31 @@ function createOnEachFeature(name, icon, label) {
 
   if (label && icon) {
     const labelColor = icon.options.html.match(/color:\s*([^;"']+)/i)?.[1].trim() || "black";
+
     const tooltip = layerInstance.bindTooltip(nameProp, {
       permanent: true,
       direction: "top",
       offset: [0, -20],
-      className: 'point-label-dynamic'
+      className: 'point-label-colored'
     });
 
-    // Apply color only if the tooltip container is available
-    layerInstance.on('tooltipopen', function(e) {
-      e.tooltip._container?.style?.setProperty('color', labelColor);
+    // Wait until the tooltip is added to DOM
+    layerInstance.on('tooltipopen', function (e) {
+      const container = e.tooltip._container;
+      if (container) {
+        container.style.backgroundColor = labelColor;
+        container.style.color = "white";
+        container.style.border = "1px solid #ccc";
+        container.style.borderRadius = "4px";
+        container.style.padding = "2px 4px";
+        container.style.fontWeight = "bold";
+      }
     });
 
     layerInstance._tooltipRef = tooltip;
   }
 }
+
 
 
     // Handle Polygon and MultiPolygon label logic
