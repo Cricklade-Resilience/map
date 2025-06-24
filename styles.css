@@ -159,11 +159,12 @@ html, body {
   
  /* ------------------ Image inside popup: size constraints and styling */
 
-.leaflet-popup,
+.leaflet-popup-content,
 .leaflet-popup-content-wrapper {
   width: 280px !important;
   max-width: 280px !important;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .leaflet-popup-content {
@@ -175,14 +176,17 @@ html, body {
 
 /* Popup image fix */
 .leaflet-popup-content .popup-image {
+  width: 100%;
   max-width: 100%;
   height: auto;
+  max-height: 150px;
   display: block;
   border-radius: 4px;
   margin: 8px 0;
-  object-fit: contain; /* Ensures aspect ratio is preserved */
+  object-fit: contain;
   box-sizing: border-box;
 }
+
 
 @media (max-width: 768px) {
   .leaflet-popup-content .popup-image {
