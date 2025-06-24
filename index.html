@@ -129,10 +129,7 @@ function createOnEachFeature(name, icon, label) {
   const siteURL = props.siteURL || "";
 
   let popupContent = "<strong>" + nameProp + "</strong><br>" + desc;
-  //if (imgUrl) {
- // 	popupContent += `<br><div style="max-width:100%; overflow:hidden;"><img src="${imgUrl}" class="popup-image"></div>`;
-//	}
- if (imgUrl) {
+  if (imgUrl) {
   	popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
 	}
   if (siteURL) {
@@ -431,7 +428,9 @@ function locateUser() {
   );
 }	
 
-//////////////////// image controller
+////////////////////////////////////////
+// 10. Image Pop-up Controller 
+////////////////////////////////////////
 map.on('popupopen', function(e) {
   const popupContentEl = e.popup.getElement().querySelector('.leaflet-popup-content');
 
