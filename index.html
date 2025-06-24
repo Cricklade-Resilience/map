@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 2</title>
+  <title>Cricklade Resilience 3</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -123,33 +123,39 @@ function createOnEachFeature(name, icon, label) {
 
     // Handle Point features
     if (geometryType === "Point") {
-      const nameProp = props.name || "No Name";
-	  const desc = props.description || "";
-	  const imgUrl = props.imageURL || "";
-	  const siteURL = props.siteURL || "";
+  const nameProp = props.name || "No Name";
+  const desc = props.description || "";
+  const imgUrl = props.imageURL || "";
+  const siteURL = props.siteURL || "";
 
-	let popupContent = "<strong>" + nameProp + "</strong><br>" + desc;
-	if (imgUrl) {
-		popupContent += "<br><img src=\"" + imgUrl + "\" class=\"popup-image\">";
-	}
-	if (siteURL) {
-		popupContent += "<br><a href=\"" + siteURL + "\" target=\"_blank\" rel=\"noopener\">Visit Website</a>";
-	}
+  let popupContent = "<strong>" + nameProp + "</strong><br>" + desc;
+  if (imgUrl) {
+    popupContent += `<br><img src="${imgUrl}" class="popup-image">`;
+  }
+  if (siteURL) {
+    popupContent += `<br><a href="${siteURL}" target="_blank" rel="noopener">Visit Website</a>`;
+  }
 
-    layerInstance.bindPopup(popupContent);
+  layerInstance.bindPopup(popupContent);
 
-      if (label && icon) {
-        //const labelColor = icon.options.html.match(/color:\s*(\w+)/i)?.[1] || "black";
-	const labelColor = icon.options.html.match(/color:\s*([^;"']+)/i)?.[1].trim() || "black";
-        layerInstance.bindTooltip(nameProp, {
-          permanent: true,
-          direction: "top",
-          offset: [0, -20],
-          className: `point-label-${labelColor}`
-        });
-        layerInstance._tooltipRef = layerInstance.getTooltip();
-      }
-    }
+  if (label && icon) {
+    const labelColor = icon.options.html.match(/color:\s*([^;"']+)/i)?.[1].trim() || "black";
+    const tooltip = layerInstance.bindTooltip(nameProp, {
+      permanent: true,
+      direction: "top",
+      offset: [0, -20],
+      className: 'point-label-dynamic'
+    });
+
+    // Apply color only if the tooltip container is available
+    layerInstance.on('tooltipopen', function(e) {
+      e.tooltip._container?.style?.setProperty('color', labelColor);
+    });
+
+    layerInstance._tooltipRef = tooltip;
+  }
+}
+
 
     // Handle Polygon and MultiPolygon label logic
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
