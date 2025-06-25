@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience</title>
+  <title>Cricklade Resilience 1</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -90,6 +90,11 @@ const storage = L.divIcon({ html: '<i class="fa-solid fa-boxes-packing" style="c
 const medical = L.divIcon({ html: '<i class="fa-solid fa-house-medical" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 const guage = L.divIcon({ html: '<i class="fa-solid fa-gauge" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 const histflood = L.divIcon({ html: '<i class="fa-solid fa-star" style="color: blue;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+//New layer
+const histevent = L.divIcon({ html: '<i class="fa-solid fa-calendar-days" style="color: black;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const asset = L.divIcon({ html: '<i class="fa-solid fa-flag" style="color: grey;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const inspecfeature = L.divIcon({ html: '<i class="fa-solid fa-magnifying-glass-location" style="color: green;"></i>', className: 'fa-icon', iconSize: [24, 24] });
+const defib = L.divIcon({ html: '<i class="fa-solid fa-heart-pulse" style="color: red;"></i>', className: 'fa-icon', iconSize: [24, 24] });
 
 ////////////////////////////////////////
 // 3. WMS Layers (Flood Zones)
@@ -205,6 +210,10 @@ function createOnEachFeature(name, icon, label) {
 // 6. Load GeoJSON Layers
 ////////////////////////////////////////
 const layersToLoad = [
+  { name: "Historical Events", file: "Data/HistoricalEvents.geojson", icon: histevent, label: false },
+  { name: "Asset: Defibs", file: "Data/Asset_Defib.geojson", icon: defib, label: false },
+  { name: "Inspection: Asset", file: "Data/Inspection_Asset.geojson", icon: asset, label: false },
+  { name: "Inspection: Features", file: "Data/Inspection_Feature.geojson", icon: inspecfeature, label: false },
   { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
   { name: "Feature: Medical", file: "Data/Features_Medical.geojson", icon: medical, label: true },
   { name: "Feature: Shelter", file: "Data/Features_Shelter.geojson", icon: shelter, label: true },
@@ -246,9 +255,9 @@ Promise.all(loadPromises).then(() => {
    
 
   const orderedNames = [
-    "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
+    "Inspection: Features", "Inspection: Asset", "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
     "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
-    "Flood: WILD Watercourse Issues", "Admin: Warden Zones", "Admin: Parish Boundary"
+    "Flood: WILD Watercourse Issues", "Asset: Defibs", "Historical Events", "Admin: Warden Zones", "Admin: Parish Boundary"
   ];
 
   orderedNames.forEach(name => {
