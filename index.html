@@ -60,7 +60,8 @@
 	////////////////////////////////////////
 // 1. Map Initialization
 ////////////////////////////////////////
-const map = L.map('map', {zoomControl:false}).setView([51.6409, -1.8577]);
+//const map = L.map('map', {zoomControl:false}).setView([51.6409, -1.8577],14); - turned off starting point and using admin boundary
+const map = L.map('map', {zoomControl:false});
 
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
