@@ -220,7 +220,7 @@ function createOnEachFeature(name, icon, label) {
 ////////////////////////////////////////
 const layersToLoad = [
   { name: "Historical Events (in development)", file: "Data/HistoricalEvents.geojson", icon: histevent, label: false },
-  { name: "Asset: Defibs (in development)", file: "Data/Asset_Defib.geojson", icon: defib, label: false },
+  { name: "Asset: Defibs", file: "Data/Asset_Defib.geojson", icon: defib, label: false },
   { name: "Inspection: Asset (in development)", file: "Data/Inspection_Asset.geojson", icon: asset, label: false },
   { name: "Inspection: Features (in development)", file: "Data/Inspection_Feature.geojson", icon: inspecfeature, label: false },
   { name: "Flood: WILD Watercourse Issues", file: "Data/Flood_WILD_Watercourse_Issues.geojson", icon: WILD, label: false },
@@ -266,7 +266,7 @@ Promise.all(loadPromises).then(() => {
   const orderedNames = [
     "Inspection: Features (in development)", "Inspection: Asset (in development)", "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
     "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
-    "Flood: WILD Watercourse Issues", "Asset: Defibs (in development)", "Historical Events (in development)", "Admin: Warden Zones", "Admin: Parish Boundary"
+    "Flood: WILD Watercourse Issues", "Asset: Defibs", "Historical Events (in development)", "Admin: Warden Zones", "Admin: Parish Boundary"
   ];
 
   orderedNames.forEach(name => {
