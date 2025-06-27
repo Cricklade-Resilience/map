@@ -10,7 +10,7 @@
     <img src="Images/CrickladeLogo.png" alt="Logo" width="80" height="100">
   </a>
 
-<h3 align="center">Crickalde Community Resilience</h3>
+<h3 align="center">Cricklade Community Resilience</h3>
 
   <p align="center">
     This site is designed as a simple, low cost solution to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate and monitor known risks within the town and local area.  Data is pulled from a range of sources such as the Environment Agency (flood zones) to local knowledge.  A number of useful links and documents (restricted access) are provided for additional information and to record action points.
@@ -32,7 +32,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 
-The site is based about a map, built from Leaflet, with the use of html, javascript and css to create a header/menu and functional buttons.
+The site is based around a map, built from Leaflet, with the use of html, javascript and css to create a header/menu and functional buttons.
 
 The site setup includes:
 - index.html
@@ -45,7 +45,7 @@ The site setup includes:
 <!-- CONTACT -->
 ## Contact
 
-For more information about the Crickalde Community Resilience group: crickladeresilience@gmail.com
+For more information about the Cricklade Community Resilience group: crickladeresilience@gmail.com
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
