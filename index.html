@@ -15,16 +15,6 @@
 </head>
 <body>
 
-<!-- Splash Screen -->
-<div id="splash-screen">
-  <div class="splash-content">
-    <img src="Images/CrickladeLogo.png" alt="Logo" />
-    <h1>Cricklade Community Resilience</h1>
-  </div>
-</div>
-
-<div id="main-content" style="display:none;">
-
   <!-- Navbar -->
   <nav class="navbar">
     <div class="brand">
@@ -54,7 +44,6 @@
   <i class="fa-solid fa-location-crosshairs"></i>
 </button>
 
-</div>
  <!-- ===============================
      JavaScript Libraries (Loaded Last)
 =============================== -->
@@ -62,18 +51,6 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script> <!-- Esri Leaflet (optional: useful if you're using Esri basemaps or services) -->
   <script>
-  
-  window.addEventListener("load", () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    splash.classList.add('fade-out');
-    setTimeout(() => {
-      splash.style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-    }, 800); // match CSS transition
-  }, 1200); // time before fade
-});
-
   
     // Toggle mobile menu
     function toggleMenu() {
