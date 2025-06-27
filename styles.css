@@ -1,12 +1,40 @@
-/* Line Break */
-hr {
-    border: 0;
-    height: 0; /* Firefox... */
-    box-shadow: 0 0 10px 1px black;
+/* ======================
+   Splash Screen
+====================== */
+#splash-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.8s ease;
 }
-hr:after {  /* Not really supposed to work, but does */
-    content: "\00a0";  /* Prevent margin collapse */
+
+.splash-content {
+  text-align: center;
 }
+
+.splash-content img {
+  width: 150px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.splash-content h1 {
+  font-family: sans-serif;
+  font-size: 1.5rem;
+  color: #444;
+  margin: 0;
+}
+
+#splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
 
 /* ======================
    General Layout
@@ -39,6 +67,18 @@ html, body {
   text-align: left;
   box-sizing: border-box;
   overflow-y: auto;
+}
+
+/* ======================
+  Line Breaks
+====================== */
+hr {
+    border: 0;
+    height: 0; /* Firefox... */
+    box-shadow: 0 0 10px 1px black;
+}
+hr:after {  /* Not really supposed to work, but does */
+    content: "\00a0";  /* Prevent margin collapse */
 }
 
 /* ======================
