@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience</title>
+  <title>Cricklade Resilience 1</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -56,12 +56,59 @@
     function toggleMenu() {
       document.getElementById('navbar-links').classList.toggle('show');
     }
-	
-	////////////////////////////////////////
+
+////////////////////////////////////////
+// 00. Splash Screen
+////////////////////////////////////////
+window.addEventListener("load", function () {
+  const hasSeenSplash = sessionStorage.getItem("splashShown");
+  const splash = document.getElementById("splash-screen");
+  const content = document.getElementById("main-content");
+
+  if (!hasSeenSplash) {
+    splash.classList.add("show"); // ?? Make it visible & centered
+
+    setTimeout(function () {
+      splash.classList.add("fade-out"); // ?? Start fade-out animation
+
+      setTimeout(() => {
+        splash.style.display = "none"; // ?? Fully remove from layout
+        content.style.display = "block";
+        sessionStorage.setItem("splashShown", "true");
+
+        // ?? Force Leaflet to resize
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 100);
+      }, 800); // ?? Wait for fade-out to complete (match CSS)
+    }, 3000); // ?? Splash duration
+  } else {
+    content.style.display = "block";
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+  }
+});
+
+  
+////////////////////////////////////////
 // 1. Map Initialization
 ////////////////////////////////////////
 //const map = L.map('map', {zoomControl:false}).setView([51.6409, -1.8577],14); - turned off starting point and using admin boundary
-const map = L.map('map', {zoomControl:false});
+//const map = L.map('map', {zoomControl:false}); //works without splash screen option
+//map.setView([51.6409, -1.8577], 14); // Cricklade fallback view
+
+const map = L.map('map', { zoomControl: false }).setView([51.6409, -1.8577], 14); // fallback
+
+fetch('Data/Admin_ParishBoundary.geojson')
+  .then(response => response.json())
+  .then(data => {
+    const geojsonLayer = L.geoJSON(data);
+    map.fitBounds(geojsonLayer.getBounds());
+  })
+  .catch(err => {
+    console.warn("Could not load parish boundary, using fallback center.", err);
+  });
 
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
