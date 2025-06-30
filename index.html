@@ -511,22 +511,20 @@ window.addEventListener("load", function () {
         content.style.display = "block";
         sessionStorage.setItem("splashShown", "true");
 
-        // Delay invalidateSize slightly to avoid reset
         setTimeout(() => {
           map.invalidateSize();
-        }, 200); // increase from 100ms to 200ms
+          map.setView([51.60489, -1.99745], 12); // Recenter map here
+        }, 200);
       }, 800);
     }, 3000);
   } else {
     content.style.display = "block";
     setTimeout(() => {
       map.invalidateSize();
+      map.setView([51.60489, -1.99745], 12); // And here too
     }, 200);
   }
 });
-
-map.invalidateSize();
-map.setView([51.60489, -1.99745], 12); // Recenter map on Cricklade
 
 	  
 </script>
