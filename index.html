@@ -75,11 +75,11 @@
 // 1. Map Initialization
 ////////////////////////////////////////
 //const map = L.map('map', {zoomControl:false}).setView([51.6409, -1.8577],14); - turned off starting point and using admin boundary
-//const map = L.map('map', {zoomControl:false});
-//map.setView([51.6409, -1.8577], 14); // Cricklade fallback view
+//const map = L.map('map', {zoomControl:false}); //works if not using splash screen
 
 const map = L.map('map', { zoomControl: false }).setView([51.6409, -1.8577], 14); // fallback
 
+// can remove this section if not using splashscreen (down to const cartolight)
 let initialFitDone = false;
 
 fetch('Data/Admin_ParishBoundary.geojson')
