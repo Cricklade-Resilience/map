@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 2</title>
+  <title>Cricklade Resilience 3</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -70,41 +70,7 @@
       document.getElementById('navbar-links').classList.toggle('show');
     }
 	
-////////////////////////////////////////
-// 00. Splash Screen
-////////////////////////////////////////
-window.addEventListener("load", function () {
-  const hasSeenSplash = sessionStorage.getItem("splashShown");
-  const splash = document.getElementById("splash-screen");
-  const content = document.getElementById("main-content");
 
-  if (!hasSeenSplash) {
-    splash.classList.add("show"); // ?? Make it visible & centered
-
-    setTimeout(function () {
-      splash.classList.add("fade-out"); // ?? Start fade-out animation
-
-      setTimeout(() => {
-        splash.style.display = "none"; // ?? Fully remove from layout
-        content.style.display = "block";
-        sessionStorage.setItem("splashShown", "true");
-
-        // ?? Force Leaflet to resize
-        setTimeout(() => {
-          map.invalidateSize();
-        }, 100);
-      }, 800); // ?? Wait for fade-out to complete (match CSS)
-    }, 3000); // ?? Splash duration
-  } else {
-    content.style.display = "block";
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
-  }
-});
-
-	
-	
 ////////////////////////////////////////
 // 1. Map Initialization
 ////////////////////////////////////////
@@ -520,6 +486,39 @@ map.on('popupopen', function(e) {
       img.style.border = '1px solid #ccc';
       img.style.borderRadius = '4px';
     }
+  }
+});
+
+////////////////////////////////////////
+// 00. Splash Screen
+////////////////////////////////////////
+window.addEventListener("load", function () {
+  const hasSeenSplash = sessionStorage.getItem("splashShown");
+  const splash = document.getElementById("splash-screen");
+  const content = document.getElementById("main-content");
+
+  if (!hasSeenSplash) {
+    splash.classList.add("show"); // ?? Make it visible & centered
+
+    setTimeout(function () {
+      splash.classList.add("fade-out"); // ?? Start fade-out animation
+
+      setTimeout(() => {
+        splash.style.display = "none"; // ?? Fully remove from layout
+        content.style.display = "block";
+        sessionStorage.setItem("splashShown", "true");
+
+        // ?? Force Leaflet to resize
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 100);
+      }, 800); // ?? Wait for fade-out to complete (match CSS)
+    }, 3000); // ?? Splash duration
+  } else {
+    content.style.display = "block";
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
   }
 });
 
