@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 1</title>
+  <title>Cricklade Resilience 2</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -140,14 +140,6 @@ const baseMaps = {
   "OpenStreetMap": osm,
   "Aerial (Esri)": esriAerial
 };
-
-// Load and fit to Parish Boundary
-fetch('Data/Admin_ParishBoundary.geojson')
-  .then(response => response.json())
-  .then(data => {
-    const geojsonLayer = L.geoJSON(data);
-    map.fitBounds(geojsonLayer.getBounds());  // Automatically fits the view
-  });
 
 ////////////////////////////////////////
 // 2. Icon Definitions (Font Awesome divIcons)
