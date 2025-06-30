@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience 4</title>
+  <title>Cricklade Resilience 5</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -80,13 +80,16 @@
 
 const map = L.map('map', { zoomControl: false }).setView([51.6409, -1.8577], 14); // fallback
 
+let initialFitDone = false;
+
 fetch('Data/Admin_ParishBoundary.geojson')
   .then(response => response.json())
   .then(data => {
     const geojsonLayer = L.geoJSON(data);
-    map.fitBounds(geojsonLayer.getBounds(), {
-      maxZoom: 15  // ⬅️ don't zoom out beyond this
-    });
+    if (!initialFitDone) {
+      map.fitBounds(geojsonLayer.getBounds(), { maxZoom: 15 });
+      initialFitDone = true;
+    }
   });
 
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -498,36 +501,30 @@ window.addEventListener("load", function () {
   const content = document.getElementById("main-content");
 
   if (!hasSeenSplash) {
-    splash.classList.add("show"); // ?? Make it visible & centered
+    splash.classList.add("show");
 
     setTimeout(function () {
-      splash.classList.add("fade-out"); // ?? Start fade-out animation
+      splash.classList.add("fade-out");
 
       setTimeout(() => {
-        splash.style.display = "none"; // ?? Fully remove from layout
+        splash.style.display = "none";
         content.style.display = "block";
         sessionStorage.setItem("splashShown", "true");
 
-        // ?? Force Leaflet to resize
+        // Delay invalidateSize slightly to avoid reset
         setTimeout(() => {
           map.invalidateSize();
-        }, 100);
-      }, 800); // ?? Wait for fade-out to complete (match CSS)
-    }, 3000); // ?? Splash duration
+        }, 200); // increase from 100ms to 200ms
+      }, 800);
+    }, 3000);
   } else {
     content.style.display = "block";
     setTimeout(() => {
       map.invalidateSize();
-    }, 100);
+    }, 200);
   }
 });
 
-showSplashScreen(); // or whatever function controls the splash screen
-
-// And after splash screen hides:
-map.invalidateSize();
-
-	  
 </script>
 
 </body>
