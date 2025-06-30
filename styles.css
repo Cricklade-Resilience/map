@@ -1,15 +1,51 @@
-/* Line Break */
-hr {
-    border: 0;
-    height: 0; /* Firefox... */
-    box-shadow: 0 0 10px 1px black;
-}
-hr:after {  /* Not really supposed to work, but does */
-    content: "\00a0";  /* Prevent margin collapse */
+/* ======================
+   Splash Screen
+====================== */
+
+#splash-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #ffffff;
+  display: none; /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.8s ease;
 }
 
+#splash-screen.show {
+  display: flex; /* show and center the content */
+}
+
+#splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#main-content {
+  display: none; 
+}
+
+.splash-content {
+  text-align: center;
+}
+
+.splash-content img {
+  width: 150px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.splash-content h1 {
+  font-family: sans-serif;
+  font-size: 1.5rem;
+  color: #444;
+  margin: 0;
+
 /* ======================
-   General Layout
+   General - Map Layout
 ====================== */
 html, body {
   height: 100%;
@@ -22,12 +58,24 @@ html, body {
   padding-top: 30px;
 }
 
-/* ======================
-   Map Page Specific
-====================== */
-#map {
-  height: calc(100vh - 60px); /* Assuming navbar height ~60px */
+body {
+  display: flex;
+  flex-direction: column;
 }
+
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  flex: 1;
+}
+
+/* #map {
+//  height: calc(100vh - 60px);
+//} */ 
 
 /* ======================
    Info Page Content Container
@@ -41,6 +89,15 @@ html, body {
   overflow-y: auto;
 }
 
+/* ======================
+  Line Breaks
+====================== */
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+    
 /* ======================
    NAVIGATION
 ====================== */
