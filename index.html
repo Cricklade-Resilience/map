@@ -118,12 +118,10 @@ fetch('Data/Admin_ParishBoundary.geojson')
   .then(response => response.json())
   .then(data => {
     const geojsonLayer = L.geoJSON(data);
-    map.fitBounds(geojsonLayer.getBounds());
-  })
-  .catch(err => {
-    console.warn("Could not load parish boundary, using fallback center.", err);
+    map.fitBounds(geojsonLayer.getBounds(), {
+      maxZoom: 15  // ⬅️ don't zoom out beyond this
+    });
   });
-
 
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
