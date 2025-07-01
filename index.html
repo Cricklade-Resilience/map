@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricklade Resilience</title>
+  <title>Cricklade Resilience 1</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
     <!-- ===============================
        Stylesheets
@@ -81,16 +81,19 @@ const map = L.map('map', { zoomControl: false }).setView([51.6409, -1.8577], 14)
 
 // can remove this section if not using splashscreen (down to const cartolight)
 let initialFitDone = false;
+let adminBoundary = null; // Store globally
 
 fetch('Data/Admin_ParishBoundary.geojson')
   .then(response => response.json())
   .then(data => {
     const geojsonLayer = L.geoJSON(data);
+    adminBoundary = geojsonLayer.getBounds(); // Save globally
     if (!initialFitDone) {
-      map.fitBounds(geojsonLayer.getBounds(), { maxZoom: 15 });
+      map.fitBounds(adminBoundary, { maxZoom: 15 });
       initialFitDone = true;
     }
   });
+
 
 const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
@@ -500,6 +503,15 @@ window.addEventListener("load", function () {
   const splash = document.getElementById("splash-screen");
   const content = document.getElementById("main-content");
 
+  function setMapView() {
+    map.invalidateSize();
+    if (adminBoundary) {
+      map.fitBounds(adminBoundary, { maxZoom: 15 });
+    } else {
+      map.setView([51.64078, -1.85964], 13); // fallback
+    }
+  }
+
   if (!hasSeenSplash) {
     splash.classList.add("show");
 
@@ -512,19 +524,18 @@ window.addEventListener("load", function () {
         sessionStorage.setItem("splashShown", "true");
 
         setTimeout(() => {
-          map.invalidateSize();
-          map.setView([51.64078, -1.85964], 13); // Recenter map here
+          setMapView();
         }, 200);
       }, 800);
     }, 3000);
   } else {
     content.style.display = "block";
     setTimeout(() => {
-      map.invalidateSize();
-      map.setView([51.64078, -1.85964], 13); // And here too
+      setMapView();
     }, 200);
   }
 });
+
 	  
 </script>
 
