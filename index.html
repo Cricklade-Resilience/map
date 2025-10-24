@@ -132,15 +132,15 @@ const defib = L.divIcon({ html: '<i class="fa-solid fa-heart-pulse" style="color
 ////////////////////////////////////////
 // 3. WMS Layers (Flood Zones)
 ////////////////////////////////////////
-const floodZone3WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-3/wms", {
-  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_3",
+const floodZoneWMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-flood-zones/wms", {
+  layers: "Flood_Zones_2_3_Rivers_and_Sea",
   format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
 });
 
-const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
-  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
-  format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
-});
+//const floodZone2WMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms", {
+//  layers: "Flood_Map_for_Planning_Rivers_and_Sea_Flood_Zone_2",
+//  format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
+//});
 
 ////////////////////////////////////////
 // 4. Utility Maps & Buffers
@@ -283,8 +283,8 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
 // 7. Map Display Logic & Controls
 ////////////////////////////////////////
 Promise.all(loadPromises).then(() => {
-  overlays["Flood: EA Flood Zone 3 (WMS)"] = floodZone3WMS;
-  overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
+  overlays["Flood: EA Flood Zone 2 & 3 (WMS)"] = floodZoneWMS;
+  //overlays["Flood: EA Flood Zone 2 (WMS)"] = floodZone2WMS;
    
 
   const orderedNames = [
@@ -541,3 +541,4 @@ window.addEventListener("load", function () {
 
 </body>
 </html>
+
