@@ -13,7 +13,7 @@
 <h3 align="center">Cricklade Community Resilience</h3>
 
   <p align="center">
-    This site is designed as a simple, low cost solution to help Cricklade Councillors and Resilience Wardens to prepare for, mitigate and monitor known risks within the town and local area.  Data is pulled from a range of sources such as the Environment Agency (flood zones) to local knowledge.  A number of useful links and documents (restricted access) are provided for additional information and to record action points.
+    This site is designed as a simple, low cost solution to help Cricklade Councillors and Resilience Volunteers to prepare for, mitigate and monitor known risks within the town and local area.  Data is pulled from a range of sources such as the Environment Agency (flood zones) to local knowledge.  A number of useful links and documents (restricted access) are provided for additional information and to record action points.
   </p>
 </div>
 
