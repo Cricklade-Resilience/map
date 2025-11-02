@@ -291,7 +291,7 @@ Promise.all(loadPromises).then(() => {
   const orderedNames = [
     "Inspection: Features (in development)", "Inspection: Asset (in development)", "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
     "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
-    "Flood: WILD Watercourse Issues", "Asset: Defibs", "Historical Events (in development)", "Admin: Warden Zones", "Admin: Parish Boundary"
+    "Flood: WILD Watercourse Issues", "Asset: Defibs", "Historical Events (in development)", "Admin: Cricklade Resilience Volunteer Zones", "Admin: Parish Boundary"
   ];
 
   orderedNames.forEach(name => {
@@ -299,8 +299,8 @@ Promise.all(loadPromises).then(() => {
   });
 
   // Add Warden Zones & Parish Boundary layers + labels by default on map load
-  if (overlayBuffer.has("Admin: Warden Zones")) {
-    const wardenZonesLayer = overlayBuffer.get("Admin: Warden Zones");
+  if (overlayBuffer.has("Admin: Cricklade Resilience Volunteer Zones")) {
+    const wardenZonesLayer = overlayBuffer.get("Admin: Cricklade Resilience Volunteer Zones");
     wardenZonesLayer.addTo(map);
     wardenZonesLayer.eachLayer(l => {
       l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
@@ -336,7 +336,7 @@ Promise.all(loadPromises).then(() => {
           const lname = featureLayer.feature.properties?.layerName;
           let weight = 2;
           if (lname === "Admin: Parish Boundary") weight = zoom >= 16 ? 5 : 4;
-          else if (lname === "Admin: Warden Zones") weight = zoom >= 16 ? 3 : 2;
+          else if (lname === "Admin: Cricklade Resilience Volunteer Zones") weight = zoom >= 16 ? 3 : 2;
           featureLayer.setStyle({ weight });
         }
       });
@@ -359,7 +359,7 @@ map.on('overlayadd', e => {
   if (layerGroup) {
     layerGroup.eachLayer(l => {
       // Restore styles on add
-      if (layerName === "Admin: Warden Zones") {
+      if (layerName === "Admin: Cricklade Resilience Volunteer Zones") {
         l.setStyle({ color: "#444", weight: 2, fillOpacity: 0.1 });
       }
       if (layerName === "Admin: Parish Boundary") {
@@ -542,6 +542,7 @@ window.addEventListener("load", function () {
 
 </body>
 </html>
+
 
 
 
