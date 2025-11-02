@@ -208,7 +208,7 @@ function createOnEachFeature(name, icon, label) {
 
     // Handle Polygon and MultiPolygon label logic
     if ((geometryType === "Polygon" || geometryType === "MultiPolygon") && label) {
-      const labelText = name === "Admin: Warden Zones" ? (props.id || "No ID") : (props.name || "No Name");
+      const labelText = name === "Admin: Cricklade Resilience Volunteer Zones" ? (props.id || "No ID") : (props.name || "No Name");
       const center = layerInstance.getBounds().getCenter();
 
       const tooltip = L.tooltip({
@@ -227,7 +227,7 @@ function createOnEachFeature(name, icon, label) {
     if (geometryType.includes("Polygon")) {
       let style = { color: "#666", weight: 2, fillOpacity: 0.2 };
 
-      if (name === "Admin: Warden Zones") {
+      if (name === "Admin: Cricklade Resilience Volunteer Zones") {
         style = { color: "#444", weight: 2, fillOpacity: 0.1 };
       } else if (name === "Admin: Parish Boundary") {
         style = { color: "black", weight: 3, fillOpacity: 0 };
@@ -271,7 +271,7 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
     .then(data => {
       data.features.forEach(f => f.properties.layerName = name);
       layer.addData(data);
-      if (name === "Admin: Warden Zones" && polygonLabels.has(name)) {
+      if (name === "Admin: Cricklade Resilience Volunteer Zones" && polygonLabels.has(name)) {
         polygonLabels.get(name).forEach(t => map.addLayer(t));
       }
       overlayBuffer.set(name, layer);
@@ -542,6 +542,7 @@ window.addEventListener("load", function () {
 
 </body>
 </html>
+
 
 
 
