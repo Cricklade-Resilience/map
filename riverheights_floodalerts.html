@@ -335,9 +335,13 @@ async function loadFloods() {
       const fa = f.floodArea;
       if (!fa || !fa.polygon) continue;
 
-      const polyUrl = fa.polygon.endsWith('.geojson')
-        ? fa.polygon
-        : fa.polygon + '.geojson';
+      let polyUrl = fa.polygon.endsWith('.geojson')
+	  ? fa.polygon
+	  : fa.polygon + '.geojson';
+
+	// Ensure HTTPS
+	polyUrl = polyUrl.replace(/^http:\/\//i, 'https://');
+
 
       try {
         const a = await fetch(polyUrl);
