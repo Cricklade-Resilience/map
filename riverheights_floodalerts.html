@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Cricklade River Gauges & Flood Alerts</title>
+  <title>Cricklade River Gauges with Shorncote Rainfall & Flood Alerts</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -26,7 +26,7 @@
     canvas { width:100% !important; height:280px !important; }
     .small { font-size:12px; color:#666; }
     .last-updated { font-size:11px; color:#999; margin-top:6px; font-style: italic; }
-    .error-msg { color:#d73027; font-size:12px; padding:8px; background:#ffe6e6; border-radius:4px; margin-top:8px; }
+    .error-msg { color:#B90E0A; font-size:12px; padding:8px; background:#ffe6e6; border-radius:4px; margin-top:8px; }
     .loading { color:#666; font-style:italic; }
     #gaugeList h3 { text-align:center; margin-top:0; margin-bottom:10px; font-size:16px; }
     .gauge-item { border-bottom:1px solid #ddd; padding:8px 0; }
@@ -39,7 +39,7 @@
     #floodLegend h3 { text-align:center; margin-top:0; margin-bottom:10px; font-size:16px; }
     .legend-item { padding:6px 0; display:flex; align-items:center; gap:8px; }
     .legend-color { width:16px; height:16px; border-radius:3px; border:1px solid #333; }
-    .flood-count { font-weight:700; font-size:20px; text-align:center; margin-bottom:8px; color:#d73027; }
+    .flood-count { font-weight:700; font-size:20px; text-align:center; margin-bottom:8px; color:#B90E0A; }
     .toggle-btn { width:100%; padding:8px; margin-top:10px; background:#4a90e2; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; transition:background 0.2s; }
     .toggle-btn:hover { background:#357abd; }
     .toggle-btn.off { background:#ccc; color:#666; }
@@ -50,7 +50,7 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @media (max-width: 768px) {
       body { grid-template-columns: 100% 0; }
-      body.sidebar-collapsed { grid-template-columns: 0 100%; } 
+      body.sidebar-collapsed { grid-template-columns: 0 100%; }
     }
   </style>
 </head>
@@ -90,11 +90,11 @@
     </h3>
     <div class="flood-count" id="floodCount">Loading...</div>
     <div class="legend-item">
-      <span class="legend-color" style="background:#d73027;"></span>
+      <span class="legend-color" style="background:#541e1B;"></span>
       <span>Severe / Warning</span>
     </div>
     <div class="legend-item">
-      <span class="legend-color" style="background:#fc8d59;"></span>
+      <span class="legend-color" style="background:#D0312D;"></span>
       <span>Alert / Advisory</span>
     </div>
     <div class="legend-item">
@@ -112,11 +112,7 @@
 </div>
 
 <script>
-var map = L.map("map", {zoomControl:false}).setView([51.65, -1.90], 12);
-
-L.control.zoom({
-    position: 'topright'
-}).addTo(map);
+var map = L.map("map").setView([51.65, -1.90], 12);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
@@ -137,13 +133,17 @@ var stationData = {
   "ENG0190TH": {TopNormal:1.08, PossibleFlood:1.38, Max:1.03},
   "ENG0490TH": {TopNormal:1.45, PossibleFlood:2.5, Max:1.2},
   "ENG0390TH": {TopNormal:1.9, PossibleFlood:null, Max:2.68},
-  "ENG0184TH": {TopNormal:1.89, PossibleFlood:2.23, Max:2.34}
+  "ENG0184TH": {TopNormal:1.89, PossibleFlood:2.23, Max:2.34},
+  "ENG0155TH": {TopNormal:1.31, PossibleFlood:1.81, Max:1.89},
+  "ENG0130TH": {TopNormal:0.99, PossibleFlood:1.94, Max:0.95},
+  "ENG0260TH": {TopNormal:0.46, PossibleFlood:null, Max:1.04},
+  "ENG0278TH": {TopNormal:1.31, PossibleFlood:1.39, Max:1.47}
 };
 
 var stationIDs = Object.keys(stationData);
 var whereClause = "stationid IN ('" + stationIDs.join("','") + "')";
 
-function getColor(pct){ return pct >= 95 ? "#e31a1c" : pct >= 80 ? "#fdae6b" : pct >= 50 ? "#74c476" : "#c7e9c0"; }
+function getColor(pct){ return pct >= 95 ? "#2171b5" : pct >= 80 ? "#6baed6" : pct >= 50 ? "#bdd7e7" : "#eff3ff"; }
 
 var gaugeContainer = document.getElementById("gaugeContainer");
 var gaugeListData = [];
@@ -162,6 +162,7 @@ function loadGauges() {
   gauges = L.esri.featureLayer({
     url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Live_Stream_Gauges_v1/FeatureServer/0",
     where: whereClause,
+    pane: 'markerPane',
     pointToLayer: function(feature, latlng){
       var sm = feature.properties.stage_ft * 0.3048;
       var normal = stationData[feature.properties.stationid].TopNormal;
@@ -171,7 +172,7 @@ function loadGauges() {
         fillColor: getColor(pct), 
         color: "#111", 
         weight:1, 
-        fillOpacity:0.9 
+        fillOpacity:1 
       });
     },
     onEachFeature: function(feature, layer){
@@ -303,8 +304,8 @@ const floodsURL = `${BASE}/id/floods?county=${encodeURIComponent(county)}`;
 
 function colorForSeverity(sev) {
   const s = (sev || '').toLowerCase();
-  if (s.includes('severe') || s.includes('warning')) return '#d73027';
-  if (s.includes('alert') || s.includes('advisory')) return '#fc8d59';
+  if (s.includes('severe') || s.includes('warning')) return '#541E1B';
+  if (s.includes('alert') || s.includes('advisory')) return '#D0312D';
   return '#fee08b';
 }
 
@@ -335,13 +336,9 @@ async function loadFloods() {
       const fa = f.floodArea;
       if (!fa || !fa.polygon) continue;
 
-      let polyUrl = fa.polygon.endsWith('.geojson')
-	  ? fa.polygon
-	  : fa.polygon + '.geojson';
-
-	// Ensure HTTPS
-	polyUrl = polyUrl.replace(/^http:\/\//i, 'https://');
-
+      const polyUrl = fa.polygon.endsWith('.geojson')
+        ? fa.polygon
+        : fa.polygon + '.geojson';
 
       try {
         const a = await fetch(polyUrl);
@@ -356,17 +353,16 @@ async function loadFloods() {
             weight: 2,
             fillColor: fillColor,
             fillOpacity: 0.5
-          }
+          },
+          pane: 'tilePane'
         }).addTo(alertLayer);
 
         const popupHtml = `
           <div class="overlay-popup">
-            <strong>${f.label || fa.notation || 'Flood Area'}</strong><br>
+            <b>Area Code: </b><strong>${f.label || fa.notation || 'Flood Area'}</strong><br><br>
             <b>Severity:</b> ${f.severity || ''}<br>
-            <b>Description:</b> ${f.description || ''}<br>
+            <b>Description:</b> ${f.description || ''}<br><br>
             ${f.message ? `<b>Message:</b> ${f.message}<br>` : ''}
-            <b>Area code:</b> ${fa.notation || ''}<br>
-            <a href="${f['@id'] || '#'}" target="_blank">Full alert</a>
           </div>
         `;
         layer.bindPopup(popupHtml);
