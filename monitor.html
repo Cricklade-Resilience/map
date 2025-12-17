@@ -15,11 +15,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { margin: 0; }
+    body { margin: 0; padding: 0; overflow: hidden; }
     #monitor-container { 
+      position: absolute;
+      top: 55px;
+      bottom: 0;
+      left: 0;
+      right: 0;
       display: grid; 
       grid-template-columns: 350px 1fr; 
-      height: calc(100vh - 60px);
       transition: grid-template-columns 0.3s;
     }
     #monitor-container.sidebar-collapsed { 
