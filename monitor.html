@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Cricklade Resilience - Monitor v2</title>
+  <title>Cricklade Resilience - Monitor_v3</title>
   <link rel="icon" type="image/png" href="Images/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -15,9 +15,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      padding: 0; 
+      overflow: hidden;
+      height: 100vh;
+    }
     #monitor-container { 
-      position: absolute;
+      position: fixed;
       top: 55px;
       bottom: 0;
       left: 0;
@@ -577,8 +583,19 @@ function toggleFloodLayer() {
   }
   floodLayerVisible = !floodLayerVisible;
 }
+
+/* ---- Fix map size on load (especially for mobile) ---- */
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    map.invalidateSize();
+  }, 100);
+});
+
+/* ---- Also fix map size on window resize ---- */
+window.addEventListener('resize', function() {
+  map.invalidateSize();
+});
 </script>
 
 </body>
-
 </html>
