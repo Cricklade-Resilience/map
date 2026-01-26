@@ -311,7 +311,12 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 /* ---- Sidebar Toggle ---- */
 function toggleSidebar() {
   document.getElementById('monitor-container').classList.toggle('sidebar-collapsed');
-  setTimeout(() => map.invalidateSize(), 300);
+  // Multiple invalidateSize calls with delays to ensure map renders properly on mobile
+  setTimeout(() => {
+    map.invalidateSize();
+    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => map.invalidateSize(), 300);
+  }, 50);
 }
 
 /* ---- Station Data ---- */
@@ -597,15 +602,52 @@ function toggleFloodLayer() {
 
 /* ---- Fix map size on load (especially for mobile) ---- */
 window.addEventListener('load', function() {
+  // Multiple attempts to fix map size, especially important for mobile
   setTimeout(function() {
     map.invalidateSize();
   }, 100);
+  setTimeout(function() {
+    map.invalidateSize();
+  }, 300);
+  setTimeout(function() {
+    map.invalidateSize();
+  }, 600);
 });
 
 /* ---- Also fix map size on window resize ---- */
 window.addEventListener('resize', function() {
   map.invalidateSize();
 });
+
+/* ---- Fix map on first touch/interaction (mobile) ---- */
+let mapInitialized = false;
+function initializeMapOnInteraction() {
+  if (!mapInitialized) {
+    map.invalidateSize();
+    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => map.invalidateSize(), 300);
+    mapInitialized = true;
+  }
+}
+
+// Listen for touch/click events to initialize map when user interacts
+document.addEventListener('touchstart', initializeMapOnInteraction, { once: true });
+document.addEventListener('click', initializeMapOnInteraction, { once: true });
+
+/* ---- Use ResizeObserver to fix map when container size changes (especially mobile) ---- */
+if (typeof ResizeObserver !== 'undefined') {
+  const mapContainer = document.getElementById('map');
+  const resizeObserver = new ResizeObserver(entries => {
+    // Debounce the invalidateSize calls
+    clearTimeout(window.mapResizeTimeout);
+    window.mapResizeTimeout = setTimeout(() => {
+      map.invalidateSize();
+      // Call again after a short delay to ensure it works
+      setTimeout(() => map.invalidateSize(), 50);
+    }, 50);
+  });
+  resizeObserver.observe(mapContainer);
+}
 </script>
 
 </body>
