@@ -1,0 +1,570 @@
+/* ======================
+   Google Fonts Import
+====================== */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+
+/* ======================
+   CSS Variables
+====================== */
+:root {
+  --brand-dark: #1a2332;
+  --brand-mid: #2e4057;
+  --brand-accent: #e85d26;
+  --brand-accent-light: #f07a4a;
+  --brand-soft: #f0ece4;
+  --text-primary: #1a2332;
+  --text-muted: #6b7280;
+  --white: #ffffff;
+  --shadow-sm: 0 2px 8px rgba(26, 35, 50, 0.12);
+  --shadow-md: 0 4px 20px rgba(26, 35, 50, 0.18);
+  --shadow-lg: 0 8px 40px rgba(26, 35, 50, 0.25);
+  --radius: 10px;
+  --navbar-height: 58px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ======================
+   Base Reset
+====================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ======================
+   General Layout
+====================== */
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', Arial, sans-serif;
+  background-color: var(--brand-soft);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--navbar-height);
+}
+
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  flex: 1;
+}
+
+/* ======================
+   Splash Screen
+====================== */
+#splash-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--brand-dark);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#splash-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 50%, rgba(232, 93, 38, 0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 80% at 80% 40%, rgba(46, 64, 87, 0.5) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+#splash-screen.show {
+  display: flex;
+}
+
+#splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#main-content {
+  display: none;
+}
+
+.splash-content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  animation: splashReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes splashReveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.splash-content img {
+  width: 90px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 4px 16px rgba(232, 93, 38, 0.5));
+  animation: splashPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% { filter: drop-shadow(0 4px 16px rgba(232, 93, 38, 0.4)); }
+  50% { filter: drop-shadow(0 6px 24px rgba(232, 93, 38, 0.7)); }
+}
+
+.splash-content h1 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+.splash-content h1 span {
+  display: block;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand-accent-light);
+  margin-bottom: 0.5rem;
+}
+
+/* Splash loading bar */
+.splash-bar {
+  width: 120px;
+  height: 2px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 1.5rem auto 0;
+  overflow: hidden;
+}
+
+.splash-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--brand-accent);
+  border-radius: 2px;
+  animation: splashProgress 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes splashProgress {
+  0% { width: 0%; }
+  60% { width: 75%; }
+  90% { width: 92%; }
+  100% { width: 100%; }
+}
+
+/* ======================
+   NAVBAR
+====================== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: var(--navbar-height);
+  background: rgba(26, 35, 50, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--white);
+  padding: 0 1.5rem;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06), var(--shadow-md);
+  z-index: 1000;
+}
+
+/* Brand */
+.navbar .brand {
+  display: flex;
+  align-items: center;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  gap: 10px;
+}
+
+.navbar .brand img {
+  height: 34px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.navbar .brand::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  margin-left: 4px;
+  box-shadow: 0 0 8px var(--brand-accent);
+  flex-shrink: 0;
+}
+
+/* Nav links */
+#navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+#navbar-links li a {
+  text-decoration: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  transition: color var(--transition), background var(--transition);
+}
+
+#navbar-links li a:hover {
+  color: var(--white);
+  background: rgba(255,255,255,0.1);
+  text-decoration: none;
+}
+
+#navbar-links li a.active {
+  color: var(--white);
+  background: var(--brand-accent);
+}
+
+/* Mobile toggle */
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+
+.navbar-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.navbar-toggle span {
+  height: 2px;
+  width: 22px;
+  background-color: rgba(255,255,255,0.85);
+  border-radius: 2px;
+  transition: transform var(--transition), opacity var(--transition);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: flex;
+  }
+
+  #navbar-links {
+    display: none;
+    flex-direction: column;
+    background: rgba(26, 35, 50, 0.98);
+    backdrop-filter: blur(16px);
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 1rem;
+    width: 160px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.08);
+    gap: 0.15rem;
+  }
+
+  #navbar-links.show {
+    display: flex;
+  }
+  
+  #navbar-links li a {
+    padding: 0.55rem 0.85rem;
+    border-radius: 6px;
+  }
+}
+
+/* ======================
+   Map Container
+====================== */
+#map {
+  position: absolute;
+  top: var(--navbar-height);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+
+/* ======================
+   Locate Button
+====================== */
+.locate-button {
+  position: absolute;
+  bottom: 24px;
+  left: 14px;
+  background: var(--brand-dark);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.locate-button:hover {
+  background: var(--brand-accent);
+  transform: scale(1.08);
+  box-shadow: var(--shadow-lg), 0 0 16px rgba(232, 93, 38, 0.35);
+}
+
+.locate-button:active {
+  transform: scale(0.96);
+}
+
+.locate-button i {
+  font-size: 17px;
+  color: rgba(255,255,255,0.9);
+  transition: color var(--transition);
+}
+
+/* ======================
+   Font Awesome Map Icons
+====================== */
+.fa-icon {
+  font-size: 22px;
+  text-shadow:
+    0 0 3px rgba(255,255,255,0.9),
+    0 1px 4px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ======================
+   Leaflet Popup
+====================== */
+.leaflet-popup-content-wrapper {
+  background: var(--white);
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid rgba(26, 35, 50, 0.08);
+  padding: 0 !important;
+  overflow: hidden;
+  width: 280px !important;
+  max-width: 280px !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  width: 280px !important;
+  max-width: 280px !important;
+  box-sizing: border-box;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.leaflet-popup-content strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--brand-dark);
+  margin-bottom: 4px;
+}
+
+.leaflet-popup-content a {
+  color: var(--brand-accent);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.leaflet-popup-content a:hover {
+  text-decoration: underline;
+}
+
+.leaflet-popup-tip-container {
+  filter: drop-shadow(0 2px 4px rgba(26, 35, 50, 0.15));
+}
+
+/* Popup image */
+.leaflet-popup-content .popup-image {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 170px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(26, 35, 50, 0.1);
+  margin: 10px 0 6px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .leaflet-popup-content .popup-image {
+    max-height: 140px;
+  }
+}
+
+/* ======================
+   Leaflet Layer Control
+====================== */
+.leaflet-control-layers {
+  border: none !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-md) !important;
+  font-family: 'DM Sans', Arial, sans-serif !important;
+  font-size: 0.85rem !important;
+  color: var(--text-primary) !important;
+  overflow: hidden;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 10px 14px !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: blur(8px);
+}
+
+.leaflet-control-layers-separator {
+  border-top: 1px solid rgba(26, 35, 50, 0.1) !important;
+  margin: 6px 0 !important;
+}
+
+/* ======================
+   Polygon Labels
+====================== */
+.polygon-label {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--brand-dark);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+  padding: 2px 7px;
+  border: 1px solid rgba(26, 35, 50, 0.2);
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(26, 35, 50, 0.12);
+}
+
+/* Point labels */
+.point-label-colored {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2) !important;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ======================
+   Leaflet Zoom Controls
+====================== */
+.leaflet-bar {
+  border: none !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-md) !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  font-size: 16px !important;
+  color: var(--brand-dark) !important;
+  background: rgba(255,255,255,0.97) !important;
+  border-bottom: 1px solid rgba(26, 35, 50, 0.08) !important;
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  transition: background var(--transition), color var(--transition);
+}
+
+.leaflet-bar a:hover {
+  background: var(--brand-dark) !important;
+  color: var(--white) !important;
+}
+
+/* ======================
+   Info Page Content
+====================== */
+.content {
+  max-width: 780px;
+  margin: 40px auto;
+  padding: 0 2.5rem;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.content h1, .content h2, .content h3 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  color: var(--brand-dark);
+}
+
+/* ======================
+   HR / Dividers
+====================== */
+hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(26, 35, 50, 0.25) 30%,
+    rgba(232, 93, 38, 0.4) 50%,
+    rgba(26, 35, 50, 0.25) 70%,
+    transparent
+  );
+  margin: 1.5rem 0;
+}
+
+/* ======================
+   Attribution (Leaflet)
+====================== */
+.leaflet-control-attribution {
+  font-family: 'DM Sans', Arial, sans-serif !important;
+  font-size: 10px !important;
+  background: rgba(255,255,255,0.88) !important;
+  backdrop-filter: blur(4px);
+  border-radius: 6px 0 0 0 !important;
+  padding: 3px 8px !important;
+  color: var(--text-muted) !important;
+}
