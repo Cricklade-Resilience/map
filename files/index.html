@@ -65,7 +65,8 @@
 =============================== -->
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script> <!-- Esri Leaflet (optional: useful if you're using Esri basemaps or services) -->
+  <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+  <script src="legend-control.js"></script>
   <script>
   
  
@@ -351,6 +352,9 @@ Promise.all(loadPromises).then(() => {
   updateMapDisplay();
 
   L.control.layers(baseMaps, overlays, { collapsed: window.innerWidth <= 768, position: 'topleft' }).addTo(map);
+
+  // Custom legend — defined in legend-control.js
+  addLegend(map);
 });
 
 ////////////////////////////////////////
