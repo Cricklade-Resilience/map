@@ -142,6 +142,12 @@ const floodZoneSurfaceWMS = L.tileLayer.wms("https://environment.data.gov.uk/spa
   layers: "rofsw",
   format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
 });
+
+
+const floodRiverSeaWMS = L.tileLayer.wms("https://environment.data.gov.uk/spatialdata/nafra2-risk-of-flooding-from-rivers-and-sea/wms", {
+  layers: "roffrs_4band",
+  format: "image/png", transparent: true, opacity:0.5, attribution: "© Environment Agency"
+});
 // old link: https://environment.data.gov.uk/spatialdata/flood-map-for-planning-rivers-and-sea-flood-zone-2/wms
 	  
 ////////////////////////////////////////
@@ -287,8 +293,8 @@ layersToLoad.forEach(({ name, file, icon, label }) => {
 Promise.all(loadPromises).then(() => {
   overlays["Flood: EA Flood Zone 2 & 3 (WMS)"] = floodZoneWMS;
   overlays["Flood: EA Risk of Surface Water Flooding (WMS)"] = floodZoneSurfaceWMS;
-   
-
+  overlays["Flood: EA Risk of Flooding from Rivers & Sea (WMS)"] = floodRiverSeaWMS;
+	
   const orderedNames = [
     "Inspection: Features (in development)", "Inspection: Asset (in development)", "Feature: Medical", "Feature: Shelter", "Feature: Storage", "Feature: Supplies",
     "Feature: Evacuation Sites", "Flood: Water Guages", "Flood: Areas of Concern",
