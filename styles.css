@@ -158,20 +158,30 @@ hr {
   text-decoration: none;
   color: #444;
   font-weight: 500;
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
   transition: color 0.3s;
  
 }
 
 #navbar-links li a:hover {
   color: #000;
-  text-decoration: underline;
-  font-weight:bold;
+  background: #f2f2f2;
+  text-decoration: none;
+  font-weight: 700;
 }
 
 #navbar-links li a.active {
-  color: #000;
-  text-decoration: underline;
+  color: #fff;
+  background: #444;
+  text-decoration: none;
   font-weight: 700;
+}
+
+#navbar-links li a.active:hover {
+  color: #fff;
+  background: #444;
 }
 
 /* Toggle Button */
@@ -406,14 +416,15 @@ hr {
   background: #fff;
   border: 1px solid #e0ddd6;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .noticeboard-page table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  table-layout: fixed;
+  table-layout: auto;
+  min-width: 760px;
 }
 
 .noticeboard-page thead {
@@ -429,19 +440,27 @@ hr {
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #7a776f;
+  border-right: 1px solid #e0ddd6;
 }
 
 .noticeboard-page td {
   padding: 13px 16px;
   border-bottom: 1px solid #e0ddd6;
+  border-right: 1px solid #e0ddd6;
   color: #1a1917;
   vertical-align: top;
   word-wrap: break-word;
   line-height: 1.5;
 }
 
+.noticeboard-page th:last-child,
+.noticeboard-page td:last-child {
+  border-right: none;
+}
+
 .noticeboard-page tr:last-child td { border-bottom: none; }
 .noticeboard-page tbody tr:hover td { background: #fafaf8; }
+.noticeboard-page tbody tr:nth-child(even) td { background: #fcfcfb; }
 
 .noticeboard-page .col-date { width: 100px; }
 .noticeboard-page .col-time { width: 80px; }
