@@ -315,19 +315,8 @@
      CONFIGURATION — paste your Dropbox CSV link below.
      Make sure the URL ends with ?dl=1 (or &dl=1)
      ============================================================ */
-  const CSV_URL = "https://www.dropbox.com/scl/fi/vvf11e0y2w66ltgfi0mqv/Noticeboard.csv?rlkey=jt99w5dp6u929egkwkotwllk5&st=cjq6bndu&dl=1";
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/1_53P5x8TYljNghlDBVkOiZZlKyTaFqXradvtBrV4Sg4/edit?usp=drive_link";
   /* ============================================================ */
-
-  const CORS_PROXY = "https://corsproxy.io/?url=";
-
-  function ensureDL1(url) {
-    if (!url || url === "YOUR_DROPBOX_LINK_HERE") return null;
-    url = url.replace("dl=0", "dl=1");
-    if (!url.includes("dl=1")) {
-      url += (url.includes("?") ? "&" : "?") + "dl=1";
-    }
-    return CORS_PROXY + encodeURIComponent(url);
-  }
 
   function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);
@@ -438,64 +427,39 @@
     }).join("");
   }
 
-  async function fetchWithTimeout(url, ms) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
-    try {
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timer);
-      return res;
-    } catch(e) {
-      clearTimeout(timer);
-      throw e;
-    }
-  }
-
   async function loadNotices() {
     hideError();
     setStatus("", "Loading…");
 
-    const proxiedUrl = ensureDL1(CSV_URL);
-    if (!proxiedUrl) {
+    if (!CSV_URL || CSV_URL === "YOUR_GOOGLE_SHEETS_URL_HERE") {
       document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
         <strong>Not configured</strong>
-        Open noticeboard.html and replace YOUR_DROPBOX_LINK_HERE with your Dropbox CSV URL.
+        Open noticeboard.html and replace YOUR_GOOGLE_SHEETS_URL_HERE with your Google Sheets CSV URL.
       </td></tr>`;
       setStatus("error", "No spreadsheet link configured.");
       return;
     }
 
-    const attempts = [
-      proxiedUrl,
-      "https://api.allorigins.win/raw?url=" + encodeURIComponent(CSV_URL)
-    ];
-
-    let lastErr = null;
-    for (const url of attempts) {
-      try {
-        const res = await fetchWithTimeout(url, 8000);
-        if (!res.ok) throw new Error("Server returned " + res.status);
-        const text = await res.text();
-        const rows = parseCSV(text);
-        if (rows.length === 0) throw new Error("File appears empty or has no data rows.");
-        renderRows(rows);
-        const now = new Date();
-        document.getElementById("lastUpdated").textContent =
-          "Updated " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-        return;
-      } catch(e) {
-        lastErr = e;
-      }
+    try {
+      const res = await fetch(CSV_URL);
+      if (!res.ok) throw new Error("Server returned " + res.status);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if (rows.length === 0) throw new Error("File appears empty or has no data rows.");
+      renderRows(rows);
+      const now = new Date();
+      document.getElementById("lastUpdated").textContent =
+        "Updated " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    } catch(e) {
+      setStatus("error", "Could not load notices.");
+      showError(
+        "Failed to load the spreadsheet: " + e.message +
+        " — Make sure you used File → Share → Publish to web and selected CSV format."
+      );
+      document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>Could not load</strong>See the error above for details.
+      </td></tr>`;
     }
-
-    setStatus("error", "Could not load notices.");
-    showError(
-      "Failed to load the spreadsheet: " + (lastErr ? lastErr.message : "unknown error") +
-      " — Check the link is correct and the file is shared publicly in Dropbox."
-    );
-    document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
-      <strong>Could not load</strong>See the error above for details.
-    </td></tr>`;
   }
 
   loadNotices();
