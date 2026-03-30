@@ -438,12 +438,25 @@
     }).join("");
   }
 
+  async function fetchWithTimeout(url, ms) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch(e) {
+      clearTimeout(timer);
+      throw e;
+    }
+  }
+
   async function loadNotices() {
     hideError();
     setStatus("", "Loading…");
 
-    const url = ensureDL1(CSV_URL);
-    if (!url) {
+    const proxiedUrl = ensureDL1(CSV_URL);
+    if (!proxiedUrl) {
       document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
         <strong>Not configured</strong>
         Open noticeboard.html and replace YOUR_DROPBOX_LINK_HERE with your Dropbox CSV URL.
@@ -452,26 +465,37 @@
       return;
     }
 
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
-      const text = await res.text();
-      const rows = parseCSV(text);
-      if (rows.length === 0) throw new Error("File appears empty or has no data rows.");
-      renderRows(rows);
-      const now = new Date();
-      document.getElementById("lastUpdated").textContent =
-        "Updated " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-    } catch (e) {
-      setStatus("error", "Could not load notices.");
-      showError(
-        "Failed to load the spreadsheet: " + e.message +
-        " — Check the link is correct, the file is shared publicly in Dropbox, and the URL includes dl=1."
-      );
-      document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
-        <strong>Could not load</strong>See the error above for details.
-      </td></tr>`;
+    const attempts = [
+      proxiedUrl,
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(CSV_URL)
+    ];
+
+    let lastErr = null;
+    for (const url of attempts) {
+      try {
+        const res = await fetchWithTimeout(url, 8000);
+        if (!res.ok) throw new Error("Server returned " + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
+        if (rows.length === 0) throw new Error("File appears empty or has no data rows.");
+        renderRows(rows);
+        const now = new Date();
+        document.getElementById("lastUpdated").textContent =
+          "Updated " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+        return;
+      } catch(e) {
+        lastErr = e;
+      }
     }
+
+    setStatus("error", "Could not load notices.");
+    showError(
+      "Failed to load the spreadsheet: " + (lastErr ? lastErr.message : "unknown error") +
+      " — Check the link is correct and the file is shared publicly in Dropbox."
+    );
+    document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
+      <strong>Could not load</strong>See the error above for details.
+    </td></tr>`;
   }
 
   loadNotices();
