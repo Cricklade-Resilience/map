@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noticeboard</title>
+  <style>
+    /* ── Fonts ── */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap');
+
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F5F3EE;
+      --surface:     #FFFFFF;
+      --border:      #E0DDD6;
+      --text:        #1A1917;
+      --muted:       #7A776F;
+      --accent:      #2A5C45;
+      --accent-light:#E6F0EB;
+      --danger:      #8C3A2A;
+      --danger-light:#F5EAE7;
+      --warn:        #7A5C1E;
+      --warn-light:  #F5EFE0;
+      --radius:      10px;
+      --font:        'DM Sans', sans-serif;
+      --mono:        'DM Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Page shell ── */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .site-name {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .last-updated {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: var(--bg); border-color: #C8C5BE; }
+    .btn:active { transform: scale(0.98); }
+
+    /* ── Status bar ── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 22px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .dot.live { background: #3DAA6E; }
+    .dot.error { background: var(--danger); }
+
+    /* ── Error banner ── */
+    .error-banner {
+      display: none;
+      background: var(--danger-light);
+      border: 1px solid #D9B8B2;
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-size: 13px;
+      color: var(--danger);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    /* ── Table card ── */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      table-layout: fixed;
+    }
+
+    thead {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+      word-wrap: break-word;
+      line-height: 1.5;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #FAFAF8; }
+
+    /* Column widths */
+    .col-date  { width: 100px; }
+    .col-time  { width: 80px; }
+    .col-loc   { width: 16%; }
+    .col-issue { width: auto; }
+    .col-delay { width: 13%; }
+    .col-res   { width: 90px; text-align: center; }
+
+    th.col-res { text-align: center; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: var(--mono);
+      padding: 3px 9px;
+      border-radius: 99px;
+    }
+    .badge-no  { background: var(--danger-light); color: var(--danger); }
+    .badge-yes { background: var(--accent-light);  color: var(--accent); }
+
+    /* ── Date cell ── */
+    .date-cell {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .empty-state strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2rem;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      font-family: var(--mono);
+    }
+
+    /* ── Loading shimmer ── */
+    @keyframes shimmer {
+      0%   { opacity: 0.4; }
+      50%  { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+    .loading td { animation: shimmer 1.4s ease-in-out infinite; }
+    .shimmer-block {
+      display: inline-block;
+      height: 12px;
+      border-radius: 4px;
+      background: var(--border);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      h1 { font-size: 20px; }
+      td, th { padding: 10px 10px; }
+      .col-time { display: none; }
+      .col-delay { display: none; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <div>
+      <!-- Change "Your Site" to whatever your site is called -->
+      <div class="site-name">Your Site</div>
+      <h1>Noticeboard</h1>
+    </div>
+    <div class="header-right">
+      <span class="last-updated" id="lastUpdated"></span>
+      <button class="btn" onclick="loadNotices()">&#8635; Refresh</button>
+    </div>
+  </header>
+
+  <div class="status-bar">
+    <div class="dot" id="dot"></div>
+    <span id="statusText">Loading notices…</span>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-date">Date</th>
+          <th class="col-time">Time</th>
+          <th class="col-loc">Location</th>
+          <th class="col-issue">Issue</th>
+          <th class="col-delay">Est. Delay</th>
+          <th class="col-res">Resolved</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <!-- Loading placeholders -->
+        <tr class="loading">
+          <td><span class="shimmer-block" style="width:70px"></span></td>
+          <td><span class="shimmer-block" style="width:45px"></span></td>
+          <td><span class="shimmer-block" style="width:90px"></span></td>
+          <td><span class="shimmer-block" style="width:200px"></span></td>
+          <td><span class="shimmer-block" style="width:60px"></span></td>
+          <td><span class="shimmer-block" style="width:40px"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Notices are updated when the spreadsheet is saved. Resolved items are removed after 7 days.
+  </footer>
+
+</div>
+
+<script>
+  /* ============================================================
+     CONFIGURATION — paste your Dropbox CSV link below.
+     Make sure the URL ends with ?dl=1 (or &dl=1)
+     ============================================================ */
+  const CSV_URL = "YOUR_DROPBOX_LINK_HERE";
+  /* ============================================================ */
+
+  function ensureDL1(url) {
+    if (!url || url === "https://www.dropbox.com/scl/fi/vvf11e0y2w66ltgfi0mqv/Noticeboard.csv?rlkey=jt99w5dp6u929egkwkotwllk5&st=cjq6bndu&dl=0") return null;
+    url = url.replace("dl=0", "dl=1");
+    if (!url.includes("dl=1")) {
+      url += (url.includes("?") ? "&" : "?") + "dl=1";
+    }
+    return url;
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map(h => h.replace(/"/g, "").trim().toLowerCase());
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const vals = [];
+      let inQuote = false, cur = "";
+      for (let c = 0; c < line.length; c++) {
+        const ch = line[c];
+        if (ch === '"') { inQuote = !inQuote; }
+        else if (ch === "," && !inQuote) { vals.push(cur.trim()); cur = ""; }
+        else { cur += ch; }
+      }
+      vals.push(cur.trim());
+      const obj = {};
+      headers.forEach((h, idx) => { obj[h] = (vals[idx] || "").replace(/^"|"$/g, "").trim(); });
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  function getField(row, ...keys) {
+    for (const k of Object.keys(row)) {
+      for (const match of keys) {
+        if (k.includes(match)) return row[k];
+      }
+    }
+    return "";
+  }
+
+  function isResolved(row) {
+    const v = (getField(row, "resolv") || "").toLowerCase();
+    return v === "yes" || v === "y" || v === "true" || v === "1";
+  }
+
+  function rowDate(row) {
+    const v = getField(row, "date");
+    if (!v) return null;
+    const d = new Date(v);
+    return isNaN(d) ? null : d;
+  }
+
+  function shouldShow(row) {
+    if (!isResolved(row)) return true;
+    const d = rowDate(row);
+    if (!d) return false;
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return d > weekAgo;
+  }
+
+  function formatDate(str) {
+    if (!str) return "—";
+    const d = new Date(str);
+    if (isNaN(d)) return str;
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" });
+  }
+
+  function setStatus(state, msg) {
+    const dot = document.getElementById("dot");
+    const txt = document.getElementById("statusText");
+    dot.className = "dot" + (state === "live" ? " live" : state === "error" ? " error" : "");
+    txt.textContent = msg;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("errorBanner");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  function hideError() {
+    document.getElementById("errorBanner").style.display = "none";
+  }
+
+  function renderRows(rows) {
+    const visible = rows.filter(shouldShow);
+    const tbody = document.getElementById("tbody");
+
+    if (visible.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>All clear</strong>
+        No active notices at this time.
+      </td></tr>`;
+      setStatus("live", "No active notices.");
+      return;
+    }
+
+    setStatus("live", `${visible.length} active notice${visible.length !== 1 ? "s" : ""} — resolved items hidden after 7 days`);
+
+    tbody.innerHTML = visible.map(row => {
+      const resolved = isResolved(row);
+      const badge = resolved
+        ? '<span class="badge badge-yes">Yes</span>'
+        : '<span class="badge badge-no">No</span>';
+      const dateStr = formatDate(getField(row, "date"));
+      return `<tr>
+        <td class="date-cell">${dateStr}</td>
+        <td class="date-cell">${getField(row, "time") || "—"}</td>
+        <td>${getField(row, "location", "loc") || "—"}</td>
+        <td>${getField(row, "issue", "description", "desc") || "—"}</td>
+        <td>${getField(row, "delay", "expected") || "—"}</td>
+        <td style="text-align:center">${badge}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function loadNotices() {
+    hideError();
+    setStatus("", "Loading…");
+
+    const url = ensureDL1(CSV_URL);
+    if (!url) {
+      document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>Not configured</strong>
+        Open noticeboard.html and replace YOUR_DROPBOX_LINK_HERE with your Dropbox CSV URL.
+      </td></tr>`;
+      setStatus("error", "No spreadsheet link configured.");
+      return;
+    }
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if (rows.length === 0) throw new Error("File appears empty or has no data rows.");
+      renderRows(rows);
+      const now = new Date();
+      document.getElementById("lastUpdated").textContent =
+        "Updated " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    } catch (e) {
+      setStatus("error", "Could not load notices.");
+      showError(
+        "Failed to load the spreadsheet: " + e.message +
+        " — Check the link is correct, the file is shared publicly in Dropbox, and the URL includes dl=1."
+      );
+      document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>Could not load</strong>See the error above for details.
+      </td></tr>`;
+    }
+  }
+
+  loadNotices();
+</script>
+</body>
+</html>
