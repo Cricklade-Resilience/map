@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricklade Resilience - Noticeboard</title>
+  <link rel="icon" type="image/png" href="Images/favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="noticeboard-page">
+
+<nav class="navbar">
+  <div class="brand">
+    <img src="Images/CrickladeLogo.png" alt="Logo" />
+    CRICKLADE RESILIENCE
+  </div>
+  <div class="navbar-toggle" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+  <ul id="navbar-links">
+    <li><a href="index.html">Map</a></li>
+    <li><a href="monitor.html">Monitor</a></li>
+    <li><a href="noticeboard.html" class="active">Noticeboard</a></li>
+    <li><a href="info.html">Info</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <header>
+    <div>
+      <div class="site-name">Cricklade Resilience</div>
+      <h1>Noticeboard</h1>
+    </div>
+    <div class="header-right">
+      <span class="last-updated" id="lastUpdated"></span>
+      <button class="btn" onclick="loadNotices()">&#8635; Refresh</button>
+    </div>
+  </header>
+
+  <div class="status-bar">
+    <div class="dot" id="dot"></div>
+    <span id="statusText">Loading notices…</span>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-date">Date</th>
+          <th class="col-time">Time</th>
+          <th class="col-loc">Location</th>
+          <th class="col-issue">Issue</th>
+          <th class="col-delay">Est. Delay</th>
+          <th class="col-res">Resolved</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <!-- Loading placeholders -->
+        <tr class="loading">
+          <td><span class="shimmer-block" style="width:70px"></span></td>
+          <td><span class="shimmer-block" style="width:45px"></span></td>
+          <td><span class="shimmer-block" style="width:90px"></span></td>
+          <td><span class="shimmer-block" style="width:200px"></span></td>
+          <td><span class="shimmer-block" style="width:60px"></span></td>
+          <td><span class="shimmer-block" style="width:40px"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Notices are updated when the spreadsheet is saved. Resolved items are removed after 7 days.
+  </footer>
+
+</div>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('navbar-links').classList.toggle('show');
+  }
+
+  /* ============================================================
+     CONFIGURATION — paste your Dropbox CSV link below.
+     Make sure the URL ends with ?dl=1 (or &dl=1)
+     ============================================================ */
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTj7EyY4guOwCP2-Muvonwtj3JjtWmEyV3JNw_nDmB64hs13bLxwAObA3J8kucxu-Q-mY1FTATpsLj/pub?gid=0&single=true&output=csv";
+  /* ============================================================ */
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map(h => h.replace(/"/g, "").trim().toLowerCase());
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const vals = [];
+      let inQuote = false, cur = "";
+      for (let c = 0; c < line.length; c++) {
+        const ch = line[c];
+        if (ch === '"') { inQuote = !inQuote; }
+        else if (ch === "," && !inQuote) { vals.push(cur.trim()); cur = ""; }
+        else { cur += ch; }
+      }
+      vals.push(cur.trim());
+      const obj = {};
+      headers.forEach((h, idx) => { obj[h] = (vals[idx] || "").replace(/^"|"$/g, "").trim(); });
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  function getField(row, ...keys) {
+    for (const k of Object.keys(row)) {
+      for (const match of keys) {
+        if (k.includes(match)) return row[k];
+      }
+    }
+    return "";
+  }
+
+  function isResolved(row) {
+    const v = (getField(row, "resolv") || "").toLowerCase();
+    return v === "yes" || v === "y" || v === "true" || v === "1";
+  }
+
+  function parseDate(str) {
+    if (!str) return null;
+    const ukMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (ukMatch) {
+      const d = new Date(ukMatch[3] + "-" + ukMatch[2].padStart(2,"0") + "-" + ukMatch[1].padStart(2,"0"));
+      if (!isNaN(d)) return d;
+    }
+    const d = new Date(str);
+    return isNaN(d) ? null : d;
+  }
+
+  function rowDate(row) {
+    return parseDate(getField(row, "date"));
+  }
+
+  function shouldShow(row) {
+    if (!isResolved(row)) return true;
+    const d = rowDate(row);
+    if (!d) return true;
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return d > weekAgo;
+  }
+
+  function formatDate(str) {
+    if (!str) return "—";
+    const d = new Date(str);
+    if (isNaN(d)) return str;
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" });
+  }
+
+  function setStatus(state, msg) {
+    const dot = document.getElementById("dot");
+    const txt = document.getElementById("statusText");
+    dot.className = "dot" + (state === "live" ? " live" : state === "error" ? " error" : "");
+    txt.textContent = msg;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("errorBanner");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  function hideError() {
+    document.getElementById("errorBanner").style.display = "none";
+  }
+
+  function renderRows(rows) {
+    const visible = rows.filter(shouldShow);
+    const tbody = document.getElementById("tbody");
+
+    if (visible.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>All clear</strong>
+        No active notices at this time.
+      </td></tr>`;
+      setStatus("live", "No active notices.");
+      return;
+    }
+
+    setStatus("live", `${visible.length} active notice${visible.length !== 1 ? "s" : ""} — resolved items hidden after 7 days`);
+
+    tbody.innerHTML = visible.map(row => {
+      const resolved = isResolved(row);
+      const badge = resolved
+        ? '<span class="badge badge-yes">Yes</span>'
+        : '<span class="badge badge-no">No</span>';
+      const dateStr = formatDate(getField(row, "date"));
+      return `<tr>
+        <td class="date-cell">${dateStr}</td>
+        <td class="date-cell">${getField(row, "time") || "—"}</td>
+        <td>${getField(row, "location", "loc") || "—"}</td>
+        <td>${getField(row, "issue", "description", "desc") || "—"}</td>
+        <td>${getField(row, "delay", "expected") || "—"}</td>
+        <td style="text-align:center">${badge}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function loadNotices() {
+    hideError();
+    setStatus("", "Loading…");
+
+    if (!CSV_URL || CSV_URL === "YOUR_GOOGLE_SHEETS_URL_HERE") {
+      document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>Not configured</strong>
+        Open noticeboard.html and replace YOUR_GOOGLE_SHEETS_URL_HERE with your Google Sheets CSV URL.
+      </td></tr>`;
+      setStatus("error", "No spreadsheet link configured.");
+      return;
+    }
+
+    try {
+      const res = await fetch(CSV_URL);
+      if (!res.ok) throw new Error("Server returned " + res.status);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if (rows.length === 0) throw new Error("File appears empty or has no data rows.");
+      renderRows(rows);
+      const now = new Date();
+      document.getElementById("lastUpdated").textContent =
+        "Updated " + now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    } catch(e) {
+      setStatus("error", "Could not load notices.");
+      showError(
+        "Failed to load the spreadsheet: " + e.message +
+        " — Make sure you used File → Share → Publish to web and selected CSV format."
+      );
+      document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty-state">
+        <strong>Could not load</strong>See the error above for details.
+      </td></tr>`;
+    }
+  }
+
+  loadNotices();
+</script>
+</body>
+</html>
