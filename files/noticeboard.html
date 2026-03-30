@@ -315,7 +315,7 @@
      CONFIGURATION — paste your Dropbox CSV link below.
      Make sure the URL ends with ?dl=1 (or &dl=1)
      ============================================================ */
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/1_53P5x8TYljNghlDBVkOiZZlKyTaFqXradvtBrV4Sg4/edit?usp=drive_link";
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTj7EyY4guOwCP2-Muvonwtj3JjtWmEyV3JNw_nDmB64hs13bLxwAObA3J8kucxu-Q-mY1FTATpsLj/pub?gid=0&single=true&output=csv";
   /* ============================================================ */
 
   function parseCSV(text) {
@@ -356,17 +356,25 @@
     return v === "yes" || v === "y" || v === "true" || v === "1";
   }
 
-  function rowDate(row) {
-    const v = getField(row, "date");
-    if (!v) return null;
-    const d = new Date(v);
+  function parseDate(str) {
+    if (!str) return null;
+    const ukMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (ukMatch) {
+      const d = new Date(ukMatch[3] + "-" + ukMatch[2].padStart(2,"0") + "-" + ukMatch[1].padStart(2,"0"));
+      if (!isNaN(d)) return d;
+    }
+    const d = new Date(str);
     return isNaN(d) ? null : d;
+  }
+
+  function rowDate(row) {
+    return parseDate(getField(row, "date"));
   }
 
   function shouldShow(row) {
     if (!isResolved(row)) return true;
     const d = rowDate(row);
-    if (!d) return false;
+    if (!d) return true;
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     return d > weekAgo;
   }
