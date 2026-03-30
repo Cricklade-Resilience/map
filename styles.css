@@ -260,6 +260,7 @@ hr {
   font-size: 24px;
   color: blue;
   text-shadow: 0 0 2px white;
+}
 
 /* ======================
    Popup Content
@@ -436,7 +437,7 @@ hr {
 }
 
 .noticeboard-page .notice-table th {
-  padding: 10px 16px;
+  padding: 12px 24px;
   text-align: left;
   font-size: 11px;
   font-weight: 500;
@@ -448,7 +449,7 @@ hr {
 }
 
 .noticeboard-page .notice-table td {
-  padding: 13px 16px;
+  padding: 14px 24px;
   border-right: 1px solid #8f8a80;
   border-bottom: 1px solid #8f8a80;
   color: #1a1917;
@@ -467,12 +468,12 @@ hr {
 .noticeboard-page .notice-table tbody tr:hover td { background: #f4f3ef; }
 .noticeboard-page .notice-table tbody tr:nth-child(even) td { background: #fbfaf7; }
 
-.noticeboard-page .col-date { width: 100px; }
-.noticeboard-page .col-time { width: 80px; }
-.noticeboard-page .col-loc { width: 16%; }
+.noticeboard-page .col-date { width: 130px; }
+.noticeboard-page .col-time { width: 110px; }
+.noticeboard-page .col-loc { width: 220px; }
 .noticeboard-page .col-issue { width: auto; }
-.noticeboard-page .col-delay { width: 13%; }
-.noticeboard-page .col-res { width: 90px; text-align: center; }
+.noticeboard-page .col-delay { width: 170px; }
+.noticeboard-page .col-res { width: 110px; text-align: center; }
 
 .noticeboard-page .badge {
   display: inline-block;
