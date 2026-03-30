@@ -315,16 +315,18 @@
      CONFIGURATION — paste your Dropbox CSV link below.
      Make sure the URL ends with ?dl=1 (or &dl=1)
      ============================================================ */
-  const CSV_URL = "YOUR_DROPBOX_LINK_HERE";
+  const CSV_URL = "https://www.dropbox.com/scl/fi/vvf11e0y2w66ltgfi0mqv/Noticeboard.csv?rlkey=jt99w5dp6u929egkwkotwllk5&st=cjq6bndu&dl=1"";
   /* ============================================================ */
 
+  const CORS_PROXY = "https://corsproxy.io/?url=";
+
   function ensureDL1(url) {
-    if (!url || url === "https://www.dropbox.com/scl/fi/vvf11e0y2w66ltgfi0mqv/Noticeboard.csv?rlkey=jt99w5dp6u929egkwkotwllk5&st=cjq6bndu&dl=1") return null;
+    if (!url || url === "YOUR_DROPBOX_LINK_HERE") return null;
     url = url.replace("dl=0", "dl=1");
     if (!url.includes("dl=1")) {
       url += (url.includes("?") ? "&" : "?") + "dl=1";
     }
-    return url;
+    return CORS_PROXY + encodeURIComponent(url);
   }
 
   function parseCSV(text) {
