@@ -419,12 +419,15 @@ hr {
   overflow-x: auto;
 }
 
-.noticeboard-page table {
+.noticeboard-page .notice-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 14px;
   table-layout: auto;
   min-width: 760px;
+  border-top: 1px solid #8f8a80;
+  border-left: 1px solid #8f8a80;
 }
 
 .noticeboard-page thead {
@@ -432,36 +435,37 @@ hr {
   border-bottom: 1px solid #c7c2b8;
 }
 
-.noticeboard-page th {
+.noticeboard-page .notice-table th {
   padding: 10px 16px;
   text-align: left;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #7a776f;
-  border-right: 1px solid #c7c2b8;
-  border-bottom: 1px solid #c7c2b8;
+  color: #5f5b54;
+  border-right: 1px solid #8f8a80;
+  border-bottom: 1px solid #8f8a80;
 }
 
-.noticeboard-page td {
+.noticeboard-page .notice-table td {
   padding: 13px 16px;
-  border-bottom: 1px solid #c7c2b8;
-  border-right: 1px solid #c7c2b8;
+  border-right: 1px solid #8f8a80;
+  border-bottom: 1px solid #8f8a80;
   color: #1a1917;
   vertical-align: top;
   word-wrap: break-word;
   line-height: 1.5;
+  background: #fff;
 }
 
-.noticeboard-page th:last-child,
-.noticeboard-page td:last-child {
+.noticeboard-page .notice-table th:last-child,
+.noticeboard-page .notice-table td:last-child {
   border-right: none;
 }
 
-.noticeboard-page tr:last-child td { border-bottom: none; }
-.noticeboard-page tbody tr:hover td { background: #fafaf8; }
-.noticeboard-page tbody tr:nth-child(even) td { background: #fcfcfb; }
+.noticeboard-page .notice-table tbody tr:last-child td { border-bottom: none; }
+.noticeboard-page .notice-table tbody tr:hover td { background: #f4f3ef; }
+.noticeboard-page .notice-table tbody tr:nth-child(even) td { background: #fbfaf7; }
 
 .noticeboard-page .col-date { width: 100px; }
 .noticeboard-page .col-time { width: 80px; }
