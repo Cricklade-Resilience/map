@@ -173,6 +173,23 @@
     document.getElementById("errorBanner").style.display = "none";
   }
 
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function linkifyText(text) {
+    const safeText = escapeHtml(text || "");
+    const urlRegex = /(https?:\/\/[^\s<]+)/gi;
+    return safeText.replace(urlRegex, function(url) {
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + "</a>";
+    });
+  }
+
   function renderRows(rows) {
     const visible = rows.filter(shouldShow);
     const tbody = document.getElementById("tbody");
@@ -194,12 +211,16 @@
         ? '<span class="badge badge-yes">Yes</span>'
         : '<span class="badge badge-no">No</span>';
       const dateStr = formatDate(getField(row, "date"));
+      const timeText = escapeHtml(getField(row, "time") || "—");
+      const locationText = linkifyText(getField(row, "location", "loc") || "—");
+      const issueText = linkifyText(getField(row, "issue", "description", "desc") || "—");
+      const delayText = linkifyText(getField(row, "delay", "expected") || "—");
       return `<tr>
         <td class="date-cell">${dateStr}</td>
-        <td class="date-cell">${getField(row, "time") || "—"}</td>
-        <td>${getField(row, "location", "loc") || "—"}</td>
-        <td>${getField(row, "issue", "description", "desc") || "—"}</td>
-        <td>${getField(row, "delay", "expected") || "—"}</td>
+        <td class="date-cell">${timeText}</td>
+        <td>${locationText}</td>
+        <td>${issueText}</td>
+        <td>${delayText}</td>
         <td style="text-align:center">${badge}</td>
       </tr>`;
     }).join("");
