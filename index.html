@@ -97,13 +97,13 @@ fetch('Data/Admin_ParishBoundary.geojson')
   });
 
 
-const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_3sm2_1_c665099965a168c8114a922a', {
   attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
 }).addTo(map);
 
 const esriGreyscale = L.tileLayer('https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
   attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS user community',
-  maxZoom: 16
+  maxZoom: 19
 });
 
 const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
